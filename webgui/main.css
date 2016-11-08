@@ -1,0 +1,204 @@
+/**
+ * Copyright (c) 2012 MIT License by 6.172 Staff
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ **/
+
+#global {
+  width: 750px;
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#global h1 {
+  text-align: center;
+  margin-bottom: 0px;
+}
+
+#global #rules {
+  padding-top: 0px;
+  text-align: center;
+  font-size: 1.25em;
+  line-height: 2.5em;
+}
+
+textarea#info {
+  margin-top: 0.75em;
+  width: 750px;
+  height: 200px;
+}
+
+#control {
+	float: right;
+	width: 200px;
+	margin: 5px;
+}
+
+#control input {
+	width:100%;
+	background-color: #E0E0E0;
+}
+
+#control input.box {
+	width:60%;
+	background-color: #FFFFFF;
+	font-family: Monaco, "Andale Mono", "Lucida Console", "Courier New", Courier, monospace;
+}
+
+#control input.box:disabled {
+	background-color: #DDDDDD;
+}
+
+#control input.highlight {
+  background-color: #DDDD33;
+}
+
+#control input.action-button {
+  font-size: 8pt;
+  width:30%
+}
+
+#control input.hist-button {
+  font-size: 8pt;
+  width:22%
+}
+
+#control input.action-button:disabled,input.hist-button:disabled {
+  opacity: 0.3;
+}
+
+#board-parent {
+	width:500px;
+	height:500px; 
+	border-style:solid; 
+	border-width:2px;
+	z-index:-1;
+}
+
+#board-wrapper {
+	width:530px;
+	height:530px;
+	padding-bottom: 50px;
+	padding-left: 20px;
+	font-size: 150%;
+}
+
+#board-history {
+  background-color: #FFFEEE;
+	width: 180px;
+	height: 280px;
+	padding: 10px;
+	border-style:solid; 
+	border-width: 1px;
+	overflow: auto;
+	font-family: Monaco, "Andale Mono", "Lucida Console", "Courier New", Courier, monospace;
+}
+
+#move-no {
+    width: 55px;
+    float: left;
+    text-align: right;
+}
+
+#black-move {
+    width: 50px;
+    float: left;
+    color: #CD6721;
+}
+
+#white-move {
+    width: 50px;
+    float: left;
+    color: #9C3AF5;
+}
+
+#warning-text {
+  font-weight: bolder;
+  color: #ff0000;
+}
+
+div#move-no .historyInactive {
+    color: #DDDDDD;
+}
+
+div#black-move .historyInactive {
+    color: #F2D0B8;
+}
+
+div#white-move .historyInactive {
+    color: #E1CBF5;
+}
+
+#whitetime {
+  color: #CD6721;
+  font-weight: bold;
+  font-size: 200%;
+}
+
+#blacktime {
+  color: #9C3AF5;
+  float: right;
+  font-weight: bold;
+  font-size: 200%;
+}
+
+.piece {
+  z-index:10;
+  position:absolute;
+}
+
+.board-label {
+  font-family:"Lucida Console";
+  position:absolute;
+}
+
+.fen-rep-block {
+  margin: 5px 0;
+}
+
+.fen-rep-label {
+  width: 100px;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 11pt;
+  vertical-align: top;
+}
+
+.fen-rep {
+  width: 640px;
+  display: inline-block;
+  background-color: #DDEECC;
+  word-wrap: break-word;
+  font-family: Monaco, "Andale Mono", "Lucida Console", "Courier New", Courier, monospace;
+}
+
+.fen-rep-field {
+  width: 470px;
+}
+
+.standard-move-text {
+  font-weight: normal;
+  color: #000000; 
+}
+
+.warning-move-text {
+  font-weight: bolder;
+  color: #ff0000;
+}

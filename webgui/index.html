@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script type="text/javascript" src="jquery-1.8.2.min.js"></script>
+  <script src="jquery-ui-1.8.21.min.js"></script>
+  <script src="jquery.ui.touch-punch.min.js"></script>
+  <script type="text/javascript" src="jquery.transit.js" charset="utf-8"></script>
+  <script type="text/javascript" src="gui.js"></script>
+  <script type="text/javascript" src="board.js"></script>
+  <title>Leiserchess</title>
+</head>
+<body>
+  <div id="global">
+    <h1>Leiserchess 2016</h1>
+    <div id="rules"><a href="rules.pdf">Rules</a></div>
+    <div id="control">
+      <div id="blacktime">2:00</div>
+      <div id="whitetime">2:00</div>
+      <div id="board-history">
+	<div id="move-no"></div>
+	<div id="black-move"></div>
+	<div id="white-move"></div>
+      </div>
+      <hr>
+      <fieldset>
+        <legend id="move-text" class="standard-move-text">Move</legend>
+        <input id="move" type="text" class="box" disabled="disabled">
+        <input id="move-button" type="button" class="action-button" value="Move" disabled="disabled">
+        <input id="laser-button" type="button" class="action-button" value="Fire!" disabled="disabled">
+        <input id="cancel-button" type="button" class="action-button" value="Cancel" disabled="disabled">
+        <input id="undo-button" type="button" class="action-button unusable" value="Undo" disabled="disabled">
+      </fieldset>
+      <fieldset>
+        <legend>Clock</legend>
+        <input id="clock-start-button" type="button" class="action-button" value="Start">
+        <input id="clock-stop-button" type="button" class="action-button" value="Stop" disabled="disabled">
+        <input id="clock-reset-button" type="button" class="action-button" value="Reset">
+      </fieldset>
+      <fieldset>
+        <legend>History</legend>
+        <input id="hist-first-button" type="button" class="hist-button" value="&lt;&lt;">
+        <input id="hist-prev-button" type="button" class="hist-button" value="&lt;">
+        <input id="hist-next-button" type="button" class="hist-button" value="&gt;">
+        <input id="hist-last-button" type="button" class="hist-button" value="&gt;&gt;">
+      </fieldset>
+    </div>
+    <div id="board-wrapper">
+      <div id="board-parent">
+        <canvas id="cboard" width="500" height="500" style="z-index:-1"></canvas>
+      </div>
+    </div>
+    
+    <!--<a href="#" onclick="$('#edit-rep').show();">Edit Board Representation</a>-->
+    <div id="warning"><span id="warning-text"></span></div>
+    <div id="edit-rep">
+      <!--<a href="#" onclick="$('#edit-rep').hide();">Hide</a> <br>-->
+      <!--<input id="revert-text" type="text">
+      <input id="revert-button" type="button" value="Revert to Turn"> <br>-->
+      <div id="game-type-block" class="fen-rep-block">
+        <div id="game-type-label" class="fen-rep-label">Players: </div>
+          <span class="whitelabel">Player 1</span>
+          <select id="bot-name1" name="bot-name1">
+            <option value="human">human</option>
+            <option value="leiserchess">computer</option>
+          </select>
+          <span class="blacklabel">Player 2</span>
+          <select id="bot-name2" name="bot-name2">
+            <option value="human">human</option>
+            <option value="leiserchess">computer</option>
+          </select>
+      </div>
+      <div id="fen-rep-hist-block" class="fen-rep-block">
+        <div id="fen-rep-hist-label" class="fen-rep-label">History: </div>
+        <div id="fen-rep-hist" class="fen-rep"></div>
+      </div>
+      <div id="fen-rep-nohist-block" class="fen-rep-block">
+        <div id="fen-rep-nohist-label" class="fen-rep-label">State: </div>
+        <div id="fen-rep-nohist" class="fen-rep"></div>
+      </div>
+      <div id="fen-rep-input-block" class="fen-rep-block">
+        <div id="fen-rep-input-label" class="fen-rep-label">Enter State: </div>
+        <input id="fen-text" type="text" class="fen-rep fen-rep-field">
+        <input id="fen-button" type="button" value="Set Board">
+      </div>
+      <textarea id="info"></textarea>
+      <!--<input id="fen-restore" type="button" value="Restore"> <br>
+      <textarea id="new-board-rep" rows="20" cols="20"></textarea> <br>
+      <textarea id="new-board-history" rows="20" cols="20"></textarea> <br>
+      <input id="set-board-button" type="button" value="Set Board Representation">-->
+    </div>
+  </div>
+</body>
+</html>

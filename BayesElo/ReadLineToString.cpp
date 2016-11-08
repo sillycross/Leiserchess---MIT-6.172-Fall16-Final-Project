@@ -1,0 +1,32 @@
+// Copyright (c) 2015 MIT License by 6.172 Staff
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// ReadLineToString.cpp
+//
+// Rémi Coulom
+//
+// April, 2006
+//
+/////////////////////////////////////////////////////////////////////////////
+#include "./ReadLineToString.h"
+
+#include <iostream>  // NOLINT(readability/streams)
+#include <string>
+
+/////////////////////////////////////////////////////////////////////////////
+// Read a line to a string
+/////////////////////////////////////////////////////////////////////////////
+void ReadLineToString(std::string *s, std::istream *in) {
+  s->clear();
+  while (1) {
+    char c;
+    if (in->get(c)) {
+      if (c == '\n')
+        break;
+      *s += c;
+    } else {
+      break;
+    }
+  }
+}

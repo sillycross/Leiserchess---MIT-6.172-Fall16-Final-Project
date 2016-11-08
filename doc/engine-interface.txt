@@ -1,0 +1,513 @@
+This document is based on the Universal Chess Interface (UCI) document
+of April 2006 which was designed by Stefan Meyer-Kahlen, the author of
+the Shredder chess program.
+
+In October 2011 it was adapted to Khet 2 by Ruben Perez and Don
+Dailey.  In October 2012 it was adapted to Leiserchess.
+
+===================================================================
+Description of the Universal Chess Interface (UCI) for Leiserchess 
+===================================================================
+
+* The specification is independent of the operating system.  For
+  Windows, the engine is a normal exe file, either a console or "real"
+  windows application.
+
+* All communication is done via standard input and output with text
+  commands.
+
+* The engine should boot and wait for input from the GUI.  The engine
+  should wait for the "isready" or "setoption" command to set up its
+  internal parameters as the boot process should be as quick as
+  possible.
+
+* The engine must always be able to process input from stdin, even
+  while thinking.
+
+* All command strings the engine receives will end with '\n', also all
+  commands the GUI receives should end with '\n'.  Note: '\n' can be
+  0x0d or 0x0a0d or any combination depending on your OS.  If you use
+  Engine and GUI in the same OS this should be no problem if you
+  communicate in text mode, but be aware of this when for example
+  running a Linux engine in a Windows GUI.
+
+* Arbitrary white space between tokens is allowed.
+
+* The engine will always be in forced mode, which means it should
+  never start calculating or pondering without receiving a "go"
+  command first.
+
+* Before the engine is asked to search on a position, there will
+  always be a position command to tell the engine about the current
+  position.
+
+* By default all the opening book handling is done by the GUI.  The
+  "OwnBook" option (see below) allows the engine to use its own book.
+
+* If the engine or the GUI receives an unknown command or token, then
+  it should just ignore it and try to parse the rest of the string in
+  this line.  Examples: "joho debug on\n" should switch the debug mode
+  on given that joho is not defined, "debug joho on\n" will be
+  undefined however.
+
+* If the engine receives a command which is not supposed to come, for
+  example "stop," when the engine is not calculating, it should also
+  just ignore it.
+  
+
+Move format:
+------------
+
+The move format is in lower-case algebraic notation, 'from' square
+followed by 'to' square.  If the move is a rotation, it is just the
+square followed by upper case L for Left, R for Right, and U for
+180-degree U-turn.  Right rotation is clockwise.  A "null" move is
+specified by moving the King to the same square.
+
+Examples:  d3e4 e5f5 f5L c3R
+
+The squares for Leiserchess are labeled much as in chess, where the
+a-j are used to specify the files (from left to right) and (0-9) are
+used to specify ranks starting from the White (first player) side of
+the board.
+
+
+GUI to engine:
+--------------
+
+These are all the command the engine gets from the interface.
+
+* uci
+
+        Tell the engine to use the UCI (Universal Chess Interface).
+	This will be sent once as a first command after program boot
+	to tell the engine to switch to UCI mode.  After receiving the
+	uci command, the engine must identify itself with the "id"
+	command and send the "option" commands to tell the GUI which
+	engine settings the engine supports if any.  After that the
+	engine should send "uciok" to acknowledge the UCI mode.  If no
+	uciok is sent within a certain time period, the engine task
+	will be killed by the GUI.
+
+* isready
+
+	This command is used to synchronize the engine with the GUI.
+	When the GUI has sent a command or multiple commands that can
+	take some time to complete, this command can be used to wait
+	for the engine to be ready again or to ping the engine to find
+	out if it is still alive.  This command is also required once
+	before the engine is asked to do any search to wait for the
+	engine to finish initializing.  This command must always be
+	answered with "readyok" and can be sent also when the engine
+	is calculating, in which case the engine should also
+	immediately answer with "readyok" without stopping the search.
+
+* setoption name <id> [value <x>]
+
+	This command is sent to the engine when the user wants to
+	change the internal parameters of the engine.  For the
+	"button" type, no value is needed.  One string will be sent
+	for each parameter, and it will only be sent when the engine
+	is waiting.  The name and value of the option in <id> should
+	not be case sensitive and can include spaces.  The substrings
+	"value" and "name" should be avoided in <id> and <x> to allow
+	unambiguous parsing.  For example, do not use <name> = "draw
+	value".
+
+	Here are some examples:
+           "setoption name hattack value 200\n"
+	   "setoption name draw value 0"
+	   "setoption name hashmeg value 64"
+
+* ucinewgame
+
+       This is sent to the engine when the next search (started with
+       "position" and "go") will be from a different game.  This can
+       be a new game the engine should play or a new game it should
+       analyse but also the next position from a test suite with
+       positions only.  If the GUI hasn't sent a "ucinewgame" before
+       the first "position" command, the engine shouldn't expect any
+       further ucinewgame commands as the GUI is probably not
+       supporting the ucinewgame command.  So the engine should not
+       rely on this command even though all new GUIs should support
+       it.  As the engine's reaction to "ucinewgame" can take some
+       time the GUI should always send "isready" after "ucinewgame" to
+       wait for the engine to finish its operation.
+   
+* position [fen <fenstring> | classic ]  moves <move1> .... <movei>
+
+  NOTE: fen is described later in this documentation.
+
+       Set up the position described in fenstring on the internal
+       board and play the moves on the internal chess board.  If the
+       game was played from the start position the string "startpos"
+       will be sent.  Note: no "new" command is needed.  However, if
+       this position is from a different game than the last position
+       sent to the engine, the GUI should have sent a "ucinewgame" in
+       between.
+
+* move <move> 
+
+  Make a move.  Syntax: <from_square><to_square> or
+       <square><rotation>, where squares are denoted by a letter for
+       file between 'a' and 'j' and rank by a digit between '0' and
+       '9', and rotations are 'L' for left (counter-clockwise), 'R'
+       for right (clockwise), and 'U' for 180-degree (U-turn).  A
+       null move is specified by moving the King to its own square.
+
+* go
+
+       Start calculating on the current position set up with the
+       "position" command.  There are a number of commands that can
+       follow this command, all will be sent in the same string.  If
+       one command is not sent its value should be interpreted as it
+       would not influence the search.
+
+	* ponder
+		Start searching in pondering mode.  Do not exit the
+		search in ponder mode, even if it's mate!  This means
+		that the last move sent in in the position string is
+		the ponder move.  The engine can do what it wants to
+		do, but after a "ponderhit" command it should execute
+		the suggested move to ponder on. This means that the
+		ponder move sent by the GUI can be interpreted as a
+		recommendation about which move to ponder. However, if
+		the engine decides to ponder on a different move, it
+		should not display any mainlines as they are likely to
+		be misinterpreted by the GUI because the GUI expects
+		the engine to ponder on the suggested move.
+
+	* time <x>
+		Current player has x milliseconds left on the clock
+
+	* inc <x>
+		Current player increment per move in milliseconds if x > 0.
+
+	* depth <x>
+		Search x plies only.
+
+	* nodes <x>
+	        Search x nodes only,
+
+* perft [<N>]
+
+       Compute the number of positions per ply up to ply <N> (default
+       value = 4).  Used for debugging the move generator.
+
+* display
+
+       Output an ASCII graphic of the board position.  Used
+       interactively.
+
+* eval [<move>]
+
+       Output the components of the static evaluator on the position
+       (default) or on the position after <move> has been played.
+       Used for debugging.
+    
+* stop
+
+       Stop calculating as soon as possible, don't forget the
+       "bestmove" and possibly the "ponder" token when finishing the
+       search
+
+* quit
+
+	Quit the program as soon as possible.
+
+
+Engine to GUI:
+--------------
+* id
+	* name <x>
+		This must be sent after receiving the "uci" command to
+		identify the engine, e.g. "id name Leiserchess 1038\n"
+
+	* author <x>
+		This must be sent after receiving the "uci" command to
+		identify the engine, e.g. "Don Dailey, Charles
+		E. Leiserson, and the staff of MIT 6.172 Fall
+		2012-2013"
+
+* uciok
+
+	Must be sent after the id and optional options to tell the GUI
+	that the engine has sent all infos and is ready in uci mode.
+
+* readyok
+
+	This must be sent when the engine has received an "isready"
+	command and has processed all input and is ready to accept new
+	commands now.  It is usually sent after a command that can
+	take some time to be able to wait for the engine, but it can
+	be used anytime, even when the engine is searching, and must
+	always be answered with "isready".
+
+* bestmove <move1> [ ponder <move2> ]
+
+	The engine has stopped searching and found the move <move>
+	best in this position.  The engine can send the move it likes
+	to ponder on.  The engine must not start pondering
+	automatically.  This command must always be sent if the engine
+	stops searching, also in pondering mode if there is a "stop"
+	command, so for every "go" command a "bestmove" command is
+	needed!  Directly before that the engine should send a final
+	"info" command with the final search information, the the GUI
+	has the complete statistics about the last search.
+
+* info
+
+	The engine wants to send information to the GUI.  This should
+        be done whenever one of the info has changed.  The engine can
+        send only selected infos or multiple infos with one info
+        command,
+
+	e.g. "info currmove e2e4 currmovenumber 1" or
+	     "info depth 12 nodes 123456 nps 100000".
+	Also all infos belonging to the pv should be sent together,
+	e.g. "info depth 2 score cp 214 time 1242 nodes 2124 nps 34928 pv e4R j4f5 b3L"
+
+	I suggest to start sending "currmove", "currmovenumber",
+        "currline" and "refutation" only after one second to avoid too
+        much traffic.
+
+	Additional info:
+	* depth <x>
+		search depth in plies
+
+	* time <x>
+		the time searched in ms, this should be sent together
+		with the pv.
+
+	* nodes <x>
+		x nodes searched, the engine should send this info
+		regularly
+
+	* pv <move1> ... <movei>
+		the best line found
+
+	* multipv <num>
+		This for the multi pv mode.  For the best move/pv add
+		"multipv 1" in the string when you send the pv.  In
+		k-best mode always send all k variants in k strings
+		together.
+
+	* score
+		* cp <x>
+			The score from the engine's point of view in
+			centipawns.
+
+		* mate <y>
+			Mate in y moves, not plies.  If the engine is
+			getting mated use negative values for y.
+			Note: mate 1 means THIS move is a mate.  Note:
+			mate -1 means we expect to get mated after
+			this move.
+
+	* currmove <move>
+		Currently searching this move.
+
+	* currmovenumber <x>
+		Currently searching move number x, for the first move
+		x should be 1 not 0.
+
+	* hashfull <x>
+		The hash is x percent full, the engine should send
+		this info regularly
+
+	* nps <x>
+		x nodes per second searched, the engine should send
+		this info regularly
+
+	* string <str>
+		Any string str which will be displayed be the engine,
+		if there is a string command the rest of the line will
+		be interpreted as <str>.
+
+* option
+
+	This command tells the GUI which parameters can be changed in
+	the engine.  This should be sent once at engine startup after
+	the "uci" and the "id" commands if any parameter can be
+	changed in the engine.
+
+	The GUI should parse this and build a dialogue for the user to
+	change the settings.
+
+	Note a few options are strictly defined but need not be
+        honored by the engine such as "hash" or "ponder".
+
+	If the user wants to change some settings, the GUI will send a
+	"setoption" command to the engine.  Note that the GUI need not
+	send the setoption command when starting the engine for every
+	option if it doesn't want to change the default value.
+
+	For all allowed combinations see the examples below,
+	as some combinations of this tokens don't make sense.
+	One string will be sent for each parameter.
+	* name <id>
+		The option has the name id.
+
+    The following two should always be implemented by your engine:
+
+		* <id> = hash, type is spin 
+			The value in MB for memory for hash tables can
+			be changed, this should be answered with the
+			first "setoptions" command at program boot if
+			the engine has sent the appropriate "option
+			name hash" command, which should be supported
+			by all engines!  So the engine should use a
+			very small hash first as default.
+
+		* <id> = Ponder, type check
+			This means that the engine is able to ponder.
+			The GUI will send this whenever pondering is
+			possible or not.  Note: The engine should not
+			start pondering on its own if this is enabled,
+			this option is only needed because the engine
+			might change its time management algorithm
+			when pondering is allowed.
+
+	* type <t>
+
+		The option has type t.
+		There are 5 different types of options the engine can
+		send:
+
+		* check
+			a checkbox that can either be true or false
+
+		* spin
+			a spin wheel that can be an integer in a
+			certain range
+
+		* combo
+			a combo box that can have different predefined
+			strings as a value
+
+		* button
+			a button that can be pressed to send a command
+			to the engine
+
+		* string
+			a text field that has a string as a value, an
+			empty string has the value "<empty>"
+                        
+	* default <x>
+		the default value of this parameter is x
+
+	* min <x>
+		the minimum value of this parameter is x
+
+	* max <x>
+		the maximum value of this parameter is x
+
+	* var <x>
+		a predefined value of this parameter is x
+
+	Examples:
+
+	Here are 6 strings for each of the 5 possible types of options:
+
+	"option name use nullmove type check default true\n"
+	"option name selectivity R factor type spin default 2 min 0 max 4\n"
+        "option name Style type combo default Normal var Solid var Normal var Risky\n"
+        "option name Book Path type string default c:\\n"
+        "option name Clear Hash type button\n"
+
+	Note: This options interface is obeyed minimally by the
+	current Leiserchess engine.
+
+
+FEN notation for Leiserchess
+----------------------------
+
+For Leiserchess we will define a simple protocol for defining a board
+position.  For simplicity of parsing we will use 2 character fields
+per square, 64 squares starting from a7 in upper left corner to h0 in
+lower right corner.  Consecutive empty spaces are densified as
+described below.
+
+An uppercase letter is used to describe White pieces and the Black
+pieces are described with lower case letters.
+
+A piece is uniquely defined by a two-character encoding of the
+orientation.  We define them from the viewpoint of White, as if
+looking at them from the White side of the board.
+
+Pawns face with their mirrors oriented diagonally to the ranks and
+files:
+
+  nw -> northwest (mirror facing up-left)
+  ne -> northeast (mirror facing up-right)
+  se -> southeast (mirror facing down-right)
+  sw -> southwest (mirror facing down-left)
+
+Kings face with their lasers oriented orthogonally to the ranks and
+files:
+  
+  nn -> north (laser facing up)
+  ss -> south (laser facing down)
+  ee -> east  (laser facing right)
+  ww -> west  (laser facing left)
+
+Starting with the most distant row, each row is encoded as a series of
+tokens where each token is a number, representing consecutive blank
+spaces, or two characters representing a piece. For example, a row
+containing a north-pointing black King on b7 is represented as "1NN6"
+indicating a single blank space, a north-facing Black (uppercase)
+King, and 6 more blank spaces.
+
+Each row is separated by a forward slash. After all rows, the player
+to move is indicated by space and the character "W" or "B" indicating
+White or Black.
+
+For example, the fen notation of the default starting position is
+
+ss3nw3/3nw4/2nw1nw3/1nw3SE1SE/nw1nw3SE1/3SE1SE2/4SE3/3SE3NN W
+
+More examples of this notation can be seen by observing the state of a
+game played against the webserver.
+
+
+Examples:
+---------
+
+Here is an example where indented lines are messages from the engine
+and blank lines are just for clarity.  I have added comments after a
+semicolon:
+
+uci
+    id name Leiserchess 1038 
+    id author Don Dailey, Charles E. Leiserson, and the staff of MIT 6.172 Fall 2012-2013 
+    option name hattack type spin value 200 default 200 min 0 max 10000
+    option name attack type spin value 100 default 100 min 0 max 10000
+    option name pmirror type spin value 500 default 500 min 0 max 10000
+    ...
+    uciok
+
+isready      ; like a ping command
+    readyok   ; engine responds 
+
+
+position startpos moves j0j1 a5R   ; no response required
+
+go depth 5   ; begin a 5 ply search (but don't execute move on board)
+		info depth 1 move_no 1 time (microsec) 36 nodes 68 nps 1881945
+		info score cp -3 pv d3e3
+		info depth 1 move_no 8 time (microsec) 100 nodes 142 nps 1418614
+		info score cp 1 pv h3g3
+		info depth 2 move_no 1 time (microsec) 609 nodes 339 nps 556530
+		info score cp 3 pv h3g3 a4b3
+		info depth 3 move_no 1 time (microsec) 2321 nodes 5085 nps 2190823
+		info score cp -2 pv h3g3 a4b3 h0g0
+		info depth 3 move_no 3 time (microsec) 2908 nodes 5559 nps 1911008
+		info score cp 1 pv e3L e4U h3g3
+		info depth 4 move_no 1 time (microsec) 5516 nodes 9288 nps 1683794
+		info score cp 3 pv e3L e4U h3g3 a4b3
+		info depth 5 move_no 1 time (microsec) 56633 nodes 157274 nps 2777070
+		info score cp 1 pv e3L e4U d3c4 d4d5 h3g3
+		bestmove e3L
+
+
+

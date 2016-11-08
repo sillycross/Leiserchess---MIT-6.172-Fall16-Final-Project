@@ -1,0 +1,13 @@
+*~
+#*
+bayeselo
+cachegrind.out*
+*.d
+job_*
+leiserchess
+log.awsrun
+*.o
+perf.data*
+*.pgn
+*.class
+*.jar

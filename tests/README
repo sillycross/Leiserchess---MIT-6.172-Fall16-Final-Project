@@ -1,0 +1,48 @@
+The script ./pgnrate.tcl invokes the BayesElo software with a PGN file to
+produce a rating for players included in the PGN file.
+
+Usage: ./pgnrate.tcl <pgn_file> [-anchor <player>] [-elo <elo>]
+       where the -anchor and -elo are optional.
+
+When given a PGN file, the script produces output that looks like the following:
+
+  anchor: nobody
+     elo: 300
+
+Rank Name         Elo    +    - games score oppo. draws 
+   1 depth6        39   28   28   400   58%   -10   56% 
+   2 hattack250     1   28   28   400   50%     0   56% 
+   3 hattack500    -8   29   29   400   48%     2   54% 
+   4 depth5        -9   29   29   400   48%     2   53% 
+   5 hattack750   -23   29   29   400   45%     6   52% 
+
+This means the PGN file contained games played between 5 players: depth5,
+hattach250, hattach500, depth5, and hattach750. The 'Elo' column shows their
+respective ratings (higher the better), and '+' and '-' columns show the error
+margin, which shows the confidence level. There are total of 1000 games played
+and recorded in this PGN file, where each player is involved in 400 games. The
+'score' column shows the percentage of (# of wins / # of wins + losses). The
+'draw' column shows the percentage of draws. We are unclear what the 'oppo.'
+column is for, but a guess is the average Elo score of its opponents.
+
+The -anchor and -elo options are used to defined an "offset," which sets the
+rating of one of the players to be certain score. For example, the invocation of
+
+./pgnrate.tcl <pgn_file> -anchor depth6 -elo 100
+
+will show the ratings calculated by offsetting the player depth6's rating so
+that it's 100, which results in:
+
+  anchor: depth6
+     elo: 100
+
+Rank Name         Elo    +    - games score oppo. draws 
+   1 depth6       100   28   28   400   58%    52   56% 
+   2 hattack250    63   28   28   400   50%    61   56% 
+   3 hattack500    53   29   29   400   48%    63   54% 
+   4 depth5        53   29   29   400   48%    64   53% 
+   5 hattack750    38   29   29   400   45%    67   52% 
+
+
+If the -anchor option is not used, no offset will be used. If the -anchor option
+is specified but not the -elo, a default of -elo 300 is used.

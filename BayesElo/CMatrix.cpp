@@ -1,0 +1,46 @@
+// Copyright (c) 2015 MIT License by 6.172 Staff
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// CMatrix.cpp
+//
+// Rémi Coulom
+//
+// February, 2005
+//
+/////////////////////////////////////////////////////////////////////////////
+#include "./CMatrix.h"
+#include "./debug.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// Constructor
+/////////////////////////////////////////////////////////////////////////////
+CMatrix::CMatrix(int RowsInit, int ColumnsInit)
+    : CVector(RowsInit * ColumnsInit),
+      Rows(RowsInit),
+      Columns(ColumnsInit) {
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Set size
+/////////////////////////////////////////////////////////////////////////////
+void CMatrix::SetSize(int RowsInit, int ColumnsInit) {
+  Rows = RowsInit;
+  Columns = ColumnsInit;
+  CVector::SetSize(Rows * Columns);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Set to mA multiplied by the transpose of mB
+/////////////////////////////////////////////////////////////////////////////
+void CMatrix::SetProductByTranspose(const CMatrix &mA, const CMatrix &mB) {
+  FATAL(mA.GetColumns() != mB.GetColumns());
+  SetSize(mA.GetRows(), mB.GetRows());
+  for (int i = mA.GetRows(); --i >= 0;)
+    for (int j = mB.GetRows(); --j >= 0;) {
+      double x = 0.0;
+      for (int k = mA.GetColumns(); --k >= 0;)
+        x += mA.GetElement(i, k) * mB.GetElement(j, k);
+      SetElement(i, j, x);
+    }
+}
