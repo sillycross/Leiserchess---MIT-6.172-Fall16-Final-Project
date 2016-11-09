@@ -1,0 +1,20 @@
+go depth 6
+info depth 1 move_no 1 time (microsec) 81 nodes 79 nps 971495
+info score cp -3 pv f4L
+info depth 1 move_no 41 time (microsec) 323 nodes 197 nps 609601
+info score cp 15 pv h4g4
+info depth 2 move_no 1 time (microsec) 890 nodes 718 nps 806249
+info score cp 3 pv h4g4 a3b3
+info depth 3 move_no 1 time (microsec) 7761 nodes 18100 nps 2331974
+info score cp -2 pv h4g4 a3b3 f2e3
+info depth 3 move_no 67 time (microsec) 39019 nodes 39642 nps 1015950
+info score cp 15 pv g3R b4R h4g5
+info depth 4 move_no 1 time (microsec) 55151 nodes 50598 nps 917432
+info score cp 3 pv g3R b4R h4g5 a3b3
+info depth 4 move_no 66 time (microsec) 159995 nodes 260182 nps 1626186
+info score cp 13 pv h4g5 a3a2 g3R a2a1
+info depth 5 move_no 1 time (microsec) 286814 nodes 520132 nps 1813478
+info score cp 8 pv h4g5 a3a2 g3R a2a1 e1e2
+info depth 6 move_no 1 time (microsec) 486731 nodes 718017 nps 1475180
+info score cp 4 pv h4g5 a3a2 g3R a2a1 e1U a1a0
+bestmove h4g5
