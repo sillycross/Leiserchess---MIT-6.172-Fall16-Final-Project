@@ -26,6 +26,7 @@
 
 // Board is 8 x 8 or 10 x 10
 #define BOARD_WIDTH 8
+#define LOG2(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1))
 
 static const char laser_map_s[ARR_SIZE] = {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
@@ -168,6 +169,7 @@ typedef struct position {
   move_t       last_move;        // move that led to this position
   victims_t    victims;          // pieces destroyed by shooter
   square_t     kloc[2];          // location of kings
+  uint64_t mask;
 } position_t;
 
 // -----------------------------------------------------------------------------
@@ -186,6 +188,7 @@ void set_ori(piece_t *x, int ori);
 
 void init_zob();
 uint64_t compute_zob_key(position_t *p);
+uint64_t compute_mask(position_t *p);
 
 square_t square_of(fil_t f, rnk_t r);
 fil_t fil_of(square_t sq);

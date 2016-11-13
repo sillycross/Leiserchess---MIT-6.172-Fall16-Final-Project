@@ -130,7 +130,6 @@ ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
   } else if (delta_fil >= 0 && delta_rnk <= 0) {
     bonus = (f + 1) * (BOARD_WIDTH - r);
   }
-
   return (KAGGRESSIVE * bonus) / (BOARD_WIDTH * BOARD_WIDTH);
 }
 
@@ -142,8 +141,10 @@ ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
 // laser_map : End result will be stored here. Every square on the
 //             path of the laser is marked with mark_mask.
 // mark_mask : What each square is marked with.
+
 void mark_laser_path(position_t *p, color_t c, char *laser_map,
                      char mark_mask) {
+
   square_t sq = p->kloc[c];
   int bdir = ori_of(p->board[sq]);
 
@@ -223,15 +224,6 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
   return laser_map;
 }
 
-uint64_t transform(char *laser_map) {
-  uint64_t ans = 0;
-  for (int i = 0; i < 8; i++)
-    for (int j = 0; j < 8; j++)
-      if (laser_map[square_of(i, j)])
-        ans |= (1ULL << (i << 3) << j);
-  return ans;
-}
-
 // PAWNPIN Heuristic: count number of pawns that are not pinned by the
 //   opposing king's laser --- and are thus mobile.
 
@@ -247,27 +239,24 @@ int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
   //   printf("%llu %llu\n", transform(laser_map), mark_laser_path_bit(p, c));
   //   printf("ERROR\n");
   // }
-
+  tbassert(p->mask == compute_mask(p),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask, compute_mask(p));
   int unpinned_pawns = 0;
 
   // Figure out which pawns are not pinned down by the laser.
-  for (int i = 0; i < 64; i++)
-    if (!(laser_map & (1ULL << i))) {
-      int r = ((i >> 3) + 4) * 16 + (i & 7) + 4;
-      if (color_of(p->board[r]) == color &&
+  uint64_t mask = (~laser_map) & p -> mask;
+  while (mask) {
+    uint64_t y = mask & (-mask);
+    int i = LOG2(y);
+    int r = ((i >> 3) + FIL_ORIGIN) * ARR_WIDTH + (i & 7) + RNK_ORIGIN;
+    if (color_of(p->board[r]) == color &&
           ptype_of(p->board[r]) == PAWN) {
         unpinned_pawns += 1;
     }
+    mask ^= y;
   }
-  // for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-  //   for (rnk_t r = f + 4; r < f + 12; ++r) {
-  //     if (laser_map[r] == 0 &&
-  //         color_of(p->board[r]) == color &&
-  //         ptype_of(p->board[r]) == PAWN) {
-  //       unpinned_pawns += 1;
-  //     }
-  //   }
-  // }
+
   // for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
   //   for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
   //     if (laser_map[square_of(f, r)] == 0 &&
@@ -292,10 +281,10 @@ int mobility(position_t *p, color_t color, uint64_t laser_map) {
   // mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
   // uint64_t laser_map = mark_laser_path_bit(p, c);
   int mobility = 0;
-  tbassert(ptype_of(p->board[king_sq]) == KING,
-           "ptype: %d\n", ptype_of(p->board[king_sq]));
-  tbassert(color_of(p->board[king_sq]) == color,
-           "color: %d\n", color_of(p->board[king_sq]));
+  // tbassert(ptype_of(p->board[king_sq]) == KING,
+  //          "ptype: %d\n", ptype_of(p->board[king_sq]));
+  // tbassert(color_of(p->board[king_sq]) == color,
+  //          "color: %d\n", color_of(p->board[king_sq]));
 
   int kingx = fil_of(p->kloc[color]), kingy = rnk_of(p->kloc[color]);
   for (int i = MAX(0, kingx - 1); i < MIN(8, kingx + 2); i++)
@@ -382,19 +371,23 @@ score_t eval(position_t *p, bool verbose) {
   //  int corner[2][2] = { {INF, INF}, {INF, INF} };
   ev_score_t bonus;
   // char buf[MAX_CHARS_IN_MOVE];
+  uint64_t mask = p -> mask;
+  while (mask) {
+    uint64_t y = mask & (-mask);
+    mask ^= y;
+    int i = LOG2(y);
+    fil_t f = (i >> 3);
+    rnk_t r = i & 7;
 
-  for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-      square_t sq = square_of(f, r);
-      piece_t x = p->board[sq];
+    square_t sq = (f + FIL_ORIGIN) * ARR_WIDTH + r + RNK_ORIGIN;
+    
+    piece_t x = p->board[sq];
       color_t c = color_of(x);
       // if (verbose) {
       //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
       // }
 
       switch (ptype_of(x)) {
-        case EMPTY:
-          break;
         case PAWN:
           // MATERIAL heuristic: Bonus for each Pawn
           bonus = PAWN_EV_VALUE;
@@ -433,14 +426,70 @@ score_t eval(position_t *p, bool verbose) {
           //   printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
           // }
           score[c] += bonus;
-          break;
-        case INVALID:
-          break;
-        default:
-          tbassert(false, "Jose says: no way!\n");   // No way, Jose!
+        //   break;
+        default:;
+        //   tbassert(false, "Jose says: no way!\n");   // No way, Jose!
       }
-    }
   }
+
+  // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
+  //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
+  //     square_t sq = square_of(f, r);
+  //     piece_t x = p->board[sq];
+  //     color_t c = color_of(x);
+  //     // if (verbose) {
+  //     //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
+  //     // }
+
+  //     switch (ptype_of(x)) {
+  //       case EMPTY:
+  //         break;
+  //       case PAWN:
+  //         // MATERIAL heuristic: Bonus for each Pawn
+  //         bonus = PAWN_EV_VALUE;
+  //         // if (verbose) {
+  //         //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+  //         // }
+  //         score[c] += bonus;
+
+  //         // PBETWEEN heuristic
+  //         bonus = pbetween(p, f, r);
+  //         // if (verbose) {
+  //         //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+  //         // }
+  //         score[c] += bonus;
+
+  //         // PCENTRAL heuristic
+  //         bonus = pcentral(f, r);
+  //         // if (verbose) {
+  //         //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+  //         // }
+  //         score[c] += bonus;
+  //         break;
+
+  //       case KING:
+  //         // KFACE heuristic
+  //         bonus = kface(p, f, r);
+  //         // if (verbose) {
+  //         //   printf("KFACE bonus %d for %s King on %s\n", bonus,
+  //         //          color_to_str(c), buf);
+  //         // }
+  //         score[c] += bonus;
+
+  //         // KAGGRESSIVE heuristic
+  //         bonus = kaggressive(p, f, r);
+  //         // if (verbose) {
+  //         //   printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
+  //         // }
+  //         score[c] += bonus;
+  //         break;
+  //       case INVALID:
+  //         break;
+  //       default:
+  //         tbassert(false, "Jose says: no way!\n");   // No way, Jose!
+  //     }
+  //   }
+  // }
 
   uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
   uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);

@@ -15,6 +15,7 @@
 
 void mark_laser_path(position_t *p, color_t c, char *laser_map,
                      char mark_mask);
+uint64_t mark_laser_path_bit(position_t *p, color_t c);
 
 score_t eval(position_t *p, bool verbose);
 
