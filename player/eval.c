@@ -217,16 +217,7 @@ int mobility(position_t *p, color_t color) {
   color_t c = opp_color(color);
   char laser_map[ARR_SIZE];
 
-  memset(laser_map, 4, sizeof laser_map);
-  // for (int i = 0; i < ARR_SIZE; ++i) {
-  //   laser_map[i] = 4;   // Invalid square
-  // }
-
-  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-    for (rnk_t r = f + 4; r < f + 12; ++r) {
-      laser_map[r] = 0;
-    }
-  }
+  memcpy(laser_map, laser_map_s, sizeof laser_map);
 
   mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
 
@@ -266,17 +257,7 @@ float h_dist(square_t a, square_t b) {
 int h_squares_attackable(position_t *p, color_t c) {
   char laser_map[ARR_SIZE];
 
-  memset(laser_map, 4, sizeof laser_map);
-  // for (int i = 0; i < ARR_SIZE; ++i) {
-  //   laser_map[i] = 4;   // Invalid square
-  // }
-
-  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-    for (rnk_t r = f + 4; r < f + 12; ++r) {
-      laser_map[r] = 0;
-    }
-  }
-
+  memcpy(laser_map, laser_map_s, sizeof laser_map);
   mark_laser_path(p, c, laser_map, 1);  // 1 = path of laser with no moves
 
   square_t o_king_sq = p->kloc[opp_color(c)];
