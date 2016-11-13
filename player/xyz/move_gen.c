@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
@@ -277,16 +278,16 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
   // Make sure that the enemy_laser map is marked
   char laser_map[ARR_SIZE];
 
-  for (int i = 0; i < ARR_SIZE; ++i) {
-    laser_map[i] = 4;   // Invalid square
-  }
+   memset(laser_map, 4, sizeof laser_map);
+  // for (int i = 0; i < ARR_SIZE; ++i) {
+  //   laser_map[i] = 4;   // Invalid square
+  // }
 
-  for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-      laser_map[square_of(f, r)] = 0;
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      laser_map[r] = 0;
     }
   }
-
   // 1 = path of laser with no moves
   mark_laser_path(p, opp_color(color_to_move), laser_map, 1);
 
@@ -551,14 +552,22 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     if (p->key == (old->key ^ zob_color)) {
       bool match = true;
 
-      for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-        for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-          if (p->board[square_of(f, r)] !=
-              old->board[square_of(f, r)]) {
+
+      for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+        for (rnk_t r = f + 4; r < f + 12; ++r) {
+          if (p -> board[r] != old -> board[r])
             match = false;
-          }
         }
       }
+
+      // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
+      //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
+      //     if (p->board[square_of(f, r)] !=
+      //         old->board[square_of(f, r)]) {
+      //       match = false;
+      //     }
+      //   }
+      // }
 
       if (match) return KO();
     }
@@ -566,12 +575,10 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     if (p->key == old->history->key) {
       bool match = true;
 
-      for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-        for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-          if (p->board[square_of(f, r)] !=
-              old->history->board[square_of(f, r)]) {
+      for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+        for (rnk_t r = f + 4; r < f + 12; ++r) {
+          if (p -> board[r] != old -> board[r])
             match = false;
-          }
         }
       }
 
