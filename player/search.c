@@ -227,7 +227,7 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
     num_of_moves = generate_all(p, move_list, false);
     // shuffle the list of moves
     for (int i = 0; i < num_of_moves; i++) {
-      int r = myrand() % num_of_moves;
+      int r = myrand() % (i + 1);
       sortable_move_t tmp = move_list[i];
       move_list[i] = move_list[r];
       move_list[r] = tmp;

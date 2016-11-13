@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "./move_gen.h"
 #include "./tbassert.h"
 
@@ -28,15 +29,26 @@ int PAWNPIN;
 // Heuristics for static evaluation - described in the google doc
 // mentioned in the handout.
 
+const ev_score_t pcentral_s[16][16] = {{125, 181, 220, 234, 234, 220, 181, 125, 58, -15, -92, -173, -255, -338, -422, -507},
+{181, 249, 302, 323, 323, 302, 249, 181, 104, 24, -59, -143, -228, -314, -401, -488},
+{220, 302, 375, 411, 411, 375, 302, 220, 135, 49, -37, -125, -212, -300, -388, -476},
+{234, 323, 411, 500, 500, 411, 323, 234, 146, 58, -30, -118, -207, -295, -383, -472},
+{234, 323, 411, 500, 500, 411, 323, 234, 146, 58, -30, -118, -207, -295, -383, -472},
+{220, 302, 375, 411, 411, 375, 302, 220, 135, 49, -37, -125, -212, -300, -388, -476},
+{181, 249, 302, 323, 323, 302, 249, 181, 104, 24, -59, -143, -228, -314, -401, -488},
+{125, 181, 220, 234, 234, 220, 181, 125, 58, -15, -92, -173, -255, -338, -422, -507},
+{58, 104, 135, 146, 146, 135, 104, 58, 0, -65, -137, -212, -290, -370, -451, -534},
+{-15, 24, 49, 58, 58, 49, 24, -15, -65, -125, -190, -260, -333, -410, -488, -568},
+{-92, -59, -37, -30, -30, -37, -59, -92, -137, -190, -250, -314, -383, -456, -530, -607},
+{-173, -143, -125, -118, -118, -125, -143, -173, -212, -260, -314, -375, -439, -507, -578, -652},
+{-255, -228, -212, -207, -207, -212, -228, -255, -290, -333, -383, -439, -500, -564, -631, -702},
+{-338, -314, -300, -295, -295, -300, -314, -338, -370, -410, -456, -507, -564, -625, -689, -756},
+{-422, -401, -388, -383, -383, -388, -401, -422, -451, -488, -530, -578, -631, -689, -750, -813},
+{-507, -488, -476, -472, -472, -476, -488, -507, -534, -568, -607, -652, -702, -756, -813, -875}};
 
 // PCENTRAL heuristic: Bonus for Pawn near center of board
-ev_score_t pcentral(fil_t f, rnk_t r) {
-  double df = BOARD_WIDTH/2 - f - 1;
-  if (df < 0)  df = f - BOARD_WIDTH/2;
-  double dr = BOARD_WIDTH/2 - r - 1;
-  if (dr < 0) dr = r - BOARD_WIDTH/2;
-  double bonus = 1 - sqrt(df * df + dr * dr) / (BOARD_WIDTH / sqrt(2));
-  return PCENTRAL * bonus;
+inline ev_score_t pcentral(fil_t f, rnk_t r) {
+  return pcentral_s[f][r];
 }
 
 
@@ -170,13 +182,14 @@ int pawnpin(position_t *p, color_t color) {
   color_t c = opp_color(color);
   char laser_map[ARR_SIZE];
 
-  for (int i = 0; i < ARR_SIZE; ++i) {
-    laser_map[i] = 4;   // Invalid square
-  }
+  memset(laser_map, 4, sizeof laser_map);
+  // for (int i = 0; i < ARR_SIZE; ++i) {
+  //   laser_map[i] = 4;   // Invalid square
+  // }
 
-  for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-      laser_map[square_of(f, r)] = 0;
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      laser_map[r] = 0;
     }
   }
 
@@ -187,15 +200,24 @@ int pawnpin(position_t *p, color_t color) {
   int unpinned_pawns = 0;
 
   // Figure out which pawns are not pinned down by the laser.
-  for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-      if (laser_map[square_of(f, r)] == 0 &&
-          color_of(p->board[square_of(f, r)]) == color &&
-          ptype_of(p->board[square_of(f, r)]) == PAWN) {
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      if (laser_map[r] == 0 &&
+          color_of(p->board[r]) == color &&
+          ptype_of(p->board[r]) == PAWN) {
         unpinned_pawns += 1;
       }
     }
   }
+  // for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
+  //   for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
+  //     if (laser_map[square_of(f, r)] == 0 &&
+  //         color_of(p->board[square_of(f, r)]) == color &&
+  //         ptype_of(p->board[square_of(f, r)]) == PAWN) {
+  //       unpinned_pawns += 1;
+  //     }
+  //   }
+  // }
 
   return unpinned_pawns;
 }
@@ -205,13 +227,14 @@ int mobility(position_t *p, color_t color) {
   color_t c = opp_color(color);
   char laser_map[ARR_SIZE];
 
-  for (int i = 0; i < ARR_SIZE; ++i) {
-    laser_map[i] = 4;   // Invalid square
-  }
+  memset(laser_map, 4, sizeof laser_map);
+  // for (int i = 0; i < ARR_SIZE; ++i) {
+  //   laser_map[i] = 4;   // Invalid square
+  // }
 
-  for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-      laser_map[square_of(f, r)] = 0;
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      laser_map[r] = 0;
     }
   }
 
@@ -237,6 +260,7 @@ int mobility(position_t *p, color_t color) {
 }
 
 
+
 // Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
 float h_dist(square_t a, square_t b) {
   //  printf("a = %d, FIL(a) = %d, RNK(a) = %d\n", a, FIL(a), RNK(a));
@@ -252,13 +276,14 @@ float h_dist(square_t a, square_t b) {
 int h_squares_attackable(position_t *p, color_t c) {
   char laser_map[ARR_SIZE];
 
-  for (int i = 0; i < ARR_SIZE; ++i) {
-    laser_map[i] = 4;   // Invalid square
-  }
+  memset(laser_map, 4, sizeof laser_map);
+  // for (int i = 0; i < ARR_SIZE; ++i) {
+  //   laser_map[i] = 4;   // Invalid square
+  // }
 
-  for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-      laser_map[square_of(f, r)] = 0;
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      laser_map[r] = 0;
     }
   }
 
@@ -271,11 +296,10 @@ int h_squares_attackable(position_t *p, color_t c) {
            "color: %d\n", color_of(p->board[o_king_sq]));
 
   float h_attackable = 0;
-  for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-    for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-      square_t sq = square_of(f, r);
-      if (laser_map[sq] != 0) {
-        h_attackable += h_dist(sq, o_king_sq);
+  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
+    for (rnk_t r = f + 4; r < f + 12; ++r) {
+      if (laser_map[r] != 0) {
+        h_attackable += h_dist(r, o_king_sq);
       }
     }
   }
@@ -291,16 +315,16 @@ score_t eval(position_t *p, bool verbose) {
   ev_score_t score[2] = { 0, 0 };
   //  int corner[2][2] = { {INF, INF}, {INF, INF} };
   ev_score_t bonus;
-  char buf[MAX_CHARS_IN_MOVE];
+  // char buf[MAX_CHARS_IN_MOVE];
 
   for (fil_t f = 0; f < BOARD_WIDTH; f++) {
     for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
       square_t sq = square_of(f, r);
       piece_t x = p->board[sq];
       color_t c = color_of(x);
-      if (verbose) {
-        square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
-      }
+      // if (verbose) {
+      //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
+      // }
 
       switch (ptype_of(x)) {
         case EMPTY:
@@ -308,40 +332,40 @@ score_t eval(position_t *p, bool verbose) {
         case PAWN:
           // MATERIAL heuristic: Bonus for each Pawn
           bonus = PAWN_EV_VALUE;
-          if (verbose) {
-            printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          }
+          // if (verbose) {
+          //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+          // }
           score[c] += bonus;
 
           // PBETWEEN heuristic
           bonus = pbetween(p, f, r);
-          if (verbose) {
-            printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          }
+          // if (verbose) {
+          //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+          // }
           score[c] += bonus;
 
           // PCENTRAL heuristic
           bonus = pcentral(f, r);
-          if (verbose) {
-            printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          }
+          // if (verbose) {
+          //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+          // }
           score[c] += bonus;
           break;
 
         case KING:
           // KFACE heuristic
           bonus = kface(p, f, r);
-          if (verbose) {
-            printf("KFACE bonus %d for %s King on %s\n", bonus,
-                   color_to_str(c), buf);
-          }
+          // if (verbose) {
+          //   printf("KFACE bonus %d for %s King on %s\n", bonus,
+          //          color_to_str(c), buf);
+          // }
           score[c] += bonus;
 
           // KAGGRESSIVE heuristic
           bonus = kaggressive(p, f, r);
-          if (verbose) {
-            printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
-          }
+          // if (verbose) {
+          //   printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
+          // }
           score[c] += bonus;
           break;
         case INVALID:
