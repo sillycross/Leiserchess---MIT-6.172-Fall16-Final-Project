@@ -277,17 +277,9 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
   color_t color_to_move = color_to_move_of(p);
   // Make sure that the enemy_laser map is marked
   char laser_map[ARR_SIZE];
-
-   memset(laser_map, 4, sizeof laser_map);
-  // for (int i = 0; i < ARR_SIZE; ++i) {
-  //   laser_map[i] = 4;   // Invalid square
-  // }
-
-  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-    for (rnk_t r = f + 4; r < f + 12; ++r) {
-      laser_map[r] = 0;
-    }
-  }
+  
+  memcpy(laser_map, laser_map_s, sizeof laser_map);
+  
   // 1 = path of laser with no moves
   mark_laser_path(p, opp_color(color_to_move), laser_map, 1);
 

@@ -29,7 +29,7 @@ int PAWNPIN;
 // Heuristics for static evaluation - described in the google doc
 // mentioned in the handout.
 
-const ev_score_t pcentral_s[16][16] = {{125, 181, 220, 234, 234, 220, 181, 125, 58, -15, -92, -173, -255, -338, -422, -507},
+static const ev_score_t pcentral_s[16][16] = {{125, 181, 220, 234, 234, 220, 181, 125, 58, -15, -92, -173, -255, -338, -422, -507},
 {181, 249, 302, 323, 323, 302, 249, 181, 104, 24, -59, -143, -228, -314, -401, -488},
 {220, 302, 375, 411, 411, 375, 302, 220, 135, 49, -37, -125, -212, -300, -388, -476},
 {234, 323, 411, 500, 500, 411, 323, 234, 146, 58, -30, -118, -207, -295, -383, -472},
@@ -182,17 +182,7 @@ int pawnpin(position_t *p, color_t color) {
   color_t c = opp_color(color);
   char laser_map[ARR_SIZE];
 
-  memset(laser_map, 4, sizeof laser_map);
-  // for (int i = 0; i < ARR_SIZE; ++i) {
-  //   laser_map[i] = 4;   // Invalid square
-  // }
-
-  for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-    for (rnk_t r = f + 4; r < f + 12; ++r) {
-      laser_map[r] = 0;
-    }
-  }
-
+  memcpy(laser_map, laser_map_s, sizeof laser_map);
   mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
 
 
