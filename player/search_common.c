@@ -371,17 +371,29 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   return result;
 }
 
+int sortable_move_t_cmp_func (const void * a, const void * b)
+{
+  if (*(sortable_move_t*)a < *(sortable_move_t*)b)
+    return 1;
+  else if (*(sortable_move_t*)a == *(sortable_move_t*)b)
+    return 0;
+  else
+    return -1;
+   // return (  - *(sortable_move_t*)b );
+}
+
 // Incremental sort of the move list.
 void sort_incremental(sortable_move_t *move_list, int num_of_moves, int mv_index) {
-  for (int j = 0; j < num_of_moves; j++) {
-    sortable_move_t insert = move_list[j];
-    int hole = j;
-    while (hole > 0 && insert > move_list[hole-1]) {
-      move_list[hole] = move_list[hole-1];
-      hole--;
-    }
-    move_list[hole] = insert;
-  }
+  qsort(move_list, num_of_moves, sizeof(sortable_move_t), sortable_move_t_cmp_func);
+  // for (int j = 0; j < num_of_moves; j++) {
+  //   sortable_move_t insert = move_list[j];
+  //   int hole = j;
+  //   while (hole > 0 && insert > move_list[hole-1]) {
+  //     move_list[hole] = move_list[hole-1];
+  //     hole--;
+  //   }
+  //   move_list[hole] = insert;
+  // }
 }
 
 // Returns true if a cutoff was triggered, false otherwise.
