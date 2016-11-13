@@ -577,7 +577,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
       for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
         for (rnk_t r = f + 4; r < f + 12; ++r) {
-          if (p -> board[r] != old -> board[r])
+          if (p -> board[r] != old -> history -> board[r])
             match = false;
         }
       }
