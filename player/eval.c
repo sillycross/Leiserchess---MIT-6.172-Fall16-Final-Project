@@ -242,13 +242,15 @@ int mobility(position_t *p, color_t color) {
 
 
 
+static const float inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
+1.0/8, 1.0/9, 1.0/10, 1.0/11, 1.0/12, 1.0/13, 1.0/14, 1.0/15, 1.0/16};
 // Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
 float h_dist(square_t a, square_t b) {
   //  printf("a = %d, FIL(a) = %d, RNK(a) = %d\n", a, FIL(a), RNK(a));
   //  printf("b = %d, FIL(b) = %d, RNK(b) = %d\n", b, FIL(b), RNK(b));
   int delta_fil = abs(fil_of(a) - fil_of(b));
   int delta_rnk = abs(rnk_of(a) - rnk_of(b));
-  float x = (1.0 / (delta_fil + 1)) + (1.0 / (delta_rnk + 1));
+  float x = inv_s[delta_fil] + inv_s[delta_rnk];
   //  printf("max_dist = %d\n\n", x);
   return x;
 }
