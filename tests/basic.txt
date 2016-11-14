@@ -8,9 +8,9 @@ adjudicate = 400
 # --
 
 player = player_1
-invoke = ../player/old
+invoke = ../player/players/v11.12
 fis = 60 0.5
 
 player = player_2
-invoke = ../player/new
+invoke = ../player/leiserchess
 fis = 60 0.5

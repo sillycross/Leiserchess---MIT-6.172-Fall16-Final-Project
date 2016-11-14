@@ -37,9 +37,9 @@ ifeq ($(REFERENCE),1)
 	CFLAGS += -DRUN_REFERENCE_CODE=1
 endif
 
-CFLAGS += $(OTHER_CFLAGS) -march=native
+CFLAGS += $(OTHER_CFLAGS)
 
-LDFLAGS= -Wall -lm -lrt -ldl -lpthread -lcilkrts -march=native
+LDFLAGS= -Wall -lm -lrt -ldl -lpthread -lcilkrts
 
 .PHONY : default clean
 
