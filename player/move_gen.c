@@ -157,14 +157,14 @@ square_t square_of(fil_t f, rnk_t r) {
 
 // Finds file of square
 fil_t fil_of(square_t sq) {
-  fil_t f = ((sq >> FIL_SHIFT) & FIL_MASK) - FIL_ORIGIN;
+  fil_t f = sq / ARR_WIDTH - FIL_ORIGIN;
   DEBUG_LOG(1, "File of square %d is %d\n", sq, f);
   return f;
 }
 
 // Finds rank of square
 rnk_t rnk_of(square_t sq) {
-  rnk_t r = ((sq >> RNK_SHIFT) & RNK_MASK) - RNK_ORIGIN;
+  rnk_t r = sq % ARR_WIDTH - RNK_ORIGIN;
   DEBUG_LOG(1, "Rank of square %d is %d\n", sq, r);
   return r;
 }
@@ -594,8 +594,8 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       bool match = true;
 
 
-      for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-        for (rnk_t r = f + 4; r < f + 12; ++r) {
+      for (fil_t f = FIL_ORIGIN * ARR_WIDTH; f < FIL_ORIGIN * ARR_WIDTH + BOARD_WIDTH * ARR_WIDTH; f += ARR_WIDTH) {
+        for (rnk_t r = f + RNK_ORIGIN; r < f + RNK_ORIGIN + BOARD_WIDTH; ++r) {
           if (p -> board[r] != old -> board[r])
             match = false;
         }
@@ -616,8 +616,8 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     if (p->key == old->history->key && p->mask == old->history->mask) {
       bool match = true;
 
-      for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-        for (rnk_t r = f + 4; r < f + 12; ++r) {
+      for (fil_t f = FIL_ORIGIN * ARR_WIDTH; f < FIL_ORIGIN * ARR_WIDTH + BOARD_WIDTH * ARR_WIDTH; f += ARR_WIDTH) {
+        for (rnk_t r = f + RNK_ORIGIN; r < f + RNK_ORIGIN + BOARD_WIDTH; ++r) {
           if (p -> board[r] != old -> history -> board[r])
             match = false;
         }
