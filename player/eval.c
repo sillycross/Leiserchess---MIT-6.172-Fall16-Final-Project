@@ -305,7 +305,7 @@ int mobility(position_t *p, color_t color, uint64_t laser_map) {
 
 
 
-static const float inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
+static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
 1.0/8, 1.0/9, 1.0/10, 1.0/11, 1.0/12, 1.0/13, 1.0/14, 1.0/15, 1.0/16};
 // Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
 // float h_dist(square_t a, square_t b) {
