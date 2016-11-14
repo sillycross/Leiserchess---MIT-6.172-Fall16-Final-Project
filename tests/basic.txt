@@ -1,6 +1,6 @@
 cpus = 2
 book = ../tests/book.dta
-game_rounds = 5
+game_rounds = 400
 title = basic
 adjudicate = 400
 
@@ -8,9 +8,17 @@ adjudicate = 400
 # --
 
 player = player_1
-invoke = ../player/players/v11.12
+invoke = ../player/players/origin
 fis = 60 0.5
 
 player = player_2
+invoke = ../player/players/v11.12
+fis = 60 0.5
+
+player = player_3
 invoke = ../player/leiserchess
+fis = 60 0.5
+
+player = player_4
+invoke = ../player/test
 fis = 60 0.5
