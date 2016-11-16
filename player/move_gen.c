@@ -186,7 +186,7 @@ int square_to_str(square_t sq, char *buf, size_t bufsize) {
 // -----------------------------------------------------------------------------
 
 // direction map
-static int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
+static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
                       ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
 int dir_of(int i) {
   tbassert(i >= 0 && i < 8, "i: %d\n", i);
