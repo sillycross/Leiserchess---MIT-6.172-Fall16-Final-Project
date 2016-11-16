@@ -16,8 +16,6 @@
 #include "./tbassert.h"
 #include "./util.h"
 
-#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & –((x) > (y))))
-#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & –((x) < (y))))
 static const uint64_t sq_to_board_bit[100] = {
 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
 0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
@@ -43,7 +41,7 @@ const char *color_to_str(color_t c) {
 // -----------------------------------------------------------------------------
 
 // which color is moving next
-color_t color_to_move_of(position_t *p) {
+inline color_t color_to_move_of(position_t *p) {
   return p -> ply & 1;
   // if ((p->ply & 1) == 0) {
   //   return WHITE;
@@ -52,11 +50,11 @@ color_t color_to_move_of(position_t *p) {
   // }
 }
 
-color_t color_of(piece_t x) {
+inline color_t color_of(piece_t x) {
   return (color_t) ((x >> COLOR_SHIFT) & COLOR_MASK);
 }
 
-color_t opp_color(color_t c) {
+inline color_t opp_color(color_t c) {
   return c ^ 1;
   // if (c == WHITE) {
   //   return BLACK;
@@ -66,7 +64,7 @@ color_t opp_color(color_t c) {
 }
 
 
-void set_color(piece_t *x, color_t c) {
+inline void set_color(piece_t *x, color_t c) {
   tbassert((c >= 0) & (c <= COLOR_MASK), "color: %d\n", c);
   *x = ((c & COLOR_MASK) << COLOR_SHIFT) |
       (*x & ~(COLOR_MASK << COLOR_SHIFT));
@@ -77,7 +75,7 @@ inline ptype_t ptype_of(piece_t x) {
   return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
 }
 
-void set_ptype(piece_t *x, ptype_t pt) {
+inline void set_ptype(piece_t *x, ptype_t pt) {
   *x = ((pt & PTYPE_MASK) << PTYPE_SHIFT) |
       (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
 }
@@ -86,7 +84,7 @@ inline int ori_of(piece_t x) {
   return (x >> ORI_SHIFT) & ORI_MASK;
 }
 
-void set_ori(piece_t *x, int ori) {
+inline void set_ori(piece_t *x, int ori) {
   *x = ((ori & ORI_MASK) << ORI_SHIFT) |
       (*x & ~(ORI_MASK << ORI_SHIFT));
 }
@@ -612,7 +610,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[0], compute_mask(p, 0));
-  tbassert(p->mask[1] == compute_mask(p, 1),
+    tbassert(p->mask[1] == compute_mask(p, 1),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[1], compute_mask(p, 1));
 
@@ -626,7 +624,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
   }
 
   if (USE_KO) {  // Ko rule
-    if (p->key == (old->key ^ zob_color)) {
+    if (p->key == (old->key ^ zob_color) && p->mask[0] == old->mask[0] && p->mask[1] == old->mask[1]) {
       bool match = true;
 
 

@@ -32,15 +32,15 @@ int PAWNPIN;
 //#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
 //#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 
-static const ev_score_t pcentral_s[8][8] = {
-{125, 181, 220, 234, 234, 220, 181, 125},
-{181, 249, 302, 323, 323, 302, 249, 181},
-{220, 302, 375, 411, 411, 375, 302, 220},
-{234, 323, 411, 500, 500, 411, 323, 234},
-{234, 323, 411, 500, 500, 411, 323, 234},
-{220, 302, 375, 411, 411, 375, 302, 220},
-{181, 249, 302, 323, 323, 302, 249, 181},
-{125, 181, 220, 234, 234, 220, 181, 125}};
+static const ev_score_t pcentral_s[64] = {
+125, 181, 220, 234, 234, 220, 181, 125,
+181, 249, 302, 323, 323, 302, 249, 181,
+220, 302, 375, 411, 411, 375, 302, 220,
+234, 323, 411, 500, 500, 411, 323, 234,
+234, 323, 411, 500, 500, 411, 323, 234,
+220, 302, 375, 411, 411, 375, 302, 220,
+181, 249, 302, 323, 323, 302, 249, 181,
+125, 181, 220, 234, 234, 220, 181, 125};
 
 static const uint64_t three_by_three_mask[100] = {
   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 
@@ -54,11 +54,11 @@ static const uint64_t three_by_three_mask[100] = {
   0ULL, 217017207043915776ULL, 506373483102470144ULL, 1012746966204940288ULL, 2025493932409880576ULL, 4050987864819761152ULL, 8101975729639522304ULL, 16203951459279044608ULL, 13889101250810609664ULL, 0ULL, 
   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
-// PCENTRAL heuristic: Bonus for Pawn near center of board
-inline ev_score_t pcentral(fil_t f, rnk_t r) {
-  return pcentral_s[f][r];
-}
+static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
+1.0/8, 1.0/9, 1.0/10, 1.0/11, 1.0/12, 1.0/13, 1.0/14, 1.0/15, 1.0/16};
 
+// PCENTRAL heuristic: Bonus for Pawn near center of board
+#define pcentral(x) pcentral_s[x]
 
 // returns true if c lies on or between a and b, which are not ordered
 inline bool between(int c, int a, int b) {
@@ -107,8 +107,7 @@ ev_score_t kface(position_t *p, fil_t f, rnk_t r) {
       bonus = 0;
       tbassert(false, "Illegal King orientation.\n");
   }
-    
-  return (bonus * KFACE) / (abs(delta_rnk) + abs(delta_fil));
+  return (bonus * KFACE) * inv_s[abs(delta_rnk) + abs(delta_fil)-1];
 }
 
 // KAGGRESSIVE heuristic: bonus for King with more space to back
@@ -266,10 +265,6 @@ inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
   // return mobility;
 }
 
-
-
-static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
-1.0/8, 1.0/9, 1.0/10, 1.0/11, 1.0/12, 1.0/13, 1.0/14, 1.0/15, 1.0/16};
 // Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
 // float h_dist(square_t a, square_t b) {
 //   //  printf("a = %d, FIL(a) = %d, RNK(a) = %d\n", a, FIL(a), RNK(a));
@@ -336,10 +331,10 @@ score_t eval(position_t *p, bool verbose) {
   fil_t f1 = fil_of(p -> kloc[1]);
   rnk_t r1 = rnk_of(p -> kloc[1]);
   score += kface(p, f0, r0) + kaggressive(p, f0, r0);
-  score -= pcentral(f0, r0);
+  score -= pcentral(f0 * 8 + r0);
 
   score -= kface(p, f1, r1) + kaggressive(p, f1, r1);
-  score += pcentral(f1, r1);
+  score += pcentral(f1 * 8 + r1);
   // if (f0 > f1) {
   //   fil_t tmp = f0;
   //   f0 = f1;
@@ -361,7 +356,8 @@ score_t eval(position_t *p, bool verbose) {
     score += PAWN_EV_VALUE;
     // score += pbetween(p, f, r);
     score += (between(f, f0, f1) && between(r, r0, r1)) ? PBETWEEN : 0;
-    score += pcentral(f, r);
+    // score += pcentral(f, r);
+    score += pcentral(i);
   }
   mask = p -> mask[1];
   while (mask) {
@@ -373,11 +369,8 @@ score_t eval(position_t *p, bool verbose) {
     score -= PAWN_EV_VALUE;
     // score -= pbetween(p, f, r);
     score -= (between(f, f0, f1) && between(r, r0, r1)) ? PBETWEEN : 0;
-    score -= pcentral(f, r);
+    score -= pcentral(i);
   }
-
-  
-  
 
   uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
   uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);
