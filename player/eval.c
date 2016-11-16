@@ -328,163 +328,85 @@ score_t eval(position_t *p, bool verbose) {
   // seed rand_r with a value of 1, as per
   // http://linux.die.net/man/3/rand_r
   static __thread unsigned int seed = 1;
-  // verbose = true: print out components of score
-  ev_score_t score[2] = { 0, 0 };
-  //  int corner[2][2] = { {INF, INF}, {INF, INF} };
-  // ev_score_t bonus;
-  // char buf[MAX_CHARS_IN_MOVE];
-  uint64_t mask = p -> mask[0] | p -> mask[1];
+  ev_score_t score = 0;
+  uint64_t mask = p -> mask[0];
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;
     int i = LOG2(y);
     fil_t f = (i >> 3);
     rnk_t r = i & 7;
-
-    square_t sq = (f + FIL_ORIGIN) * ARR_WIDTH + r + RNK_ORIGIN;
-    
-    piece_t x = p->board[sq];
-    color_t c = color_of(x);
-    // if (verbose) {
-    //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
-    // }
-    // if (ptype_of(x) == PAWN) {
-      // bonus = ;
-      // if (verbose) {
-      //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-      // }
-    score[c] += PAWN_EV_VALUE;
-
-    // PBETWEEN heuristic
-    // bonus = ;
-    // if (verbose) {
-    //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-    // }
-    score[c] += pbetween(p, f, r);
-
-    // PCENTRAL heuristic
-    // bonus = ;
-    // if (verbose) {
-    //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-    // }
-    score[c] += pcentral(f, r);
-    // }
+    score += PAWN_EV_VALUE;
+    score += pbetween(p, f, r);
+    score += pcentral(f, r);
   }
+  mask = p -> mask[1];
+  while (mask) {
+    uint64_t y = mask & (-mask);
+    mask ^= y;
+    int i = LOG2(y);
+    fil_t f = (i >> 3);
+    rnk_t r = i & 7;
+    score -= PAWN_EV_VALUE;
+    score -= pbetween(p, f, r);
+    score -= pcentral(f, r);
+  }
+
   fil_t f = fil_of(p -> kloc[0]);
   rnk_t r = rnk_of(p -> kloc[0]);
-  score[0] += kface(p, f, r) + kaggressive(p, f, r);
-  // score[0] -= pbetween(p, f, r);
-  score[0] -= pcentral(f, r);
+  score += kface(p, f, r) + kaggressive(p, f, r);
+  score -= pcentral(f, r);
 
   f = fil_of(p -> kloc[1]);
   r = rnk_of(p -> kloc[1]);
-  score[1] += kface(p, f, r) + kaggressive(p, f, r);
-  // score[1] -= pbetween(p, f, r);
-  score[1] -= pcentral(f, r);
-
-  // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-  //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-  //     square_t sq = square_of(f, r);
-  //     piece_t x = p->board[sq];
-  //     color_t c = color_of(x);
-  //     // if (verbose) {
-  //     //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
-  //     // }
-
-  //     switch (ptype_of(x)) {
-  //       case EMPTY:
-  //         break;
-  //       case PAWN:
-  //         // MATERIAL heuristic: Bonus for each Pawn
-  //         bonus = PAWN_EV_VALUE;
-  //         // if (verbose) {
-  //         //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-  //         // }
-  //         score[c] += bonus;
-
-  //         // PBETWEEN heuristic
-  //         bonus = pbetween(p, f, r);
-  //         // if (verbose) {
-  //         //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-  //         // }
-  //         score[c] += bonus;
-
-  //         // PCENTRAL heuristic
-  //         bonus = pcentral(f, r);
-  //         // if (verbose) {
-  //         //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-  //         // }
-  //         score[c] += bonus;
-  //         break;
-
-  //       case KING:
-  //         // KFACE heuristic
-  //         bonus = kface(p, f, r);
-  //         // if (verbose) {
-  //         //   printf("KFACE bonus %d for %s King on %s\n", bonus,
-  //         //          color_to_str(c), buf);
-  //         // }
-  //         score[c] += bonus;
-
-  //         // KAGGRESSIVE heuristic
-  //         bonus = kaggressive(p, f, r);
-  //         // if (verbose) {
-  //         //   printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
-  //         // }
-  //         score[c] += bonus;
-  //         break;
-  //       case INVALID:
-  //         break;
-  //       default:
-  //         tbassert(false, "Jose says: no way!\n");   // No way, Jose!
-  //     }
-  //   }
-  // }
+  score -= kface(p, f, r) + kaggressive(p, f, r);
+  score += pcentral(f, r);
 
   uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
   uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);
   
   // H_SQUARES_ATTACKABLE heuristic
   ev_score_t w_hattackable = HATTACK * h_squares_attackable(p, WHITE, laser_WHITE);
-  score[WHITE] += w_hattackable;
+  score += w_hattackable;
   // if (verbose) {
   //   printf("HATTACK bonus %d for White\n", w_hattackable);
   // }
   ev_score_t b_hattackable = HATTACK * h_squares_attackable(p, BLACK, laser_BLACK);
-  score[BLACK] += b_hattackable;
+  score -= b_hattackable;
   // if (verbose) {
   //   printf("HATTACK bonus %d for Black\n", b_hattackable);
   // }
 
   // MOBILITY heuristic
   int w_mobility = MOBILITY * mobility(p, WHITE, laser_BLACK);
-  score[WHITE] += w_mobility;
+  score += w_mobility;
   // if (verbose) {
   //   printf("MOBILITY bonus %d for White\n", w_mobility);
   // }
   int b_mobility = MOBILITY * mobility(p, BLACK, laser_WHITE);
-  score[BLACK] += b_mobility;
+  score -= b_mobility;
   // if (verbose) {
   //   printf("MOBILITY bonus %d for Black\n", b_mobility);
   // }
 
   // PAWNPIN heuristic --- is a pawn immobilized by the enemy laser.
   int w_pawnpin = PAWNPIN * pawnpin(p, WHITE, laser_BLACK);
-  score[WHITE] += w_pawnpin;
+  score += w_pawnpin;
   int b_pawnpin = PAWNPIN * pawnpin(p, BLACK, laser_WHITE);
-  score[BLACK] += b_pawnpin;
+  score -= b_pawnpin;
 
   // score from WHITE point of view
-  ev_score_t tot = score[WHITE] - score[BLACK];
+  // ev_score_t tot = score[WHITE] - score[BLACK];
 
   if (RANDOMIZE) {
     ev_score_t  z = rand_r(&seed) % (RANDOMIZE*2+1);
-    tot = tot + z - RANDOMIZE;
+    score = score + z - RANDOMIZE;
   }
 
   if (color_to_move_of(p) == BLACK) {
-    tot = -tot;
+    score = -score;
   }
 
-  return tot / EV_SCORE_RATIO;
+  return score / EV_SCORE_RATIO;
 }
+  
