@@ -41,6 +41,17 @@ static const ev_score_t pcentral_s[8][8] = {
 {220, 302, 375, 411, 411, 375, 302, 220},
 {181, 249, 302, 323, 323, 302, 249, 181},
 {125, 181, 220, 234, 234, 220, 181, 125}};
+static const uint64_t three_by_three_mask[100] = {
+  0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 
+  0ULL, 771ULL, 1799ULL, 3598ULL, 7196ULL, 14392ULL, 28784ULL, 57568ULL, 49344ULL, 0ULL, 
+  0ULL, 197379ULL, 460551ULL, 921102ULL, 1842204ULL, 3684408ULL, 7368816ULL, 14737632ULL, 12632256ULL, 0ULL, 
+  0ULL, 50529024ULL, 117901056ULL, 235802112ULL, 471604224ULL, 943208448ULL, 1886416896ULL, 3772833792ULL, 3233857536ULL, 0ULL, 
+  0ULL, 12935430144ULL, 30182670336ULL, 60365340672ULL, 120730681344ULL, 241461362688ULL, 482922725376ULL, 965845450752ULL, 827867529216ULL, 0ULL, 
+  0ULL, 3311470116864ULL, 7726763606016ULL, 15453527212032ULL, 30907054424064ULL, 61814108848128ULL, 123628217696256ULL, 247256435392512ULL, 211934087479296ULL, 0ULL, 
+  0ULL, 847736349917184ULL, 1978051483140096ULL, 3956102966280192ULL, 7912205932560384ULL, 15824411865120768ULL, 31648823730241536ULL, 63297647460483072ULL, 54255126394699776ULL, 0ULL, 
+  0ULL, 217020505578799104ULL, 506381179683864576ULL, 1012762359367729152ULL, 2025524718735458304ULL, 4051049437470916608ULL, 8102098874941833216ULL, 16204197749883666432ULL, 13889312357043142656ULL, 0ULL, 
+  0ULL, 217017207043915776ULL, 506373483102470144ULL, 1012746966204940288ULL, 2025493932409880576ULL, 4050987864819761152ULL, 8101975729639522304ULL, 16203951459279044608ULL, 13889101250810609664ULL, 0ULL, 
+  0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
 // PCENTRAL heuristic: Bonus for Pawn near center of board
 inline ev_score_t pcentral(fil_t f, rnk_t r) {
@@ -258,7 +269,7 @@ int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
 
 // MOBILITY heuristic: safe squares around king of given color.
 
-int mobility(position_t *p, color_t color, uint64_t laser_map) {
+inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
   // color_t c = opp_color(color);
   // char laser_map[ARR_SIZE];
 
@@ -266,17 +277,17 @@ int mobility(position_t *p, color_t color, uint64_t laser_map) {
 
   // mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
   // uint64_t laser_map = mark_laser_path_bit(p, c);
-  int mobility = 0;
+  // int mobility = 0;
   // tbassert(ptype_of(p->board[king_sq]) == KING,
   //          "ptype: %d\n", ptype_of(p->board[king_sq]));
   // tbassert(color_of(p->board[king_sq]) == color,
   //          "color: %d\n", color_of(p->board[king_sq]));
 
-  int kingx = fil_of(p->kloc[color]), kingy = rnk_of(p->kloc[color]);
-  for (int i = MAX(0, kingx - 1); i < MIN(8, kingx + 2); i++)
-    for (int j = MAX(0, kingy - 1); j < MIN(8, kingy + 2); j++)
-      if (!(laser_map & (1ULL << (i << 3) << j)))
-        mobility += 1;
+  // int kingx = fil_of(p->kloc[color]), kingy = rnk_of(p->kloc[color]);
+  // for (int i = MAX(0, kingx - 1); i < MIN(8, kingx + 2); i++)
+  //   for (int j = MAX(0, kingy - 1); j < MIN(8, kingy + 2); j++)
+  //     if (!(laser_map & (1ULL << (i << 3) << j)))
+  //       mobility += 1;
   // if (laser_map[king_sq] == 0) {
   //   mobility++;
   // }
@@ -286,7 +297,8 @@ int mobility(position_t *p, color_t color, uint64_t laser_map) {
   //     mobility++;
   //   }
   // }
-  return mobility;
+  return __builtin_popcountl((~laser_map) & three_by_three_mask[p -> kloc[color]]);
+  // return mobility;
 }
 
 
@@ -355,7 +367,7 @@ score_t eval(position_t *p, bool verbose) {
   // verbose = true: print out components of score
   ev_score_t score[2] = { 0, 0 };
   //  int corner[2][2] = { {INF, INF}, {INF, INF} };
-  ev_score_t bonus;
+  // ev_score_t bonus;
   // char buf[MAX_CHARS_IN_MOVE];
   uint64_t mask = p -> mask[0] | p -> mask[1];
   while (mask) {
@@ -368,56 +380,35 @@ score_t eval(position_t *p, bool verbose) {
     square_t sq = (f + FIL_ORIGIN) * ARR_WIDTH + r + RNK_ORIGIN;
     
     piece_t x = p->board[sq];
-      color_t c = color_of(x);
+    color_t c = color_of(x);
+    // if (verbose) {
+    //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
+    // }
+    if (ptype_of(x) == PAWN) {
+      // bonus = ;
       // if (verbose) {
-      //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
+      //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
       // }
+      score[c] += PAWN_EV_VALUE;
 
-      switch (ptype_of(x)) {
-        case PAWN:
-          // MATERIAL heuristic: Bonus for each Pawn
-          bonus = PAWN_EV_VALUE;
-          // if (verbose) {
-          //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          // }
-          score[c] += bonus;
+      // PBETWEEN heuristic
+      // bonus = ;
+      // if (verbose) {
+      //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+      // }
+      score[c] += pbetween(p, f, r);
 
-          // PBETWEEN heuristic
-          bonus = pbetween(p, f, r);
-          // if (verbose) {
-          //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          // }
-          score[c] += bonus;
-
-          // PCENTRAL heuristic
-          bonus = pcentral(f, r);
-          // if (verbose) {
-          //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-          // }
-          score[c] += bonus;
-          break;
-
-        case KING:
-          // KFACE heuristic
-          bonus = kface(p, f, r);
-          // if (verbose) {
-          //   printf("KFACE bonus %d for %s King on %s\n", bonus,
-          //          color_to_str(c), buf);
-          // }
-          score[c] += bonus;
-
-          // KAGGRESSIVE heuristic
-          bonus = kaggressive(p, f, r);
-          // if (verbose) {
-          //   printf("KAGGRESSIVE bonus %d for %s King on %s\n", bonus, color_to_str(c), buf);
-          // }
-          score[c] += bonus;
-        //   break;
-        default:;
-        //   tbassert(false, "Jose says: no way!\n");   // No way, Jose!
-      }
+      // PCENTRAL heuristic
+      // bonus = ;
+      // if (verbose) {
+      //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+      // }
+      score[c] += pcentral(f, r);
+    }
   }
-
+  score[0] += kface(p, fil_of(p -> kloc[0]), rnk_of(p -> kloc[0])) + kaggressive(p, fil_of(p -> kloc[0]), rnk_of(p -> kloc[0]));
+  score[1] += kface(p, fil_of(p -> kloc[1]), rnk_of(p -> kloc[1])) + kaggressive(p, fil_of(p -> kloc[1]), rnk_of(p -> kloc[1]));
+  
   // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
   //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
   //     square_t sq = square_of(f, r);
@@ -483,26 +474,26 @@ score_t eval(position_t *p, bool verbose) {
   // H_SQUARES_ATTACKABLE heuristic
   ev_score_t w_hattackable = HATTACK * h_squares_attackable(p, WHITE, laser_WHITE);
   score[WHITE] += w_hattackable;
-  if (verbose) {
-    printf("HATTACK bonus %d for White\n", w_hattackable);
-  }
+  // if (verbose) {
+  //   printf("HATTACK bonus %d for White\n", w_hattackable);
+  // }
   ev_score_t b_hattackable = HATTACK * h_squares_attackable(p, BLACK, laser_BLACK);
   score[BLACK] += b_hattackable;
-  if (verbose) {
-    printf("HATTACK bonus %d for Black\n", b_hattackable);
-  }
+  // if (verbose) {
+  //   printf("HATTACK bonus %d for Black\n", b_hattackable);
+  // }
 
   // MOBILITY heuristic
   int w_mobility = MOBILITY * mobility(p, WHITE, laser_BLACK);
   score[WHITE] += w_mobility;
-  if (verbose) {
-    printf("MOBILITY bonus %d for White\n", w_mobility);
-  }
+  // if (verbose) {
+  //   printf("MOBILITY bonus %d for White\n", w_mobility);
+  // }
   int b_mobility = MOBILITY * mobility(p, BLACK, laser_WHITE);
   score[BLACK] += b_mobility;
-  if (verbose) {
-    printf("MOBILITY bonus %d for Black\n", b_mobility);
-  }
+  // if (verbose) {
+  //   printf("MOBILITY bonus %d for Black\n", b_mobility);
+  // }
 
   // PAWNPIN heuristic --- is a pawn immobilized by the enemy laser.
   int w_pawnpin = PAWNPIN * pawnpin(p, WHITE, laser_BLACK);
