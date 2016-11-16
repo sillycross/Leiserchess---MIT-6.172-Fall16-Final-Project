@@ -108,7 +108,7 @@ static score_t scout_search(searchNode *node, int depth,
   // Sort the move list.
   // sort_incremental(move_list, num_of_moves, number_of_moves_evaluated);
 
-  // Using branchless if here decreases speed.
+  // Using branchless if here does not increase speed.
   for (int i = MAX_NUM_MOVES - 1; i; i--)
     if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
       range_tree[i] = range_tree[i << 1];
@@ -121,45 +121,51 @@ static score_t scout_search(searchNode *node, int depth,
     move_t mv = get_move(move_list[range_tree[1]]);
     sorted_move_list[mv_index] = move_list[range_tree[1]];
     // printf("?? %d\n", local_index + MAX_NUM_MOVES);
-    int i = range_tree[1];
+    int i = range_tree[1], j;
     // printf("%d\n", i);
     move_list[i] = 0;
     i += MAX_NUM_MOVES;
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
-    i >>= 1;
-    if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-      range_tree[i] = range_tree[i << 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
+    j = i>>1;
+    if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+      range_tree[j] = range_tree[i];
     else
-      range_tree[i] = range_tree[(i << 1) ^ 1];
+      range_tree[j] = range_tree[i ^ 1];
+    i = j;
 
     if (TRACE_MOVES) {
       print_move_info(mv, node->ply);
