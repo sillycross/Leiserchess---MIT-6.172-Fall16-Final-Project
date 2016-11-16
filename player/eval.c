@@ -20,7 +20,6 @@ int RANDOMIZE;
 int PCENTRAL;
 int HATTACK;
 int PBETWEEN;
-int PCENTRAL;
 int KFACE;
 int KAGGRESSIVE;
 int MOBILITY;
@@ -28,9 +27,6 @@ int PAWNPIN;
 
 // Heuristics for static evaluation - described in the google doc
 // mentioned in the handout.
-// #define LOG2(X) ((unsigned) (__builtin_ctzll((X))))
-//#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
-//#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 
 static const ev_score_t pcentral_s[64] = {
 125, 181, 220, 234, 234, 220, 181, 125,
