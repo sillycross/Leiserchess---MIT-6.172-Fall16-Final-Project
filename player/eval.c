@@ -63,6 +63,7 @@ inline ev_score_t pcentral(fil_t f, rnk_t r) {
 // returns true if c lies on or between a and b, which are not ordered
 inline bool between(int c, int a, int b) {
   bool x = ((c >= a) && (c <= b)) || ((c <= a) && (c >= b));
+  // bool x = ((c >= a) && (c <= b));
   return x;
 }
 
@@ -106,7 +107,7 @@ ev_score_t kface(position_t *p, fil_t f, rnk_t r) {
       bonus = 0;
       tbassert(false, "Illegal King orientation.\n");
   }
-
+    
   return (bonus * KFACE) / (abs(delta_rnk) + abs(delta_fil));
 }
 
@@ -329,38 +330,54 @@ score_t eval(position_t *p, bool verbose) {
   // http://linux.die.net/man/3/rand_r
   static __thread unsigned int seed = 1;
   ev_score_t score = 0;
+  
+  fil_t f0 = fil_of(p -> kloc[0]);
+  rnk_t r0 = rnk_of(p -> kloc[0]);
+  fil_t f1 = fil_of(p -> kloc[1]);
+  rnk_t r1 = rnk_of(p -> kloc[1]);
+  score += kface(p, f0, r0) + kaggressive(p, f0, r0);
+  score -= pcentral(f0, r0);
+
+  score -= kface(p, f1, r1) + kaggressive(p, f1, r1);
+  score += pcentral(f1, r1);
+  // if (f0 > f1) {
+  //   fil_t tmp = f0;
+  //   f0 = f1;
+  //   f1 = tmp;
+  // }
+  // if (r0 > r1) {
+  //   rnk_t tmp = r0;
+  //   r0 = r1;
+  //   r1 = tmp;
+  // }
+
   uint64_t mask = p -> mask[0];
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;
-    int i = LOG2(y);
+    uint8_t i = LOG2(y);
     fil_t f = (i >> 3);
     rnk_t r = i & 7;
     score += PAWN_EV_VALUE;
-    score += pbetween(p, f, r);
+    // score += pbetween(p, f, r);
+    score += (between(f, f0, f1) && between(r, r0, r1)) ? PBETWEEN : 0;
     score += pcentral(f, r);
   }
   mask = p -> mask[1];
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;
-    int i = LOG2(y);
+    uint8_t i = LOG2(y);
     fil_t f = (i >> 3);
     rnk_t r = i & 7;
     score -= PAWN_EV_VALUE;
-    score -= pbetween(p, f, r);
+    // score -= pbetween(p, f, r);
+    score -= (between(f, f0, f1) && between(r, r0, r1)) ? PBETWEEN : 0;
     score -= pcentral(f, r);
   }
 
-  fil_t f = fil_of(p -> kloc[0]);
-  rnk_t r = rnk_of(p -> kloc[0]);
-  score += kface(p, f, r) + kaggressive(p, f, r);
-  score -= pcentral(f, r);
-
-  f = fil_of(p -> kloc[1]);
-  r = rnk_of(p -> kloc[1]);
-  score -= kface(p, f, r) + kaggressive(p, f, r);
-  score += pcentral(f, r);
+  
+  
 
   uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
   uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);

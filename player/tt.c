@@ -160,7 +160,7 @@ void tt_hashtable_put(uint64_t key, int depth, score_t score,
 }
 
 
-ttRec_t *tt_hashtable_get(uint64_t key) {
+inline ttRec_t *tt_hashtable_get(uint64_t key) {
   if (!USE_TT) {
     return NULL;  // done if we are not using the transposition table
   }
@@ -168,13 +168,19 @@ ttRec_t *tt_hashtable_get(uint64_t key) {
   uint64_t set_index = key & hashtable.mask;
   ttRec_t *rec = hashtable.tt_set[set_index].records;
 
-  ttRec_t *found = NULL;
-  for (int i = 0; i < RECORDS_PER_SET; i++, rec++) {
-    if (rec->key == key) {  // found the record that we are looking for
-      found = rec;
-    }
-  }
-  return found;
+  //Assume RECORDS_PER_SET= 1
+  if (rec -> key == key)
+    return rec;
+  else
+    return NULL;
+  // ttRec_t *found = NULL;
+  // for (int i = 0; i < RECORDS_PER_SET; i++, rec++) {
+  //   if (rec->key == key) {  // found the record that we are looking for
+  //     found = rec;
+  //     return rec;
+  //   }
+  // }
+  // return found;
 }
 
 
