@@ -43,7 +43,7 @@ static const ev_score_t pcentral_s[8][8] = {
 {125, 181, 220, 234, 234, 220, 181, 125}};
 
 // PCENTRAL heuristic: Bonus for Pawn near center of board
-inline ev_score_t pcentral(fil_t f, rnk_t r) {
+ ev_score_t pcentral(fil_t f, rnk_t r) {
   return pcentral_s[f][r];
 }
 
@@ -232,35 +232,28 @@ int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
   //   printf("%llu %llu\n", transform(laser_map), mark_laser_path_bit(p, c));
   //   printf("ERROR\n");
   // }
-  tbassert(p->mask == compute_mask(p),
+  tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
-           p->mask, compute_mask(p));
-  int unpinned_pawns = 0;
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
+  // int unpinned_pawns = 0;
 
   // Figure out which pawns are not pinned down by the laser.
-  uint64_t mask = (~laser_map) & p -> mask;
-  while (mask) {
-    uint64_t y = mask & (-mask);
-    int i = LOG2(y);
-    int r = ((i >> 3) + FIL_ORIGIN) * ARR_WIDTH + (i & 7) + RNK_ORIGIN;
-    if (color_of(p->board[r]) == color &&
-          ptype_of(p->board[r]) == PAWN) {
-        unpinned_pawns += 1;
-    }
-    mask ^= y;
-  }
+  uint64_t mask = (~laser_map) & p -> mask[color];
+  return __builtin_popcountl(mask) - ((1ULL << (fil_of(p -> kloc[color]) * 8 + rnk_of(p -> kloc[color])) & mask) != 0);
 
   // for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
   //   for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-  //     if (laser_map[square_of(f, r)] == 0 &&
-  //         color_of(p->board[square_of(f, r)]) == color &&
+  //     if ((mask & (1ULL << (8 * f + r))) != 0 &&
   //         ptype_of(p->board[square_of(f, r)]) == PAWN) {
   //       unpinned_pawns += 1;
   //     }
   //   }
   // }
-
-  return unpinned_pawns;
+  // printf("%d %d\n", __builtin_popcountl(mask) - ((1ULL << (fil_of(p -> kloc[color]) * 8 + rnk_of(p -> kloc[color])) & mask) != 0), unpinned_pawns);
+  // return unpinned_pawns;
 }
 
 // MOBILITY heuristic: safe squares around king of given color.
@@ -364,7 +357,7 @@ score_t eval(position_t *p, bool verbose) {
   //  int corner[2][2] = { {INF, INF}, {INF, INF} };
   ev_score_t bonus;
   // char buf[MAX_CHARS_IN_MOVE];
-  uint64_t mask = p -> mask;
+  uint64_t mask = p -> mask[0] | p -> mask[1];
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;

@@ -60,7 +60,7 @@ void set_color(piece_t *x, color_t c) {
 }
 
 
-ptype_t ptype_of(piece_t x) {
+inline ptype_t ptype_of(piece_t x) {
   return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
 }
 
@@ -69,7 +69,7 @@ void set_ptype(piece_t *x, ptype_t pt) {
       (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
 }
 
-int ori_of(piece_t x) {
+inline int ori_of(piece_t x) {
   return (x >> ORI_SHIFT) & ORI_MASK;
 }
 
@@ -122,12 +122,12 @@ uint64_t compute_zob_key(position_t *p) {
   return key;
 }
 
-uint64_t compute_mask(position_t *p) {
+uint64_t compute_mask(position_t *p, color_t color) {
   uint64_t key = 0;
   for (fil_t f = 0; f < BOARD_WIDTH; f++) {
     for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
       square_t sq = square_of(f, r);
-      if (p->board[sq])
+      if (p->board[sq] && color_of(p->board[sq]) == color)
         key |= (1ULL << (f << 3) << r);
     }
   }
@@ -194,7 +194,7 @@ int dir_of(int i) {
 
 
 // directions for laser: NN, EE, SS, WW
-static int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
+static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
 
 int beam_of(int direction) {
   tbassert(direction >= 0 && direction < NUM_ORI, "dir: %d\n", direction);
@@ -287,9 +287,12 @@ void move_to_str(move_t mv, char *buf, size_t bufsize) {
 
 int generate_all(position_t *p, sortable_move_t *sortable_move_list,
                  bool strict) {
-  tbassert(p->mask == compute_mask(p),
+  tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
-           p->mask, compute_mask(p));
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
   color_t color_to_move = color_to_move_of(p);
   // Make sure that the enemy_laser map is marked
   // char laser_map[ARR_SIZE];
@@ -300,7 +303,7 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
   // mark_laser_path(p, opp_color(color_to_move), laser_map, 1);
   uint64_t laser_map = mark_laser_path_bit(p, opp_color(color_to_move));
   int move_count = 0;
-  uint64_t mask = p -> mask & ~laser_map;
+  uint64_t mask = p -> mask[color_to_move] & ~laser_map;
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;
@@ -317,7 +320,7 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
       piece_t x = p->board[sq];
 
       ptype_t typ = ptype_of(x);
-      color_t color = color_of(x);
+      // color_t color = color_of(x);
 
       switch (typ) {
         // case EMPTY:
@@ -325,9 +328,9 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
         case PAWN:
           // if (laser_map[sq] == 1) continue;  // Piece is pinned down by laser.
         case KING:
-          if (color != color_to_move) {  // Wrong color
-            break;
-          }
+          // if (color != color_to_move) {  // Wrong color
+          //   break;
+          // }
           // directions
           for (int d = 0; d < 8; d++) {
             int dest = sq + dir_of(d);
@@ -390,9 +393,12 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
 // p : Current board state.
 // c : Color of king shooting laser.
 square_t fire_laser(position_t *p, color_t c) {
-  tbassert(p->mask == compute_mask(p),
+  tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
-           p->mask, compute_mask(p));
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
   // color_t fake_color_to_move = (color_to_move_of(p) == WHITE) ? BLACK : WHITE;0
   square_t sq = p->kloc[c];
   int bdir = ori_of(p->board[sq]);
@@ -420,7 +426,7 @@ square_t fire_laser(position_t *p, color_t c) {
         return 0;
         break;
       default:  // Shouldna happen, man!
-        tbassert(false, "Like porkchops and whipped cream.\n");
+        // tbassert(false, "Like porkchops and whipped cream.\n");
         break;
     }
   }
@@ -438,9 +444,13 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
   tbassert(old->key == compute_zob_key(old),
            "old->key: %"PRIu64", zob-key: %"PRIu64"\n",
            old->key, compute_zob_key(old));
-  tbassert(old->mask == compute_mask(old),
+  tbassert(old->mask[0] == compute_mask(old, 0),
            "old->key: %"PRIu64", zob-key: %"PRIu64"\n",
-           old->mask, compute_mask(old));
+           old->mask[0], compute_mask(old, 0));
+  tbassert(old->mask[1] == compute_mask(old, 1),
+           "old->key: %"PRIu64", zob-key: %"PRIu64"\n",
+           old->mask[1], compute_mask(old, 1));
+
 
   WHEN_DEBUG_VERBOSE({
       fprintf(stderr, "Before:\n");
@@ -487,9 +497,12 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
   tbassert(to_sq < ARR_SIZE && to_sq > 0, "to_sq: %d\n", to_sq);
   tbassert(p->board[to_sq] < (1 << PIECE_SIZE) && p->board[to_sq] >= 0,
            "p->board[to_sq]: %d\n", p->board[to_sq]);
-  tbassert(p->mask == compute_mask(p),
+  tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
-           p->mask, compute_mask(p));
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
 
   p->key ^= zob_color;   // swap color to move
 
@@ -509,10 +522,13 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
     p->key ^= zob[to_sq][from_piece];  // place from_piece in to_sq
     p->key ^= zob[from_sq][to_piece];  // place to_piece in from_sq
 
-    if (!to_piece) {
-      p->mask ^= (1ULL << (fil_of(from_sq) << 3) << rnk_of(from_sq));
-      p->mask ^= (1ULL << (fil_of(to_sq) << 3) << rnk_of(to_sq));
-    }
+    // if (!to_piece) {
+    uint64_t tmp = (1ULL << (fil_of(from_sq) << 3) << rnk_of(from_sq)) ^ (1ULL << (fil_of(to_sq) << 3) << rnk_of(to_sq));
+    p->mask[color_of(from_piece)] ^= tmp;
+    if (to_piece)
+      p->mask[color_of(to_piece)] ^= tmp;
+    // }
+    // if ()
     // Update King locations if necessary
     if (ptype_of(from_piece) == KING) {
       p->kloc[color_of(from_piece)] = to_sq;
@@ -536,9 +552,12 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
            "p->key: %"PRIu64", zob-key: %"PRIu64"\n",
            p->key, compute_zob_key(p));
 
-  tbassert(p->mask == compute_mask(p),
+  tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
-           p->mask, compute_mask(p));
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
 
   WHEN_DEBUG_VERBOSE({
       fprintf(stderr, "After:\n");
@@ -571,14 +590,17 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     p->key ^= zob[victim_sq][victim_piece];
     p->board[victim_sq] = 0;
     p->key ^= zob[victim_sq][0];
-    p->mask ^= (1ULL << (fil_of(victim_sq) << 3) << rnk_of(victim_sq));
+    p->mask[color_of(victim_piece)] ^= (1ULL << (fil_of(victim_sq) << 3) << rnk_of(victim_sq));
 
     tbassert(p->key == compute_zob_key(p),
              "p->key: %"PRIu64", zob-key: %"PRIu64"\n",
              p->key, compute_zob_key(p));
-    tbassert(p->mask == compute_mask(p),
-         "p->key: %"PRIu64", zob-key: %"PRIu64"\n",
-         p->mask, compute_mask(p));
+    tbassert(p->mask[0] == compute_mask(p, 0),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[0], compute_mask(p, 0));
+  tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
 
     WHEN_DEBUG_VERBOSE({
         square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
@@ -613,7 +635,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       if (match) return KO();
     }
 
-    if (p->key == old->history->key && p->mask == old->history->mask) {
+    if (p->key == old->history->key && p->mask[0] == old->history->mask[0] && p->mask[1] == old->history->mask[1]) {
       bool match = true;
 
       for (fil_t f = FIL_ORIGIN * ARR_WIDTH; f < FIL_ORIGIN * ARR_WIDTH + BOARD_WIDTH * ARR_WIDTH; f += ARR_WIDTH) {
@@ -672,7 +694,7 @@ static uint64_t perft_search(position_t *p, int depth, int ply) {
       np.key ^= zob[victim_sq][victim_piece];   // remove from board
       np.board[victim_sq] = 0;
       np.key ^= zob[victim_sq][0];
-      np.mask ^= (1ULL << (fil_of(victim_sq) << 3) << rnk_of(victim_sq));
+      np.mask[color_of(victim_piece)] ^= (1ULL << (fil_of(victim_sq) << 3) << rnk_of(victim_sq));
 
       if (ptype_of(victim_piece) == KING) break;
     }
