@@ -94,14 +94,14 @@ void set_ori(piece_t *x, int ori) {
 // -----------------------------------------------------------------------------
 
 // King orientations
-char *king_ori_to_rep[2][NUM_ORI] = { { "NN", "EE", "SS", "WW" },
+static const char *king_ori_to_rep[2][NUM_ORI] = { { "NN", "EE", "SS", "WW" },
                                       { "nn", "ee", "ss", "ww" } };
 
 // Pawn orientations
-char *pawn_ori_to_rep[2][NUM_ORI] = { { "NW", "NE", "SE", "SW" },
+static const char *pawn_ori_to_rep[2][NUM_ORI] = { { "NW", "NE", "SE", "SW" },
                                       { "nw", "ne", "se", "sw" } };
 
-char *nesw_to_str[NUM_ORI] = {"north", "east", "south", "west"};
+//static const char *nesw_to_str[NUM_ORI] = {"north", "east", "south", "west"};
 
 // -----------------------------------------------------------------------------
 // Board hashing
@@ -159,7 +159,7 @@ void init_zob() {
 // -----------------------------------------------------------------------------
 
 // For no square, use 0, which is guaranteed to be off board
-square_t square_of(fil_t f, rnk_t r) {
+inline square_t square_of(fil_t f, rnk_t r) {
   square_t s = ARR_WIDTH * (FIL_ORIGIN + f) + RNK_ORIGIN + r;
   DEBUG_LOG(1, "Square of (file %d, rank %d) is %d\n", f, r, s);
   tbassert((s >= 0) && (s < ARR_SIZE), "s: %d\n", s);
@@ -167,21 +167,21 @@ square_t square_of(fil_t f, rnk_t r) {
 }
 
 // Finds file of square
-fil_t fil_of(square_t sq) {
+inline fil_t fil_of(square_t sq) {
   fil_t f = sq / ARR_WIDTH - FIL_ORIGIN;
   DEBUG_LOG(1, "File of square %d is %d\n", sq, f);
   return f;
 }
 
 // Finds rank of square
-rnk_t rnk_of(square_t sq) {
+inline rnk_t rnk_of(square_t sq) {
   rnk_t r = sq % ARR_WIDTH - RNK_ORIGIN;
   DEBUG_LOG(1, "Rank of square %d is %d\n", sq, r);
   return r;
 }
 
 // converts a square to string notation, returns number of characters printed
-int square_to_str(square_t sq, char *buf, size_t bufsize) {
+inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
   fil_t f = fil_of(sq);
   rnk_t r = rnk_of(sq);
   if (f >= 0) {
@@ -198,7 +198,7 @@ int square_to_str(square_t sq, char *buf, size_t bufsize) {
 // direction map
 static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
                       ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
-int dir_of(int i) {
+inline int dir_of(int i) {
   tbassert(i >= 0 && i < 8, "i: %d\n", i);
   return dir[i];
 }
@@ -207,14 +207,14 @@ int dir_of(int i) {
 // directions for laser: NN, EE, SS, WW
 static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
 
-int beam_of(int direction) {
+inline int beam_of(int direction) {
   tbassert(direction >= 0 && direction < NUM_ORI, "dir: %d\n", direction);
   return beam[direction];
 }
 
 // reflect[beam_dir][pawn_orientation]
 // -1 indicates back of Pawn
-int reflect[NUM_ORI][NUM_ORI] = {
+static const int reflect[NUM_ORI][NUM_ORI] = {
   //  NW  NE  SE  SW
   { -1, -1, EE, WW},   // NN
   { NN, -1, -1, SS},   // EE
@@ -222,7 +222,7 @@ int reflect[NUM_ORI][NUM_ORI] = {
   { -1, NN, SS, -1 }   // WW
 };
 
-int reflect_of(int beam_dir, int pawn_ori) {
+inline int reflect_of(int beam_dir, int pawn_ori) {
   tbassert(beam_dir >= 0 && beam_dir < NUM_ORI, "beam-dir: %d\n", beam_dir);
   tbassert(pawn_ori >= 0 && pawn_ori < NUM_ORI, "pawn-ori: %d\n", pawn_ori);
   return reflect[beam_dir][pawn_ori];
@@ -232,23 +232,23 @@ int reflect_of(int beam_dir, int pawn_ori) {
 // Move getters and setters
 // -----------------------------------------------------------------------------
 
-ptype_t ptype_mv_of(move_t mv) {
+inline ptype_t ptype_mv_of(move_t mv) {
   return (ptype_t) ((mv >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK);
 }
 
-square_t from_square(move_t mv) {
+inline square_t from_square(move_t mv) {
   return (mv >> FROM_SHIFT) & FROM_MASK;
 }
 
-square_t to_square(move_t mv) {
+inline square_t to_square(move_t mv) {
   return (mv >> TO_SHIFT) & TO_MASK;
 }
 
-rot_t rot_of(move_t mv) {
+inline rot_t rot_of(move_t mv) {
   return (rot_t) ((mv >> ROT_SHIFT) & ROT_MASK);
 }
 
-move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq) {
+inline move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq) {
   return ((typ & PTYPE_MV_MASK) << PTYPE_MV_SHIFT) |
       ((rot & ROT_MASK) << ROT_SHIFT) |
       ((from_sq & FROM_MASK) << FROM_SHIFT) |
@@ -803,26 +803,26 @@ void display(position_t *p) {
 // Ko and illegal move signalling
 // -----------------------------------------------------------------------------
 
-victims_t KO() {
+inline victims_t KO() {
   return ((victims_t) {KO_ZAPPED, {0}});
 }
 
-victims_t ILLEGAL() {
+inline victims_t ILLEGAL() {
   return ((victims_t) {ILLEGAL_ZAPPED, {0}});
 }
 
-bool is_KO(victims_t victims) {
+inline bool is_KO(victims_t victims) {
   return (victims.zapped_count == KO_ZAPPED);
 }
 
-bool is_ILLEGAL(victims_t victims) {
+inline bool is_ILLEGAL(victims_t victims) {
   return (victims.zapped_count == ILLEGAL_ZAPPED);
 }
 
-bool zero_victims(victims_t victims) {
+inline bool zero_victims(victims_t victims) {
   return (victims.zapped_count == 0);
 }
 
-bool victim_exists(victims_t victims) {
+inline bool victim_exists(victims_t victims) {
   return (victims.zapped_count > 0);
 }

@@ -41,6 +41,7 @@ static const ev_score_t pcentral_s[8][8] = {
 {220, 302, 375, 411, 411, 375, 302, 220},
 {181, 249, 302, 323, 323, 302, 249, 181},
 {125, 181, 220, 234, 234, 220, 181, 125}};
+
 static const uint64_t three_by_three_mask[100] = {
   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 
   0ULL, 771ULL, 1799ULL, 3598ULL, 7196ULL, 14392ULL, 28784ULL, 57568ULL, 49344ULL, 0ULL, 
@@ -231,7 +232,7 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
 // PAWNPIN Heuristic: count number of pawns that are not pinned by the
 //   opposing king's laser --- and are thus mobile.
 
-int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
+inline int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
   // color_t c = opp_color(color);
   // char laser_map[ARR_SIZE];
 

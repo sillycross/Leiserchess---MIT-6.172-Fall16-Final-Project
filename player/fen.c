@@ -461,11 +461,11 @@ int fen_to_pos(position_t *p, char *fen) {
 
 // King orientations
 // This code is duplicated from move_gen.c
-static char *king_ori_to_rep[2][NUM_ORI] = {  { "NN", "EE", "SS", "WW" },
+static const char *king_ori_to_rep[2][NUM_ORI] = {  { "NN", "EE", "SS", "WW" },
                                               { "nn", "ee", "ss", "ww" } };
 
 // Pawn orientations
-static char *pawn_ori_to_rep[2][NUM_ORI] = {  { "NW", "NE", "SE", "SW" },
+static const char *pawn_ori_to_rep[2][NUM_ORI] = {  { "NW", "NE", "SE", "SW" },
                                               { "nw", "ne", "se", "sw" } };
 
 // Translate a position struct into a fen string
