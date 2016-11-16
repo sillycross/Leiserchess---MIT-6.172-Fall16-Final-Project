@@ -26,7 +26,7 @@
 
 // Board is 8 x 8 or 10 x 10
 #define BOARD_WIDTH 8
-#define LOG2(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1))
+#define LOG2(X) ((unsigned) (__builtin_ctzll((X))))
 
 static const char laser_map_s[ARR_SIZE] = {
 4,4,4,4,4,4,4,4,4,4,
@@ -40,9 +40,9 @@ static const char laser_map_s[ARR_SIZE] = {
 4,0,0,0,0,0,0,0,0,4,
 4,4,4,4,4,4,4,4,4,4};
 
-typedef int square_t;
-typedef int rnk_t;
-typedef int fil_t;
+typedef uint8_t square_t;
+typedef uint8_t rnk_t;
+typedef uint8_t fil_t;
 
 #define FIL_ORIGIN ((ARR_WIDTH - BOARD_WIDTH) / 2)
 #define RNK_ORIGIN ((ARR_WIDTH - BOARD_WIDTH) / 2)
@@ -58,7 +58,7 @@ typedef int fil_t;
 
 #define PIECE_SIZE 5  // Number of bits in (ptype, color, orientation)
 
-typedef int piece_t;
+typedef uint8_t piece_t;
 
 // -----------------------------------------------------------------------------
 // Piece types
@@ -137,7 +137,7 @@ typedef enum {
 
 // A single move can zap up to 13 pieces.
 typedef struct victims_t {
-  int zapped_count;
+  int8_t zapped_count;
   piece_t zapped[13];
 } victims_t;
 

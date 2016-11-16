@@ -28,7 +28,7 @@ int PAWNPIN;
 
 // Heuristics for static evaluation - described in the google doc
 // mentioned in the handout.
-#define LOG2(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1))
+// #define LOG2(X) ((unsigned) (__builtin_ctzll((X))))
 //#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
 //#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 
@@ -146,43 +146,6 @@ ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
 // laser_map : End result will be stored here. Every square on the
 //             path of the laser is marked with mark_mask.
 // mark_mask : What each square is marked with.
-
-void mark_laser_path(position_t *p, color_t c, char *laser_map,
-                     char mark_mask) {
-
-  square_t sq = p->kloc[c];
-  int bdir = ori_of(p->board[sq]);
-
-  tbassert(ptype_of(p->board[sq]) == KING,
-           "ptype: %d\n", ptype_of(p->board[sq]));
-  laser_map[sq] |= mark_mask;
-
-  while (true) {
-    sq += beam_of(bdir);
-    laser_map[sq] |= mark_mask;
-    tbassert(sq < ARR_SIZE && sq >= 0, "sq: %d\n", sq);
-
-    switch (ptype_of(p->board[sq])) {
-      case EMPTY:  // empty square
-        break;
-      case PAWN:  // Pawn
-        bdir = reflect_of(bdir, ori_of(p->board[sq]));
-        if (bdir < 0) {  // Hit back of Pawn
-          return;
-        }
-        break;
-      case KING:  // King
-        return;  // sorry, game over my friend!
-        break;
-      case INVALID:  // Ran off edge of board
-        return;
-        break;
-      default:  // Shouldna happen, man!
-        tbassert(false, "Not cool, man.  Not cool.\n");
-        break;
-    }
-  }
-}
 
 // directions for laser: NN, EE, SS, WW
 static const int beam_64[NUM_ORI] = {1, 8, -1, -8};
@@ -385,31 +348,40 @@ score_t eval(position_t *p, bool verbose) {
     // if (verbose) {
     //   square_to_str(sq, buf, MAX_CHARS_IN_MOVE);
     // }
-    if (ptype_of(x) == PAWN) {
+    // if (ptype_of(x) == PAWN) {
       // bonus = ;
       // if (verbose) {
       //   printf("MATERIAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
       // }
-      score[c] += PAWN_EV_VALUE;
+    score[c] += PAWN_EV_VALUE;
 
-      // PBETWEEN heuristic
-      // bonus = ;
-      // if (verbose) {
-      //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-      // }
-      score[c] += pbetween(p, f, r);
+    // PBETWEEN heuristic
+    // bonus = ;
+    // if (verbose) {
+    //   printf("PBETWEEN bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+    // }
+    score[c] += pbetween(p, f, r);
 
-      // PCENTRAL heuristic
-      // bonus = ;
-      // if (verbose) {
-      //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
-      // }
-      score[c] += pcentral(f, r);
-    }
+    // PCENTRAL heuristic
+    // bonus = ;
+    // if (verbose) {
+    //   printf("PCENTRAL bonus %d for %s Pawn on %s\n", bonus, color_to_str(c), buf);
+    // }
+    score[c] += pcentral(f, r);
+    // }
   }
-  score[0] += kface(p, fil_of(p -> kloc[0]), rnk_of(p -> kloc[0])) + kaggressive(p, fil_of(p -> kloc[0]), rnk_of(p -> kloc[0]));
-  score[1] += kface(p, fil_of(p -> kloc[1]), rnk_of(p -> kloc[1])) + kaggressive(p, fil_of(p -> kloc[1]), rnk_of(p -> kloc[1]));
-  
+  fil_t f = fil_of(p -> kloc[0]);
+  rnk_t r = rnk_of(p -> kloc[0]);
+  score[0] += kface(p, f, r) + kaggressive(p, f, r);
+  // score[0] -= pbetween(p, f, r);
+  score[0] -= pcentral(f, r);
+
+  f = fil_of(p -> kloc[1]);
+  r = rnk_of(p -> kloc[1]);
+  score[1] += kface(p, f, r) + kaggressive(p, f, r);
+  // score[1] -= pbetween(p, f, r);
+  score[1] -= pcentral(f, r);
+
   // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
   //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
   //     square_t sq = square_of(f, r);

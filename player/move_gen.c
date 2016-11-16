@@ -44,11 +44,12 @@ const char *color_to_str(color_t c) {
 
 // which color is moving next
 color_t color_to_move_of(position_t *p) {
-  if ((p->ply & 1) == 0) {
-    return WHITE;
-  } else {
-    return BLACK;
-  }
+  return p -> ply & 1;
+  // if ((p->ply & 1) == 0) {
+  //   return WHITE;
+  // } else {
+  //   return BLACK;
+  // }
 }
 
 color_t color_of(piece_t x) {
@@ -56,11 +57,12 @@ color_t color_of(piece_t x) {
 }
 
 color_t opp_color(color_t c) {
-  if (c == WHITE) {
-    return BLACK;
-  } else {
-    return WHITE;
-  }
+  return c ^ 1;
+  // if (c == WHITE) {
+  //   return BLACK;
+  // } else {
+  //   return WHITE;
+  // }
 }
 
 
@@ -333,12 +335,12 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
       ptype_t typ = ptype_of(x);
       // color_t color = color_of(x);
 
-      switch (typ) {
+      if (typ == PAWN || typ == KING) {
         // case EMPTY:
         //   break;
-        case PAWN:
+        // case PAWN:
           // if (laser_map[sq] == 1) continue;  // Piece is pinned down by laser.
-        case KING:
+        // case KING:
           // if (color != color_to_move) {  // Wrong color
           //   break;
           // }
@@ -373,9 +375,9 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
             tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
             sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, sq);
           }
-          break;
+          // break;
         // case INVALID:
-        default:;
+        // default:;
         //   tbassert(false, "Bogus, man.\n");  // Couldn't BE more bogus!
       }
     }

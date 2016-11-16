@@ -172,7 +172,8 @@ static score_t scout_search(searchNode *node, int depth,
     }
 
     // increase node count
-    __sync_fetch_and_add(node_count_serial, 1);
+    // __sync_fetch_and_add(node_count_serial, 1);
+    (*node_count_serial)++;
 
     moveEvaluationResult result = evaluateMove(node, mv, killer_a, killer_b,
                                                SEARCH_SCOUT,
