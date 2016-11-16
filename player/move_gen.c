@@ -16,8 +16,6 @@
 #include "./tbassert.h"
 #include "./util.h"
 
-#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & –((x) > (y))))
-#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & –((x) < (y))))
 static const uint64_t sq_to_board_bit[100] = {
 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
 0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
