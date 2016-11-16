@@ -626,7 +626,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
   }
 
   if (USE_KO) {  // Ko rule
-    if (p->key == (old->key ^ zob_color)) {
+    if (p->key == (old->key ^ zob_color) && p->mask[0] == old->mask[0] && p->mask[1] == old->mask[1]) {
       bool match = true;
 
 
