@@ -43,7 +43,7 @@ const char *color_to_str(color_t c) {
 // -----------------------------------------------------------------------------
 
 // which color is moving next
-color_t color_to_move_of(position_t *p) {
+inline color_t color_to_move_of(position_t *p) {
   return p -> ply & 1;
   // if ((p->ply & 1) == 0) {
   //   return WHITE;
@@ -52,11 +52,11 @@ color_t color_to_move_of(position_t *p) {
   // }
 }
 
-color_t color_of(piece_t x) {
+inline color_t color_of(piece_t x) {
   return (color_t) ((x >> COLOR_SHIFT) & COLOR_MASK);
 }
 
-color_t opp_color(color_t c) {
+inline color_t opp_color(color_t c) {
   return c ^ 1;
   // if (c == WHITE) {
   //   return BLACK;
@@ -66,7 +66,7 @@ color_t opp_color(color_t c) {
 }
 
 
-void set_color(piece_t *x, color_t c) {
+inline void set_color(piece_t *x, color_t c) {
   tbassert((c >= 0) & (c <= COLOR_MASK), "color: %d\n", c);
   *x = ((c & COLOR_MASK) << COLOR_SHIFT) |
       (*x & ~(COLOR_MASK << COLOR_SHIFT));
@@ -77,7 +77,7 @@ inline ptype_t ptype_of(piece_t x) {
   return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
 }
 
-void set_ptype(piece_t *x, ptype_t pt) {
+inline void set_ptype(piece_t *x, ptype_t pt) {
   *x = ((pt & PTYPE_MASK) << PTYPE_SHIFT) |
       (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
 }
@@ -86,7 +86,7 @@ inline int ori_of(piece_t x) {
   return (x >> ORI_SHIFT) & ORI_MASK;
 }
 
-void set_ori(piece_t *x, int ori) {
+inline void set_ori(piece_t *x, int ori) {
   *x = ((ori & ORI_MASK) << ORI_SHIFT) |
       (*x & ~(ORI_MASK << ORI_SHIFT));
 }
