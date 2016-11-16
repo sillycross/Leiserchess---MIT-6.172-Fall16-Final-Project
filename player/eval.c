@@ -43,7 +43,7 @@ static const ev_score_t pcentral_s[8][8] = {
 {125, 181, 220, 234, 234, 220, 181, 125}};
 
 // PCENTRAL heuristic: Bonus for Pawn near center of board
- ev_score_t pcentral(fil_t f, rnk_t r) {
+inline ev_score_t pcentral(fil_t f, rnk_t r) {
   return pcentral_s[f][r];
 }
 
