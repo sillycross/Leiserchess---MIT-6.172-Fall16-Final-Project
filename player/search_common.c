@@ -6,7 +6,7 @@ static double  sstart;    // start time of a search in milliseconds
 static double  timeout;   // time elapsed before abort
 static bool    abortf = false;  // abort flag for search
 
-static score_t fmarg[10] = {
+static const score_t fmarg[10] = {
   0, PAWN_VALUE / 2, PAWN_VALUE, (PAWN_VALUE * 5) / 2, (PAWN_VALUE * 9) / 2,
   PAWN_VALUE * 7, PAWN_VALUE * 10, PAWN_VALUE * 15, PAWN_VALUE * 20,
   PAWN_VALUE * 30

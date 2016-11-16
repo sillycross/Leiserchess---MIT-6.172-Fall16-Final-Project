@@ -171,7 +171,7 @@ typedef struct position {
 // Function prototypes
 // -----------------------------------------------------------------------------
 
-char *color_to_str(color_t c);
+const char *color_to_str(color_t c);
 color_t color_to_move_of(position_t *p);
 color_t color_of(piece_t x);
 color_t opp_color(color_t c);

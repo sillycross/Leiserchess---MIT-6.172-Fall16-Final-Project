@@ -29,8 +29,8 @@ int PAWNPIN;
 // Heuristics for static evaluation - described in the google doc
 // mentioned in the handout.
 #define LOG2(X) ((unsigned) (8*sizeof (unsigned long long) - __builtin_clzll((X)) - 1))
-#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
-#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
+//#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
+//#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 
 static const ev_score_t pcentral_s[8][8] = {
 {125, 181, 220, 234, 234, 220, 181, 125},
@@ -60,13 +60,13 @@ inline ev_score_t pcentral(fil_t f, rnk_t r) {
 
 
 // returns true if c lies on or between a and b, which are not ordered
-bool between(int c, int a, int b) {
+inline bool between(int c, int a, int b) {
   bool x = ((c >= a) && (c <= b)) || ((c <= a) && (c >= b));
   return x;
 }
 
 // PBETWEEN heuristic: Bonus for Pawn at (f, r) in rectangle defined by Kings at the corners
-ev_score_t pbetween(position_t *p, fil_t f, rnk_t r) {
+inline ev_score_t pbetween(position_t *p, fil_t f, rnk_t r) {
   bool is_between =
       between(f, fil_of(p->kloc[WHITE]), fil_of(p->kloc[BLACK])) &&
       between(r, rnk_of(p->kloc[WHITE]), rnk_of(p->kloc[BLACK]));
@@ -184,7 +184,7 @@ void mark_laser_path(position_t *p, color_t c, char *laser_map,
 }
 
 // directions for laser: NN, EE, SS, WW
-static int beam_64[NUM_ORI] = {1, 8, -1, -8};
+static const int beam_64[NUM_ORI] = {1, 8, -1, -8};
 
 uint64_t mark_laser_path_bit(position_t *p, color_t c) {
   square_t sq = p->kloc[c];
