@@ -32,15 +32,15 @@ int PAWNPIN;
 //#define MAX(x, y)  ((y) ^ (((x) ^ (y)) & -((x) > (y))))
 //#define MIN(x, y)  ((y) ^ (((x) ^ (y)) & -((x) < (y))))
 
-static const ev_score_t pcentral_s[8][8] = {
-{125, 181, 220, 234, 234, 220, 181, 125},
-{181, 249, 302, 323, 323, 302, 249, 181},
-{220, 302, 375, 411, 411, 375, 302, 220},
-{234, 323, 411, 500, 500, 411, 323, 234},
-{234, 323, 411, 500, 500, 411, 323, 234},
-{220, 302, 375, 411, 411, 375, 302, 220},
-{181, 249, 302, 323, 323, 302, 249, 181},
-{125, 181, 220, 234, 234, 220, 181, 125}};
+static const ev_score_t pcentral_s[64] = {
+125, 181, 220, 234, 234, 220, 181, 125,
+181, 249, 302, 323, 323, 302, 249, 181,
+220, 302, 375, 411, 411, 375, 302, 220,
+234, 323, 411, 500, 500, 411, 323, 234,
+234, 323, 411, 500, 500, 411, 323, 234,
+220, 302, 375, 411, 411, 375, 302, 220,
+181, 249, 302, 323, 323, 302, 249, 181,
+125, 181, 220, 234, 234, 220, 181, 125};
 
 static const uint64_t three_by_three_mask[100] = {
   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 
@@ -55,10 +55,7 @@ static const uint64_t three_by_three_mask[100] = {
   0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
 // PCENTRAL heuristic: Bonus for Pawn near center of board
-inline ev_score_t pcentral(fil_t f, rnk_t r) {
-  return pcentral_s[f][r];
-}
-
+#define pcentral(x) pcentral_s[x]
 
 // returns true if c lies on or between a and b, which are not ordered
 inline bool between(int c, int a, int b) {
@@ -265,8 +262,6 @@ inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
   // return mobility;
 }
 
-
-
 static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7,
 1.0/8, 1.0/9, 1.0/10, 1.0/11, 1.0/12, 1.0/13, 1.0/14, 1.0/15, 1.0/16};
 // Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
@@ -338,7 +333,7 @@ score_t eval(position_t *p, bool verbose) {
     rnk_t r = i & 7;
     score += PAWN_EV_VALUE;
     score += pbetween(p, f, r);
-    score += pcentral(f, r);
+    score += pcentral(i);
   }
   mask = p -> mask[1];
   while (mask) {
@@ -349,18 +344,18 @@ score_t eval(position_t *p, bool verbose) {
     rnk_t r = i & 7;
     score -= PAWN_EV_VALUE;
     score -= pbetween(p, f, r);
-    score -= pcentral(f, r);
+    score -= pcentral(i);
   }
 
   fil_t f = fil_of(p -> kloc[0]);
   rnk_t r = rnk_of(p -> kloc[0]);
   score += kface(p, f, r) + kaggressive(p, f, r);
-  score -= pcentral(f, r);
+  score -= pcentral(f*8+r);
 
   f = fil_of(p -> kloc[1]);
   r = rnk_of(p -> kloc[1]);
   score -= kface(p, f, r) + kaggressive(p, f, r);
-  score += pcentral(f, r);
+  score += pcentral(f*8+r);
 
   uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
   uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);

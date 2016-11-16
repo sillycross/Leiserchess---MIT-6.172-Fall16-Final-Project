@@ -610,7 +610,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[0], compute_mask(p, 0));
-  tbassert(p->mask[1] == compute_mask(p, 1),
+    tbassert(p->mask[1] == compute_mask(p, 1),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[1], compute_mask(p, 1));
 
