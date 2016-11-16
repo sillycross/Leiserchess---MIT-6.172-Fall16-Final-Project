@@ -164,7 +164,7 @@ typedef struct position {
   move_t       last_move;        // move that led to this position
   victims_t    victims;          // pieces destroyed by shooter
   square_t     kloc[2];          // location of kings
-  uint64_t mask;
+  uint64_t mask[2];
 } position_t;
 
 // -----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void set_ori(piece_t *x, int ori);
 
 void init_zob();
 uint64_t compute_zob_key(position_t *p);
-uint64_t compute_mask(position_t *p);
+uint64_t compute_mask(position_t *p, color_t color);
 
 square_t square_of(fil_t f, rnk_t r);
 fil_t fil_of(square_t sq);

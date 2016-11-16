@@ -282,7 +282,6 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
     if (mv_index == 0 || rootNode.depth == 1) {
       // We guess that the first move is the principle variation
       score = -searchPV(&next_node, rootNode.depth-1, node_count_serial);
-
       // Check if we should abort due to time control.
       if (abortf) {
         return 0;

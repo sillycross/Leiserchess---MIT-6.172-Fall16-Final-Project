@@ -420,7 +420,8 @@ int fen_to_pos(position_t *p, char *fen) {
   if (lm_from_sq == 0) {   // from-square of last move
     p->last_move = 0;  // no last move specified
     p->key = compute_zob_key(p);
-    p->mask = compute_mask(p);
+    p->mask[0] = compute_mask(p, 0);
+    p->mask[1] = compute_mask(p, 1);
     return 0;
   }
 
@@ -452,8 +453,9 @@ int fen_to_pos(position_t *p, char *fen) {
   }
   p->last_move = move_of(EMPTY, lm_rot, lm_from_sq, lm_to_sq);
   p->key = compute_zob_key(p);
-  p->mask = compute_mask(p);
-
+  p->mask[0] = compute_mask(p, 0);
+  p->mask[1] = compute_mask(p, 1);
+  
   return 0;  // everything is okay
 }
 
