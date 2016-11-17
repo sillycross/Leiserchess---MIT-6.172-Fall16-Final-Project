@@ -41,6 +41,7 @@ const char *color_to_str(color_t c) {
 // -----------------------------------------------------------------------------
 
 // which color is moving next
+/*
 inline color_t color_to_move_of(position_t *p) {
   return p -> ply & 1;
   // if ((p->ply & 1) == 0) {
@@ -63,7 +64,8 @@ inline color_t opp_color(color_t c) {
   // }
 }
 
-
+*/
+/*
 inline void set_color(piece_t *x, color_t c) {
   tbassert((c >= 0) & (c <= COLOR_MASK), "color: %d\n", c);
   *x = ((c & COLOR_MASK) << COLOR_SHIFT) |
@@ -74,7 +76,8 @@ inline void set_color(piece_t *x, color_t c) {
 inline ptype_t ptype_of(piece_t x) {
   return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
 }
-
+*/
+/*
 inline void set_ptype(piece_t *x, ptype_t pt) {
   *x = ((pt & PTYPE_MASK) << PTYPE_SHIFT) |
       (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
@@ -88,7 +91,7 @@ inline void set_ori(piece_t *x, int ori) {
   *x = ((ori & ORI_MASK) << ORI_SHIFT) |
       (*x & ~(ORI_MASK << ORI_SHIFT));
 }
-
+*/
 // -----------------------------------------------------------------------------
 // Piece orientation strings
 // -----------------------------------------------------------------------------
@@ -232,6 +235,7 @@ inline int reflect_of(int beam_dir, int pawn_ori) {
 // Move getters and setters
 // -----------------------------------------------------------------------------
 
+/*
 inline ptype_t ptype_mv_of(move_t mv) {
   return (ptype_t) ((mv >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK);
 }
@@ -254,7 +258,7 @@ inline move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq) 
       ((from_sq & FROM_MASK) << FROM_SHIFT) |
       ((to_sq & TO_MASK) << TO_SHIFT);
 }
-
+*/
 
 // converts a move to string notation for FEN
 void move_to_str(move_t mv, char *buf, size_t bufsize) {
@@ -803,6 +807,7 @@ void display(position_t *p) {
 // Ko and illegal move signalling
 // -----------------------------------------------------------------------------
 
+/*
 inline victims_t KO() {
   return ((victims_t) {KO_ZAPPED, {0}});
 }
@@ -826,3 +831,4 @@ inline bool zero_victims(victims_t victims) {
 inline bool victim_exists(victims_t victims) {
   return (victims.zapped_count > 0);
 }
+*/

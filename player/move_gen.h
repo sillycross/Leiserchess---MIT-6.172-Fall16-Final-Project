@@ -172,14 +172,22 @@ typedef struct position {
 // -----------------------------------------------------------------------------
 
 const char *color_to_str(color_t c);
-color_t color_to_move_of(position_t *p);
-color_t color_of(piece_t x);
-color_t opp_color(color_t c);
-void set_color(piece_t *x, color_t c);
-ptype_t ptype_of(piece_t x);
-void set_ptype(piece_t *x, ptype_t pt);
-int ori_of(piece_t x);
-void set_ori(piece_t *x, int ori);
+#define color_to_move_of(p) ((p)->ply&1)
+//color_t color_to_move_of(position_t *p);
+#define color_of(x) ((color_t)(((x) >> COLOR_SHIFT) & COLOR_MASK))
+//color_t color_of(piece_t x);
+#define opp_color(c) ((c)^1)
+//color_t opp_color(color_t c);
+#define set_color(x,c) *(x) = (((c) & COLOR_MASK) << COLOR_SHIFT) | (*(x) & ~(COLOR_MASK << COLOR_SHIFT))
+//void set_color(piece_t *x, color_t c);
+#define ptype_of(x) ((ptype_t) (((x) >> PTYPE_SHIFT) & PTYPE_MASK))
+//ptype_t ptype_of(piece_t x);
+#define set_ptype(x, pt) *(x) = (((pt) & PTYPE_MASK) << PTYPE_SHIFT) | (*(x) & ~(PTYPE_MASK << PTYPE_SHIFT));
+//void set_ptype(piece_t *x, ptype_t pt);
+#define ori_of(x) (((x) >> ORI_SHIFT) & ORI_MASK)
+//int ori_of(piece_t x);
+#define set_ori(x, ori) *(x) = (((ori) & ORI_MASK) << ORI_SHIFT) | (*(x) & ~(ORI_MASK << ORI_SHIFT));
+//void set_ori(piece_t *x, int ori);
 
 void init_zob();
 uint64_t compute_zob_key(position_t *p);
@@ -199,11 +207,20 @@ int dir_of(int i);
 int beam_of(int direction);
 int reflect_of(int beam_dir, int pawn_ori);
 
-ptype_t ptype_mv_of(move_t mv);
-square_t from_square(move_t mv);
-square_t to_square(move_t mv);
-rot_t rot_of(move_t mv);
-move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq);
+#define ptype_mv_of(mv) ( (ptype_t) (((mv) >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK))
+//ptype_t ptype_mv_of(move_t mv);
+#define from_square(mv) (((mv) >> FROM_SHIFT) & FROM_MASK)
+//square_t from_square(move_t mv);
+#define to_square(mv) ((mv >> TO_SHIFT) & TO_MASK)
+//square_t to_square(move_t mv);
+#define rot_of(mv) ((rot_t) ((mv >> ROT_SHIFT) & ROT_MASK))
+//rot_t rot_of(move_t mv);
+#define move_of(typ, rot, from_sq, to_sq) ((((typ) & PTYPE_MV_MASK) << PTYPE_MV_SHIFT) | \
+      (((rot) & ROT_MASK) << ROT_SHIFT) | \
+      (((from_sq) & FROM_MASK) << FROM_SHIFT) | \
+      (((to_sq) & TO_MASK) << TO_SHIFT))
+      
+//move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq);
 void move_to_str(move_t mv, char *buf, size_t bufsize);
 
 int generate_all(position_t *p, sortable_move_t *sortable_move_list,
@@ -213,12 +230,18 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv);
 victims_t make_move(position_t *old, position_t *p, move_t mv);
 void display(position_t *p);
 
-victims_t KO();
-victims_t ILLEGAL();
+#define KO() ((victims_t) {KO_ZAPPED, {0}})
+//victims_t KO();
+#define ILLEGAL() ((victims_t) {ILLEGAL_ZAPPED, {0}})
+//victims_t ILLEGAL();
 
-bool is_ILLEGAL(victims_t victims);
-bool is_KO(victims_t victims);
-bool zero_victims(victims_t victims);
-bool victim_exists(victims_t victims);
+#define is_ILLEGAL(victims) ((victims).zapped_count == ILLEGAL_ZAPPED)
+//bool is_ILLEGAL(victims_t victims);
+#define is_KO(victims) ((victims).zapped_count == KO_ZAPPED)
+//bool is_KO(victims_t victims);
+#define zero_victims(victims) ((victims).zapped_count == 0)
+//bool zero_victims(victims_t victims);
+#define victim_exists(victims) ((victims).zapped_count > 0)
+//bool victim_exists(victims_t victims);
 
 #endif  // MOVE_GEN_H
