@@ -91,14 +91,14 @@ static score_t scout_search(searchNode *node, int depth,
   
   sortable_move_t move_list[MAX_NUM_MOVES];
   sortable_move_t sorted_move_list[MAX_NUM_MOVES];
-  int range_tree[MAX_NUM_MOVES * 2];
+  uint32_t range_tree[MAX_NUM_MOVES * 2];
   memcpy(range_tree + MAX_NUM_MOVES, range_tree_default, sizeof range_tree_default);
 
   // Obtain the sorted move list.
   memset(move_list, 0, sizeof move_list);
   int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
 
-  int number_of_moves_evaluated = 0;
+  int number_of_moves_evaluated = num_of_moves;
 
 
   // A simple mutex. See simple_mutex.h for implementation details.
@@ -117,7 +117,7 @@ static score_t scout_search(searchNode *node, int depth,
 
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
     // Get the next move from the move list.
-    int local_index = number_of_moves_evaluated++;
+    
     move_t mv = get_move(move_list[range_tree[1]]);
     sorted_move_list[mv_index] = move_list[range_tree[1]];
     // printf("?? %d\n", local_index + MAX_NUM_MOVES);
@@ -191,10 +191,11 @@ static score_t scout_search(searchNode *node, int depth,
     }
 
     // process the score. Note that this mutates fields in node.
-    bool cutoff = search_process_score(node, mv, local_index, &result, SEARCH_SCOUT);
+    bool cutoff = search_process_score(node, mv, mv_index, &result, SEARCH_SCOUT);
 
     if (cutoff) {
       node->abort = true;
+      number_of_moves_evaluated = mv_index + 1;
       break;
     }
   }
