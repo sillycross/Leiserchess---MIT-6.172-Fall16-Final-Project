@@ -1,6 +1,6 @@
 CC = clang
 TARGET := leiserchess
-SRC := util.c tt.c fen.c move_gen.c search.c eval.c
+SRC := util.c tt.c fen.c move_gen.c search.c eval.c closebook.c
 OBJ := $(SRC:.c=.o)
 UNAME := $(shell uname)
 

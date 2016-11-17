@@ -8,6 +8,7 @@
 #include <string.h>
 #include "./move_gen.h"
 #include "./tbassert.h"
+#include "./closebook.h"
 
 // -----------------------------------------------------------------------------
 // Evaluation
@@ -320,6 +321,13 @@ score_t eval(position_t *p, bool verbose) {
   // seed rand_r with a value of 1, as per
   // http://linux.die.net/man/3/rand_r
   static __thread unsigned int seed = 1;
+  
+  int t = checkEndGame(p);
+  if (t==1 || t==2)
+  {
+	  if (t==1) return 30000; else return -30000;
+  }
+  
   ev_score_t score = 0;
   
   fil_t f0 = fil_of(p -> kloc[0]);
