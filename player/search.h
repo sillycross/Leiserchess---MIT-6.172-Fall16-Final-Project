@@ -50,7 +50,7 @@ typedef struct searchNode {
   score_t alpha;
   score_t beta;
   int8_t depth;
-  int8_t ply;
+  int16_t ply;
   int8_t fake_color_to_move;
   int8_t quiescence;
   int8_t pov;
