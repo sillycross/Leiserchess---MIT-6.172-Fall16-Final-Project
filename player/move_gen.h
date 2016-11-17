@@ -8,8 +8,9 @@
 #include <stddef.h>
 
 #define MAX_NUM_MOVES 128      // real number = 7 x (8 + 3) + 1 x (8 + 4) = 89
-#define MAX_PLY_IN_SEARCH 100  // up to 100 ply
-#define MAX_PLY_IN_GAME 4096   // long game!  ;^)
+// The following two constants are modified
+#define MAX_PLY_IN_SEARCH 40  // up to 100 ply
+#define MAX_PLY_IN_GAME 1024   // long game!  ;^)
 
 // Used for debugging and display
 #define MAX_CHARS_IN_MOVE 16  // Could be less
