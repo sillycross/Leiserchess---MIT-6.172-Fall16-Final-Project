@@ -157,7 +157,7 @@ void init_zob() {
 // -----------------------------------------------------------------------------
 // Squares
 // -----------------------------------------------------------------------------
-
+/*
 // For no square, use 0, which is guaranteed to be off board
 inline square_t square_of(fil_t f, rnk_t r) {
   square_t s = ARR_WIDTH * (FIL_ORIGIN + f) + RNK_ORIGIN + r;
@@ -179,7 +179,7 @@ inline rnk_t rnk_of(square_t sq) {
   DEBUG_LOG(1, "Rank of square %d is %d\n", sq, r);
   return r;
 }
-
+*/
 // converts a square to string notation, returns number of characters printed
 inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
   fil_t f = fil_of(sq);
