@@ -39,7 +39,7 @@ static void initialize_scout_node(searchNode *node, int depth) {
   node->alpha = node->beta - 1;
   node->depth = depth;
   node->ply = node->parent->ply + 1;
-  node->subpv[0] = 0;
+  node->subpv = 0;
   node->legal_move_count = 0;
   node->fake_color_to_move = color_to_move_of(&(node->position));
   // point of view = 1 for white, -1 for black

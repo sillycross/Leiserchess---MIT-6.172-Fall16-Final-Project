@@ -81,7 +81,7 @@ static void initialize_pv_node(searchNode* node, int depth) {
   node->alpha = -node->parent->beta;
   node->orig_alpha = node->alpha;  // Save original alpha.
   node->beta = -node->parent->alpha;
-  node->subpv[0] = 0;
+  node->subpv = 0;
   node->depth = depth;
   node->legal_move_count = 0;
   node->ply = node->parent->ply + 1;
@@ -246,7 +246,7 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
   assert(rootNode.best_score == alpha);  // initial conditions
 
   searchNode next_node;
-  next_node.subpv[0] = 0;
+  next_node.subpv = 0;
   next_node.parent = &rootNode;
 
   score_t score;
@@ -269,13 +269,13 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
 
     if (is_game_over(x, rootNode.pov, rootNode.ply)) {
       score = get_game_over_score(x, rootNode.pov, rootNode.ply);
-      next_node.subpv[0] = 0;
+      next_node.subpv = 0;
       goto scored;
     }
 
     if (is_repeated(&(next_node.position), rootNode.ply)) {
       score = get_draw_score(&(next_node.position), rootNode.ply);
-      next_node.subpv[0] = 0;
+      next_node.subpv = 0;
       goto scored;
     }
 
@@ -313,14 +313,14 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
       tbassert(score > rootNode.alpha, "score: %d, alpha: %d\n", score, rootNode.alpha);
 
       rootNode.best_score = score;
-      pv[0] = mv;
-      memcpy(pv+1, next_node.subpv, sizeof(move_t) * (MAX_PLY_IN_SEARCH - 1));
-      pv[MAX_PLY_IN_SEARCH - 1] = 0;
+      *pv = mv;
+      // memcpy(pv+1, next_node.subpv, sizeof(move_t) * (MAX_PLY_IN_SEARCH - 1));
+      // pv[MAX_PLY_IN_SEARCH - 1] = 0;
 
       // Print out based on UCI (universal chess interface)
       double et = elapsed_time();
-      char   pvbuf[MAX_PLY_IN_SEARCH * MAX_CHARS_IN_MOVE];
-      getPV(pv, pvbuf, MAX_PLY_IN_SEARCH * MAX_CHARS_IN_MOVE);
+      char   pvbuf[MAX_CHARS_IN_MOVE];
+      getPV(*pv, pvbuf, MAX_CHARS_IN_MOVE);
       if (et < 0.00001) {
         et = 0.00001;  // hack so that we don't divide by 0
       }

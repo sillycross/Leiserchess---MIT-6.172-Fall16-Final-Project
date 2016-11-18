@@ -1,4 +1,5 @@
+/bin/bash: line 1: 24841 Segmentation fault      (core dumped) ./leiserchess input.txt
 
-real	0m3.242s
-user	0m3.236s
-sys	0m0.001s
+real	0m3.387s
+user	0m3.288s
+sys	0m0.005s

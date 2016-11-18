@@ -8,17 +8,17 @@ adjudicate = 400
 # --
 
 player = player_1
-invoke = ../player/players/origin
+invoke = ../autotester/alpha8
 fis = 60 0.5
 
 player = player_2
-invoke = ../player/players/v11.12
+invoke = ../autotester/alpha17_have_t
 fis = 60 0.5
 
 player = player_3
-invoke = ../player/leiserchess
+invoke = ../autotester/alpha18_t
 fis = 60 0.5
 
 player = player_4
-invoke = ../player/test
+invoke = ../autotester/alpha18_c
 fis = 60 0.5

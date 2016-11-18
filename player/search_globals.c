@@ -62,7 +62,7 @@ static void update_transposition_table(searchNode* node) {
     } else {
       tt_hashtable_put(node->position.key, node->depth,
                        tt_adjust_score_for_hashtable(node->best_score, node->ply),
-                       LOWER, node->subpv[0]);
+                       LOWER, node->subpv);
     }
   } else if (node->type == SEARCH_PV) {
     if (node->best_score <= node->orig_alpha) {
@@ -70,10 +70,10 @@ static void update_transposition_table(searchNode* node) {
           tt_adjust_score_for_hashtable(node->best_score, node->ply), UPPER, 0);
     } else if (node->best_score >= node->beta) {
       tt_hashtable_put(node->position.key, node->depth,
-          tt_adjust_score_for_hashtable(node->best_score, node->ply), LOWER, node->subpv[0]);
+          tt_adjust_score_for_hashtable(node->best_score, node->ply), LOWER, node->subpv);
     } else {
       tt_hashtable_put(node->position.key, node->depth,
-          tt_adjust_score_for_hashtable(node->best_score, node->ply), EXACT, node->subpv[0]);
+          tt_adjust_score_for_hashtable(node->best_score, node->ply), EXACT, node->subpv);
     }
   }
 }
