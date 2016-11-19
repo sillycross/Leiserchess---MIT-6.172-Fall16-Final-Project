@@ -49,8 +49,9 @@ scout\_search, eval, move\_gen
 	
 	\item In scoutsearch function, there is a incremental search function called. We found that this function is very slow so we decide to replace it with a more efficient sorting algorithm. First we tried quick sort but that does not help. Then we discover that mostly only the smallest several items will be used, so we decide to find the smallest element each time with the iteration. Using bruteforce to find it does not make the code faster, so we instead maintained a range tree to maintain the smallest element in the array. It gives about $10\%$ speedup. 
 	
-	\item subpv in .. is only used to store the best moves up the search depth, but we really only need the first move. Thus, we decide to delete the array and replace it with a variable. This saves the memory and thus improves the speed. It gives about $10\%$ speedup. 
+	\item subpv in .. is only used to store the best moves up the search depth, but we really only need the first move. Thus, we decide to delete the array and replace it with a variable. This saves the memory and thus improves the speed. It gives about $20\%$ speedup. 
 	
+	\item We modified some logic in eval.c but keeping the result as the same as the original. For example, we merged the case for king and for pawn in the switch struct, and then minus score for king out of the loop. Such improvements give a $20\%$ speedup. 
 	
 \end{enumerate}
 
