@@ -29,41 +29,35 @@
 \maketitle{}
 
 \section{Profiling Data}
-
-We tested the original program on the command "go depth 8" and recorded the profiling. Below is the result for the most costly 6 function. 
+We tested the original program on the command "go depth 8" and recorded the profiling. Below is the result for the most costly six functions.
 
 \begin{tabular}{ |l|l|l|l|l|l|l|l|l| }
 \hline
 scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_move\\
 \hline
- 14.59\% & 13.34\% & 9.71\% & 8.74\% & 6.18\% & 6.04\%\\
- \hline
+14.59\% & 13.34\% & 9.71\% & 8.74\% & 6.18\% & 6.04\%\\
+\hline
 \end{tabular}
 
 \section{The changes so far}
-
 \begin{enumerate}
-	\item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in eval.c, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup.
-
-	\item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup.
-
-	\item We change ARR\_WIDTH from 16 to 10. Therefore ARR\_SIZE decreases from 256 to 100. This gives about $30\%$ speedup.
-	\item We used some constant tables to reduce work. 
-	The pcentral function in eval.c repeats calculation a lot of times. We precompute the results and stores the result in a constant table.
-	We use constant table to remove many divisions in the code.
-	These optimizations give about $10\%$ speedup.
-	\item We changed small functions to inline functions or macros. This gives about $20\%$ speedup.
-	\item We found that in some places, it is unnecessary to use int. We replaced them with appropriate smaller types such as uint8\_t and uint16\_t. This gives about $10\%$ speedup.
-
-	\item In scoutsearch function, there is a incremental search function called. We found that this function is very slow so we decide to replace it with a more efficient sorting algorithm. First we tried quick sort but that does not help. Then we discover that mostly only the smallest several items will be used, so we decide to find the smallest element each time with the iteration. Using bruteforce to find it does not make the code faster, so we instead maintained a range tree to maintain the smallest element in the array. It gives about $10\%$ speedup. 
-	
-	\item subpv in .. is only used to store the best moves up the search depth, but we really only need the first move. Thus, we decide to delete the array and replace it with a variable. This saves the memory and thus improves the speed. It gives about $20\%$ speedup. 
-	
-	\item We modified some logic in eval.c but keeping the result as the same as the original. For example, we merged the case for king and for pawn in the switch struct, and then minus score for king out of the loop. Such improvements give a $20\%$ speedup. 	
+  \item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in eval.c, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup.
+  \item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup.
+  \item We change ARR\_WIDTH from 16 to 10. Therefore ARR\_SIZE decreases from 256 to 100. This gives about $30\%$ speedup.
+  \item We used some constant tables to reduce work. 
+  The pcentral function in eval.c repeats calculation a lot of times. We precompute the results and stores the result in a constant table.
+  We use constant table to remove many divisions in the code.
+  These optimizations give about $10\%$ speedup.
+  \item We changed a lot of small functions to inline functions or macros. This gives about $20\%$ speedup.
+  \item We found that in some places, it is unnecessary to use int. We replaced them with appropriate smaller types such as uint8\_t and uint16\_t. This gives about $10\%$ speedup.
+  \item In scout\_search, an incremental sorting function is used. We found that this function is very slow so we replaced it with a more efficient sorting algorithm. First we tried quick sort but it did not help. Then we discovered that only the smallest items are used, so we find the smallest element each time. We used a range tree to maintain the smallest element in the array. It gives about $10\%$ speedup.
+  \item subpv in searchNode is only used to store the best moves up the search depth, but we really only need the first move. Thus, we deleted the array and replaced it with a variable. This saves memory and thus improves the speed. It gives about $20\%$ speedup.
+  \item We modified some logic in eval.c while keeping the result the same. For example, we merged the case for king and for pawn in the switch struct, and then minus score for king out of the loop. Such improvements give a $20\%$ speedup in total.
+  \item We also created a closebook, which is discussed in detail in next section.
 \end{enumerate}
 
-\section{Generating CloseBook}
-	As suggested in the leiserchess document, we generated the closebook 
+\section{Generating Closebook}
+	As suggested in the handout, we generated a closebook 
 	for cases where the total number of pawns is no more than one. 
 	There are 64 positions on the chessboard and each piece has 4 directions, 
 	so there are 256 possibilities for each piece. 
@@ -81,8 +75,8 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
 	and the type of swap move. This enlarges the number of possible states to $256^3*2*4$.
 	\item Storing the transition graph: we compressed a board state into an int, which takes 4 bytes. 
 	There are 17 possible moves on average, so it takes about 8GB memory to store the graph. 
-	\item To determine which states are winning states, since the graph contains cycles, 
-	we cannot simply DFS it like what we do for decision trees. Instead, 
+	\item Since the graph contains cycles, 
+	we cannot use simple DFS to determine the winning states like what we do for decision trees. Instead, 
 	we need to do it in the other direction. 
 	We first figure out the nodes that can be won/will must lose in the next move, 
 	record the result for those nodes, and put them into a queue. 
@@ -91,22 +85,19 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
 	If all moves of a node lead to a winning node, we mark this node as losing and put it into queue. 
 	The nodes that are not determined in the process are draw nodes. 
 	\end{itemize}
-	Note that KO rule does determines which opponent wins in some states. In that case 
-	we just record those states as "uncalculated", because the number of such cases are very small.
-	So to conclude, there are 4 possiblities for each state (win, lose, draw, determined by KO rule), 
+	Note that KO rule does affect which opponent wins in some states. In that case 
+	we just record those states as "uncalculated". (The number of such cases is very small).
+	To conclude, there are 4 possiblities for each state (win, lose, draw, determined by KO rule), 
 	which can be recorded in 2 bits. The total size of the output table
 	is $256^3*2/4=8$ Megabytes, which is acceptable.
 
 \section{Optimizations we plan to make}
 
 \begin{enumerate}
-	\item Parallelize the code. Chengkai Zhang and Haoran Xu peer programming. 
-	
-	\item Scout\_search and make\_move now are the most costly function, so we may be able to optimize them in more detail. Chengkai Zhang and Haoran Xu peer programming. 
-	
-	\item During beta1, we find that make searchNode smaller can give us noticeable speed up, so we can still to use this trick to improve, Yuzhou Gu and Yinzhan Xu peer programming. 
-	
-	\item We can also do some strategical change. Yuzhou Gu and Yinzhan Xu peer programming. 
+  \item Parallelize the code. Chengkai Zhang and Haoran Xu peer programming.
+  \item scout\_search and make\_move are currently the most costly functions, so we may be able to optimize them in more detail. Chengkai Zhang and Haoran Xu peer programming.
+  \item During beta 1, we find that make searchNode smaller can give significant speed up, so we can still use this trick to improve, Yuzhou Gu and Yinzhan Xu peer programming.
+  \item We can also perform some strategy optimization. All team members can contribute to this (because it is currently unclear how to do this).
 \end{enumerate}
 
 \end{document}
