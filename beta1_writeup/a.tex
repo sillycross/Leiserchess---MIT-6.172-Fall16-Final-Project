@@ -1,0 +1,57 @@
+\documentclass[10pt,twosidep]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{indentfirst}
+\usepackage{syntonly}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{amsthm}
+
+\usepackage[top = 1.2in, bottom = 1.2in, left = 1.3in, right = 1.3in]{geometry}
+%\usepackage{xcolor}
+%\usepackage{listings}
+%\usepackage{minted}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\pagestyle{fancy}
+%\definecolor{bg}{RGB}{30, 30, 30}
+%\newminted[C++]{cpp}{mathescape, numbersep = 5pt, obeytabs, gobble = 10, frame = single, framesep = -2mm, bgcolor = bg}
+
+\setlength{\parindent}{2em}
+\setlength{\footskip}{30pt}
+\setlength{\baselineskip}{1.3\baselineskip}
+
+\title{Beta I Writeup}
+\author{Chengkai Zhang, Haoran Xu, Yinzhan Xu, Yuzhou Gu}
+\maketitle{}
+
+\section{Profiling Data}
+
+scout\_search, eval, move\_gen
+
+\section{The changes so far}
+
+\begin{enumerate}
+	\item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in eval.c, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup. 
+	
+		\item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup. 
+
+
+	\item We change ARR\_WIDTH from 16 to 10. This decreases ARR\_SIZE from 256 to 100. 
+	\item The pcentral function in eval.c repeats calculation a lot of times. We precompute the results and stores the result in a constant table.
+	\item We use constant table to remove many divisions in the code.
+	\item We changed small functions to inline functions or macros.
+	\item We found that it is not necessary to use int in some places. We replaced them with appropriate smaller types such as uint8\_t and uint16\_t.
+		
+	
+	\item In scoutsearch function, there is a incremental search function called. We found that this function is very slow so we decide to replace it with a more efficient sorting algorithm. First we tried quick sort but that does not help. Then we discover that mostly only the smallest several items will be used, so we decide to find the smallest element each time with the iteration. Using bruteforce to find it does not make the code faster, so we instead maintained a range tree to maintain the smallest element in the array. It gives about $10\%$ speedup. 
+	
+	\item subpv in .. is only used to store the best moves up the search depth, but we really only need the first move. Thus, we decide to delete the array and replace it with a variable. This saves the memory and thus improves the speed. It gives about $10\%$ speedup. 
+	
+	
+\end{enumerate}
+
+\end{document}
