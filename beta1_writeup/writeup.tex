@@ -54,4 +54,39 @@ scout\_search, eval, move\_gen
 	
 \end{enumerate}
 
+\section{Generating CloseBook}
+	As suggested in the leiserchess document, we generated the closebook 
+	for cases where the total number of pawns is no more than one. 
+	There are 64 positions on the chessboard and each piece has 4 directions, 
+	so there are 256 possibilities for each piece. 
+	Two kings and a pawn gives us about $256^3*2\approx 3.2\times 10^7$ possible chessboard states 
+	(the pawn may belong to either side).
+	Our goal is to calculate precisely which states are winning states and which states are losing states.
+	The huge data scale, not acyclic transition graph and KO rule 
+	(which limits possible moves according to the previous move) complicate the problem.
+	Below we will explain our solution to those complications. 
+
+	\begin{itemize}
+	\item KO rule: KO rule prevents a player to swap back two pieces that are just swapped by the opponent 
+	if no pieces are zagged. Since there are only 3 pieces on the board, only 3 swap moves are possible. 
+	Therefore, we add into our chessboard state an extra variable, denoting if the previous move was a swap move, 
+	and the type of swap move. This enlarges the number of possible states to $256^3*2*4$.
+	\item Storing the transition graph: we compressed a board state into an int, which takes 4 bytes. 
+	There are 17 possible moves on average, so it takes about 8GB memory to store the graph. 
+	\item To determine which states are winning states, since the graph contains cycles, 
+	we cannot simply DFS it like what we do for decision trees. Instead, 
+	we need to do it in the other direction. 
+	We first figure out the nodes that can be won/will must lose in the next move, 
+	record the result for those nodes, and put them into a queue. 
+	Every time we pick out a node and remove the node from graph. 
+	If the node is a losing node, we mark all nodes that can reach it in one move as winning and put them into queue. 
+	If all moves of a node lead to a winning node, we mark this node as losing and put it into queue. 
+	The nodes that are not determined in the process are draw nodes. 
+	\end{itemize}
+	Note that KO rule does determines which opponent wins in some states. In that case 
+	we just record those states as "uncalculated", because the number of such cases are very small.
+	So to conclude, there are 4 possiblities for each state (win, lose, draw, determined by KO rule), 
+	which can be recorded in 2 bits. The total size of the output table
+	is $256^3*2/4=8$ Megabytes, which is acceptable.
+	
 \end{document}
