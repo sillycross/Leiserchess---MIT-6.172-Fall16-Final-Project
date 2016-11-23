@@ -1,2 +1,2 @@
 #!/bin/bash
-cqrun time ./leiserchess input.txt 
+cqrun8 time ./leiserchess input.txt 

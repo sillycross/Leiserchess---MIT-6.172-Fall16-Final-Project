@@ -1,22 +1,27 @@
-info depth 1 move_no 1 time (microsec) 27 nodes 79 nps 2903013
+info depth 1 move_no 1 time (microsec) 24 nodes 79 nps 3277871
 info score cp -3 pv h0L
-info depth 1 move_no 31 time (microsec) 72 nodes 187 nps 2593940
+info depth 1 move_no 31 time (microsec) 66 nodes 187 nps 2824176
 info score cp 15 pv h4g5
-info depth 2 move_no 1 time (microsec) 143 nodes 718 nps 5019551
-info score cp 3 pv h4g5 a3b3
-info depth 3 move_no 1 time (microsec) 2012 nodes 19039 nps 9458195
-info score cp -2 pv h4g5 a3b3 f2e3
-info depth 3 move_no 24 time (microsec) 4380 nodes 33914 nps 7742669
-info score cp 15 pv g3R b4R h4g5
-info depth 4 move_no 1 time (microsec) 6754 nodes 47631 nps 7051773
-info score cp 3 pv g3R b4R h4g5 a3b3
-info depth 4 move_no 2 time (microsec) 11722 nodes 86277 nps 7360004
-info score cp 13 pv h4g5 a3a2 g3R a2a1
-info depth 5 move_no 1 time (microsec) 59202 nodes 544584 nps 9198613
-info score cp 8 pv h4g5 a3a2 g3R a2a1 e1e2
-info depth 6 move_no 1 time (microsec) 90493 nodes 760224 nps 8400829
-info score cp 4 pv h4g5 a3a2 g3R a2a1 g3g2 a1a0
-info depth 7 move_no 1 time (microsec) 388925 nodes 3102413 nps 7976891
-info score cp -2 pv h4g5 a3a2 g3R a2a1 g3g2 a1a0 d0U
-info depth 8 move_no 1 time (microsec) 1788569 nodes 13378817 nps 7480177
-info score cp 4 pv h4g5 a3a2 g3R a2a1 e1U b4R g5R a1a0
+info depth 2 move_no 1 time (microsec) 694 nodes 718 nps 1033332
+info score cp 3 pv h4g5
+info depth 3 move_no 1 time (microsec) 7033 nodes 17186 nps 2443466
+info score cp -2 pv h4g5
+info depth 3 move_no 24 time (microsec) 9631 nodes 26553 nps 2756992
+info score cp 15 pv g3R
+info depth 4 move_no 1 time (microsec) 16375 nodes 40236 nps 2457018
+info score cp 3 pv g3R
+info depth 4 move_no 2 time (microsec) 28290 nodes 70716 nps 2499610
+info score cp 13 pv h4g5
+info depth 5 move_no 1 time (microsec) 86388 nodes 285524 nps 3305108
+info score cp 8 pv h4g5
+info depth 6 move_no 1 time (microsec) 142364 nodes 447108 nps 3140593
+info score cp 4 pv h4g5
+info depth 6 move_no 30 time (microsec) 274717 nodes 960992 nps 3498105
+info score cp 13 pv h4h5
+info depth 7 move_no 1 time (microsec) 556489 nodes 2021984 nps 3633466
+info score cp -3 pv h4h5
+info depth 7 move_no 2 time (microsec) 728313 nodes 2667902 nps 3663125
+info score cp -2 pv h4g5
+info depth 8 move_no 1 time (microsec) 2213952 nodes 8887003 nps 4014089
+info score cp 3 pv h4g5
+bestmove h4g5

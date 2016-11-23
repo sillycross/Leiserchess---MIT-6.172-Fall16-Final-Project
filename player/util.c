@@ -9,6 +9,8 @@
 #include <sys/time.h>
 #endif
 
+#include <time.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -42,7 +44,7 @@ double milliseconds() {
 // Public domain code for JLKISS64 RNG - long period KISS RNG producing
 // 64-bit results
 uint64_t myrand() {
-  static int first_time = 1;
+  static int first_time = 0;
   // Seed variables
   static uint64_t x = 123456789123ULL, y = 987654321987ULL;
   static unsigned int z1 = 43219876, c1 = 6543217, z2 = 21987643,
