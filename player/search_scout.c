@@ -60,23 +60,24 @@ static const uint32_t range_tree_default[128] = {
   96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,
   112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};
 
-void perform_scout_search_expand(int *break_flag, 
-					   simple_mutex_t *mutex, 
-					   int mv_index, 
-					   searchNode *node,
-					   sortable_move_t *move_list,
-					   sortable_move_t *sorted_move_list,
-					   uint32_t *range_tree,
-					   uint64_t *node_count_serial,
-					   move_t killer_a,
-					   move_t killer_b,
-					   int *number_of_moves_evaluated) {
+void perform_scout_search_expand1(int *break_flag, 
+             simple_mutex_t *mutex, 
+             int mv_index, 
+             searchNode *node,
+             sortable_move_t *move_list,
+             sortable_move_t *sorted_move_list,
+             uint32_t *range_tree,
+             uint64_t *node_count_serial,
+             move_t killer_a,
+             move_t killer_b,
+             int *number_of_moves_evaluated) {
   if (*break_flag) return;
   
-  simple_acquire(mutex);
+  // simple_acquire(mutex);
   
+  int local_index = (*number_of_moves_evaluated)++;
   move_t mv = get_move(move_list[range_tree[1]]);
-  sorted_move_list[mv_index] = move_list[range_tree[1]];
+  sorted_move_list[local_index] = move_list[range_tree[1]];
   // printf("?? %d\n", local_index + MAX_NUM_MOVES);
   int i = range_tree[1], j;
   // printf("%d\n", i);
@@ -129,8 +130,107 @@ void perform_scout_search_expand(int *break_flag,
   }
 
   // increase node count
-  //__sync_fetch_and_add(node_count_serial, 1);
-  (*node_count_serial)++;
+  // __sync_fetch_and_add(node_count_serial, 1);
+  // (*node_count_serial)++;
+  
+  // simple_release(mutex);
+    
+  moveEvaluationResult result = evaluateMove(node, mv, killer_a, killer_b,
+                                             SEARCH_SCOUT,
+                                             node_count_serial);
+  if (!(result.type == MOVE_ILLEGAL || result.type == MOVE_IGNORE
+      || abortf || parallel_parent_aborted(node)))
+  {
+
+    // A legal move is a move that's not KO, but when we are in quiescence
+    // we only want to count moves that has a capture.
+    if (result.type == MOVE_EVALUATED) {
+      node->legal_move_count++;
+    }
+
+    // process the score. Note that this mutates fields in node.
+    bool cutoff = search_process_score(node, mv, local_index, &result, SEARCH_SCOUT);
+
+    if (cutoff) {
+      node->abort = true;
+      *break_flag = 1;
+    }
+  }
+}
+
+
+void perform_scout_search_expand(int *break_flag, 
+					   simple_mutex_t *mutex, 
+					   int mv_index, 
+					   searchNode *node,
+					   sortable_move_t *move_list,
+					   sortable_move_t *sorted_move_list,
+					   uint32_t *range_tree,
+					   uint64_t *node_count_serial,
+					   move_t killer_a,
+					   move_t killer_b,
+					   int *number_of_moves_evaluated) {
+  if (*break_flag) return;
+  
+  simple_acquire(mutex);
+  
+  int local_index = (*number_of_moves_evaluated)++;
+  move_t mv = get_move(move_list[range_tree[1]]);
+  sorted_move_list[local_index] = move_list[range_tree[1]];
+  // printf("?? %d\n", local_index + MAX_NUM_MOVES);
+  int i = range_tree[1], j;
+  // printf("%d\n", i);
+  move_list[i] = 0;
+  i += MAX_NUM_MOVES;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+  j = i>>1;
+  if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
+    range_tree[j] = range_tree[i];
+  else
+    range_tree[j] = range_tree[i ^ 1];
+  i = j;
+
+  if (TRACE_MOVES) {
+    print_move_info(mv, node->ply);
+  }
+
+  // increase node count
+  // __sync_fetch_and_add(node_count_serial, 1);
+  // (*node_count_serial)++;
   
   simple_release(mutex);
     
@@ -148,11 +248,10 @@ void perform_scout_search_expand(int *break_flag,
     }
 
     // process the score. Note that this mutates fields in node.
-    bool cutoff = search_process_score(node, mv, mv_index, &result, SEARCH_SCOUT);
+    bool cutoff = search_process_score(node, mv, local_index, &result, SEARCH_SCOUT);
 
     if (cutoff) {
       node->abort = true;
-      *number_of_moves_evaluated = mv_index + 1;
       *break_flag = 1;
     }
   }
@@ -198,11 +297,9 @@ static score_t scout_search(searchNode *node, int depth,
   memset(move_list, 0, sizeof move_list);
   int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
 
-  int number_of_moves_evaluated = num_of_moves;
-  
+  int number_of_moves_evaluated = 0;
   // A simple mutex. See simple_mutex.h for implementation details.
-  simple_mutex_t node_mutex;
-  init_simple_mutex(&node_mutex);
+  
 
   // Sort the move list.
   // sort_incremental(move_list, num_of_moves, number_of_moves_evaluated);
@@ -222,7 +319,7 @@ static score_t scout_search(searchNode *node, int depth,
   if (lim>5) lim = 5;
   for (int mv_index = 0; mv_index < lim; mv_index++) {
     // Get the next move from the move list.
-    perform_scout_search_expand(&break_flag, &mutex, mv_index, node, move_list, sorted_move_list, range_tree, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    perform_scout_search_expand1(&break_flag, &mutex, mv_index, node, move_list, sorted_move_list, range_tree, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
   
   cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
