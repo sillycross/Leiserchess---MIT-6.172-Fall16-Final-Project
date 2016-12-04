@@ -24,6 +24,7 @@
 #include "./tbassert.h"
 #include "./tt.h"
 #include "./util.h"
+#define get_move(mv) ((mv) & MOVE_MASK)
 
 char  VERSION[] = "1038";
 

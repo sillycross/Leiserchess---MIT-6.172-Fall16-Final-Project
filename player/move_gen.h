@@ -115,6 +115,7 @@ typedef enum {
 // MOVE_MASK is 20 bits
 #define MOVE_MASK 0xfffff
 
+
 #define PTYPE_MV_SHIFT 18
 #define PTYPE_MV_MASK 3
 #define FROM_SHIFT 8
@@ -136,10 +137,7 @@ typedef enum {
 } rot_t;
 
 // A single move can zap up to 13 pieces.
-typedef struct victims_t {
-  int8_t zapped_count;
-  int8_t zapped_info;
-} victims_t;
+typedef int16_t victims_t;
 
 // returned by make move in illegal situation
 #define KO_ZAPPED -1
@@ -246,18 +244,18 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv);
 victims_t make_move(position_t *old, position_t *p, move_t mv);
 void display(position_t *p);
 
-#define KO() ((victims_t) {KO_ZAPPED, 0,})
+#define KO() ((victims_t) -1)
 //victims_t KO();
-#define ILLEGAL() ((victims_t) {ILLEGAL_ZAPPED, 0})
+#define ILLEGAL() ((victims_t) -1)
 //victims_t ILLEGAL();
 
-#define is_ILLEGAL(victims) ((victims).zapped_count == ILLEGAL_ZAPPED)
+#define is_ILLEGAL(victims) ((victims) == ILLEGAL_ZAPPED)
 //bool is_ILLEGAL(victims_t victims);
-#define is_KO(victims) ((victims).zapped_count == KO_ZAPPED)
+#define is_KO(victims) ((victims) == KO_ZAPPED)
 //bool is_KO(victims_t victims);
-#define zero_victims(victims) ((victims).zapped_count == 0)
+#define zero_victims(victims) ((victims) == 0)
 //bool zero_victims(victims_t victims);
-#define victim_exists(victims) ((victims).zapped_count > 0)
+#define victim_exists(victims) ((victims) > 0)
 //bool victim_exists(victims_t victims);
 
 #endif  // MOVE_GEN_H

@@ -60,8 +60,7 @@ static const uint32_t range_tree_default[128] = {
   96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,
   112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};
 
-void perform_scout_search_expand_serial(int *break_flag, 
-             int mv_index, 
+static inline void perform_scout_search_expand_serial(int *break_flag, 
              searchNode *node,
              sortable_move_t *move_list,
              // sortable_move_t *sorted_move_list,
@@ -76,9 +75,9 @@ void perform_scout_search_expand_serial(int *break_flag,
   int local_index = (*number_of_moves_evaluated)++;
   move_t mv = get_move(move_list[local_index]);
 
-  if (TRACE_MOVES) {
-    print_move_info(mv, node->ply);
-  }
+  // if (TRACE_MOVES) {
+  //   print_move_info(mv, node->ply);
+  // }
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
@@ -111,11 +110,8 @@ void perform_scout_search_expand_serial(int *break_flag,
 
 void perform_scout_search_expand(int *break_flag, 
 					   simple_mutex_t *mutex, 
-					   int mv_index, 
 					   searchNode *node,
 					   sortable_move_t *move_list,
-					   // sortable_move_t *sorted_move_list,
-					   // uint32_t *range_tree,
 					   uint64_t *node_count_serial,
 					   move_t killer_a,
 					   move_t killer_b,
@@ -124,16 +120,16 @@ void perform_scout_search_expand(int *break_flag,
   
   // simple_acquire(mutex);
   
-  int local_index = __sync_fetch_and_add(number_of_moves_evaluated,1);
+  int local_index = __sync_fetch_and_add(number_of_moves_evaluated,1);  
   move_t mv = get_move(move_list[local_index]);
-
-  if (TRACE_MOVES) {
-    print_move_info(mv, node->ply);
-  }
+  
+  // if (TRACE_MOVES) {
+  //   print_move_info(mv, node->ply);
+  // }
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
-  // (*node_count_serial)++;
+  // (*node_count_serial)++;  
   
   // simple_release(mutex);
     
@@ -243,11 +239,11 @@ static score_t scout_search(searchNode *node, int depth,
   if (lim>5) lim = 5;
   for (int mv_index = 0; mv_index < lim; mv_index++) {
     // Get the next move from the move list.
-    perform_scout_search_expand_serial(&break_flag, mv_index, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
   
   cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
-    perform_scout_search_expand(&break_flag, &mutex, mv_index, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
 
   if (parallel_parent_aborted(node)) {

@@ -69,7 +69,8 @@ double elapsed_time();
 bool should_abort();
 void reset_abort();
 void init_best_move_history();
-move_t get_move(sortable_move_t sortable_mv);
+#define get_move(mv) ((mv) & MOVE_MASK)
+
 score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
                    int ply, move_t *pv, uint64_t *node_count_serial,
                    FILE *OUT);
