@@ -60,7 +60,7 @@ static const uint32_t range_tree_default[128] = {
   96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,
   112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};
 
-inline void perform_scout_search_expand_serial(int *break_flag, 
+void perform_scout_search_expand_serial(int *break_flag, 
              simple_mutex_t *mutex, 
              int mv_index, 
              searchNode *node,
@@ -131,7 +131,7 @@ inline void perform_scout_search_expand_serial(int *break_flag,
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
-  // (*node_count_serial)++;
+  (*node_count_serial)++;
   
   // simple_release(mutex);
     
@@ -159,7 +159,7 @@ inline void perform_scout_search_expand_serial(int *break_flag,
 }
 
 
-inline void perform_scout_search_expand(int *break_flag, 
+void perform_scout_search_expand(int *break_flag, 
 					   simple_mutex_t *mutex, 
 					   int mv_index, 
 					   searchNode *node,
@@ -230,7 +230,7 @@ inline void perform_scout_search_expand(int *break_flag,
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
-  // (*node_count_serial)++;
+  (*node_count_serial)++;
   
   simple_release(mutex);
     
