@@ -121,43 +121,6 @@ inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
 }
 
 // -----------------------------------------------------------------------------
-// Board direction and laser direction
-// -----------------------------------------------------------------------------
-
-// direction map
-static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
-                      ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
-inline int dir_of(int i) {
-  tbassert(i >= 0 && i < 8, "i: %d\n", i);
-  return dir[i];
-}
-
-
-// directions for laser: NN, EE, SS, WW
-static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
-
-inline int beam_of(int direction) {
-  tbassert(direction >= 0 && direction < NUM_ORI, "dir: %d\n", direction);
-  return beam[direction];
-}
-
-// reflect[beam_dir][pawn_orientation]
-// -1 indicates back of Pawn
-static const int reflect[NUM_ORI][NUM_ORI] = {
-  //  NW  NE  SE  SW
-  { -1, -1, EE, WW},   // NN
-  { NN, -1, -1, SS},   // EE
-  { WW, EE, -1, -1 },  // SS
-  { -1, NN, SS, -1 }   // WW
-};
-
-inline int reflect_of(int beam_dir, int pawn_ori) {
-  tbassert(beam_dir >= 0 && beam_dir < NUM_ORI, "beam-dir: %d\n", beam_dir);
-  tbassert(pawn_ori >= 0 && pawn_ori < NUM_ORI, "pawn-ori: %d\n", pawn_ori);
-  return reflect[beam_dir][pawn_ori];
-}
-
-// -----------------------------------------------------------------------------
 // Move getters and setters
 // -----------------------------------------------------------------------------
 
