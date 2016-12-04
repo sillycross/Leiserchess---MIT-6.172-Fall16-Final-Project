@@ -203,9 +203,6 @@ static score_t scout_search(searchNode *node, int depth,
   //   MAX_NUM_MOVES is all that we need.
   
   sortable_move_t move_list[MAX_NUM_MOVES];
-  // sortable_move_t sorted_move_list[MAX_NUM_MOVES];
-  // uint32_t range_tree[MAX_NUM_MOVES * 2];
-  // memcpy(range_tree + MAX_NUM_MOVES, range_tree_default, sizeof range_tree_default);
 
   // Obtain the sorted move list.
   // memset(move_list, 0, sizeof move_list);
@@ -225,14 +222,6 @@ static score_t scout_search(searchNode *node, int depth,
   // simple_mutex_t mutexes[8];
   // for (int i = 0; i < 8; i++)
   //   init_simple_mutex(&mutexes[i]);
-
-  // Using branchless if here does not increase speed.
- 
-  // for (int i = MAX_NUM_MOVES - 1; i; i--)
-  //   if (move_list[range_tree[i << 1]] >= move_list[range_tree[(i << 1) ^ 1]])
-  //     range_tree[i] = range_tree[i << 1];
-  //   else
-  //     range_tree[i] = range_tree[(i << 1) ^ 1];
 
   int break_flag = 0;
   int lim = num_of_moves; 

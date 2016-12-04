@@ -192,63 +192,42 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
     rnk_t r = i & 7;
 
     square_t sq = (f + FIL_ORIGIN) * ARR_WIDTH + r + RNK_ORIGIN;
-  // }
-  
-  // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-  //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-  //     square_t  sq = square_of(f, r);
-      piece_t x = p->board[sq];
+    piece_t x = p->board[sq];
 
-      ptype_t typ = ptype_of(x);
-      // color_t color = color_of(x);
+    ptype_t typ = ptype_of(x);
+    // color_t color = color_of(x);
 
-      if (typ == PAWN || typ == KING) {
-        // case EMPTY:
-        //   break;
-        // case PAWN:
-          // if (laser_map[sq] == 1) continue;  // Piece is pinned down by laser.
-        // case KING:
-          // if (color != color_to_move) {  // Wrong color
-          //   break;
-          // }
-          // directions
-          for (int d = 0; d < 8; d++) {
-            int dest = sq + dir_of(d);
-            // Skip moves into invalid squares
-            if (ptype_of(p->board[dest]) == INVALID) {
-              continue;    // illegal square
-            }
+    if (typ == PAWN || typ == KING) {
+      for (int d = 0; d < 8; d++) {
+        int dest = sq + dir_of(d);
+        // Skip moves into invalid squares
+        if (ptype_of(p->board[dest]) == INVALID) {
+          continue;    // illegal square
+        }
+        WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
+        WHEN_DEBUG_VERBOSE({
+          move_to_str(move_of(typ, (rot_t) 0, sq, dest), buf, MAX_CHARS_IN_MOVE);
+          DEBUG_LOG(1, "Before: %s ", buf);
+        });
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, dest);
+        WHEN_DEBUG_VERBOSE({
+          move_to_str(get_move(sortable_move_list[move_count-1]), buf, MAX_CHARS_IN_MOVE);
+          DEBUG_LOG(1, "After: %s\n", buf);
+        });
+      }
 
-            WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
-            WHEN_DEBUG_VERBOSE({
-                move_to_str(move_of(typ, (rot_t) 0, sq, dest), buf, MAX_CHARS_IN_MOVE);
-                DEBUG_LOG(1, "Before: %s ", buf);
-              });
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, dest);
-
-            WHEN_DEBUG_VERBOSE({
-                move_to_str(get_move(sortable_move_list[move_count-1]), buf, MAX_CHARS_IN_MOVE);
-                DEBUG_LOG(1, "After: %s\n", buf);
-              });
-          }
-
-          // rotations - three directions possible
-          for (int rot = 1; rot < 4; ++rot) {
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) rot, sq, sq);
-          }
-          if (typ == KING) {  // Also generate null move
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, sq);
-          }
-          // break;
-        // case INVALID:
-        // default:;
-        //   tbassert(false, "Bogus, man.\n");  // Couldn't BE more bogus!
+      // rotations - three directions possible
+      for (int rot = 1; rot < 4; ++rot) {
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) rot, sq, sq);
+      }
+      if (typ == KING) {  // Also generate null move
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, sq);
       }
     }
-  // }
+  }
 
   WHEN_DEBUG_VERBOSE({
       DEBUG_LOG(1, "\nGenerated moves: ");

@@ -61,7 +61,6 @@ static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7
 // returns true if c lies on or between a and b, which are not ordered
 inline bool between(int c, int a, int b) {
   bool x = ((c >= a) && (c <= b)) || ((c <= a) && (c >= b));
-  // bool x = ((c >= a) && (c <= b));
   return x;
 }
 
