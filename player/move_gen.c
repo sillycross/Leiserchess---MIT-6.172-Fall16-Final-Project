@@ -541,15 +541,6 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
         }
       }
 
-      // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-      //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-      //     if (p->board[square_of(f, r)] !=
-      //         old->board[square_of(f, r)]) {
-      //       match = false;
-      //     }
-      //   }
-      // }
-
       if (match) return KO();
     }
 

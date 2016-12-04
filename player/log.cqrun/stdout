@@ -1,27 +1,25 @@
-info depth 1 move_no 1 time (microsec) 25 nodes 79 nps 3126481
+info depth 1 move_no 1 time (microsec) 24 nodes 79 nps 3202663
 info score cp -3 pv h0L
-info depth 1 move_no 31 time (microsec) 66 nodes 187 nps 2798604
+info depth 1 move_no 31 time (microsec) 94 nodes 187 nps 1976222
 info score cp 15 pv h4g5
-info depth 2 move_no 1 time (microsec) 1466 nodes 556 nps 379192
+info depth 2 move_no 1 time (microsec) 1574 nodes 718 nps 456160
 info score cp 3 pv h4g5
-info depth 3 move_no 1 time (microsec) 7028 nodes 1279 nps 181973
+info depth 3 move_no 1 time (microsec) 5201 nodes 22407 nps 4307590
 info score cp -2 pv h4g5
-info depth 3 move_no 24 time (microsec) 9456 nodes 1539 nps 162744
+info depth 3 move_no 24 time (microsec) 7402 nodes 37159 nps 5019924
 info score cp 15 pv g3R
-info depth 4 move_no 1 time (microsec) 15907 nodes 2073 nps 130317
+info depth 4 move_no 1 time (microsec) 11883 nodes 51025 nps 4293873
 info score cp 3 pv g3R
-info depth 4 move_no 2 time (microsec) 25716 nodes 3521 nps 136913
+info depth 4 move_no 2 time (microsec) 19343 nodes 95826 nps 4953826
 info score cp 13 pv h4g5
-info depth 5 move_no 1 time (microsec) 66956 nodes 4507 nps 67311
+info depth 5 move_no 1 time (microsec) 59083 nodes 587890 nps 9950118
 info score cp 8 pv h4g5
-info depth 6 move_no 1 time (microsec) 115560 nodes 7020 nps 60747
+info depth 6 move_no 1 time (microsec) 99413 nodes 857599 nps 8626574
 info score cp 4 pv h4g5
-info depth 6 move_no 30 time (microsec) 226737 nodes 10980 nps 48426
+info depth 6 move_no 30 time (microsec) 188098 nodes 1862166 nps 9899931
 info score cp 13 pv h4h5
-info depth 7 move_no 1 time (microsec) 458906 nodes 22308 nps 48611
-info score cp -3 pv h4h5
-info depth 7 move_no 2 time (microsec) 718320 nodes 40082 nps 55799
-info score cp -2 pv h4g5
-info depth 8 move_no 1 time (microsec) 1394479 nodes 50272 nps 36050
-info score cp 3 pv h4g5
-bestmove h4g5
+info depth 7 move_no 1 time (microsec) 425504 nodes 4412341 nps 10369664
+info score cp 7 pv h4h5
+info depth 8 move_no 1 time (microsec) 1306819 nodes 15523763 nps 11879043
+info score cp 13 pv h4h5
+bestmove h4h5
