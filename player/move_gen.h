@@ -115,6 +115,7 @@ typedef enum {
 // MOVE_MASK is 20 bits
 #define MOVE_MASK 0xfffff
 
+
 #define PTYPE_MV_SHIFT 18
 #define PTYPE_MV_MASK 3
 #define FROM_SHIFT 8

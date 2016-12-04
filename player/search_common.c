@@ -73,9 +73,9 @@ void init_tics() {
   tics = 0;
 }
 
-move_t get_move(sortable_move_t sortable_mv) {
-  return (move_t) (sortable_mv & MOVE_MASK);
-}
+// move_t get_move(sortable_move_t sortable_mv) {
+//   return (move_t) (sortable_mv & MOVE_MASK);
+// }
 
 static score_t get_draw_score(position_t *p, int ply) {
   position_t *x = p->history;

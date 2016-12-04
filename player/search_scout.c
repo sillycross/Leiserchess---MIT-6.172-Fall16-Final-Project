@@ -123,9 +123,9 @@ void perform_scout_search_expand_serial(int *break_flag,
   //   range_tree[j] = range_tree[i ^ 1];
   // i = j;
 
-  if (TRACE_MOVES) {
-    print_move_info(mv, node->ply);
-  }
+  // if (TRACE_MOVES) {
+  //   print_move_info(mv, node->ply);
+  // }
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
@@ -171,7 +171,7 @@ void perform_scout_search_expand(int *break_flag,
   
   // simple_acquire(mutex);
   
-  int local_index = __sync_fetch_and_add(number_of_moves_evaluated,1);
+  int local_index = __sync_fetch_and_add(number_of_moves_evaluated,1);  
   move_t mv = get_move(move_list[local_index]);
   // sorted_move_list[local_index] = move_list[range_tree[1]];
   // // printf("?? %d\n", local_index + MAX_NUM_MOVES);
@@ -221,9 +221,9 @@ void perform_scout_search_expand(int *break_flag,
   //   range_tree[j] = range_tree[i ^ 1];
   // i = j;
 
-  if (TRACE_MOVES) {
-    print_move_info(mv, node->ply);
-  }
+  // if (TRACE_MOVES) {
+  //   print_move_info(mv, node->ply);
+  // }
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
