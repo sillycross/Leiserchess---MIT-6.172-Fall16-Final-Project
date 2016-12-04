@@ -24,6 +24,11 @@ typedef unsigned long long ULL;
 //0: only two kings
 //1: current hand have a pawn in 3rd dim
 //2: opponent hand have a pawn in 3rd dim
+
+static const uint8_t TWO_KING = 0;
+static const uint8_t CURRENT_HAVE_PAWN = 1;
+static const uint8_t OPPONENT_HAVE_PAWN = 2;
+
 struct piece_type
 {
 	int type;
@@ -36,12 +41,19 @@ struct piece_type
 //1=win
 //2=lose
 //3=pawn zapped
+static const uint8_t NOTHING = 0;
+static const uint8_t WIN = 1;
+static const uint8_t Lose = 2;
+static const uint8_t Zapped = 3;
+
 uint8_t nextState[3][256][256][256];
 //reverse graph
 vector<int> *A[3][256][256][256];
 //1=win
 //2=lose
 //0=undetermined
+static const uint8_t undetermined = 0;
+
 uint8_t dp[3][256][256][256][4];
 uint8_t deg[3][256][256][256][4];
 uint8_t vis[3][256][256][256][4];

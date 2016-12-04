@@ -305,9 +305,9 @@ square_t fire_laser(position_t *p, color_t c) {
       case INVALID:  // Ran off edge of board
         return 0;
         break;
-      default:  // Shouldna happen, man!
-        // tbassert(false, "Like porkchops and whipped cream.\n");
-        break;
+      // default:  // Shouldna happen, man!
+      //   // tbassert(false, "Like porkchops and whipped cream.\n");
+      //   break;
     }
   }
 }
