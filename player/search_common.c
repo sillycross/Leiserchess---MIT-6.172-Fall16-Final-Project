@@ -376,6 +376,18 @@ void sort_incremental(sortable_move_t *move_list, int num_of_moves, int mv_index
   }
 }
 
+void sort_incremental_scout(sortable_move_t *move_list, int num_of_moves, int mv_index) {
+  for (int j = 0; j < num_of_moves; j++) {
+    sortable_move_t insert = move_list[j];
+    int hole = j;
+    while (hole > 0 && insert > move_list[hole-1]) {
+      move_list[hole] = move_list[hole-1];
+      hole--;
+    }
+    move_list[hole] = insert;
+  }
+}
+
 // Returns true if a cutoff was triggered, false otherwise.
 bool search_process_score(searchNode *node, move_t mv, int mv_index,
                                 moveEvaluationResult *result, searchType_t type) {

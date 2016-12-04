@@ -128,7 +128,7 @@ void perform_scout_search_expand(int *break_flag,
 
   // increase node count
   // __sync_fetch_and_add(node_count_serial, 1);
-  // (*node_count_serial)++;
+  // (*node_count_serial)++;  
   
   // simple_release(mutex);
     
@@ -202,7 +202,7 @@ static score_t scout_search(searchNode *node, int depth,
   
 
   // Sort the move list.
-  sort_incremental(move_list, num_of_moves, number_of_moves_evaluated);
+  sort_incremental_scout(move_list, num_of_moves, number_of_moves_evaluated);
 
   simple_mutex_t mutex;
   init_simple_mutex(&mutex);
