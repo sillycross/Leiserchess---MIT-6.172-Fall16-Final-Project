@@ -143,7 +143,7 @@ static score_t searchPV(searchNode *node, int depth, uint64_t *node_count_serial
   int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
   int num_moves_tried = 0;
 
-  sort_incremental(move_list, num_of_moves, 0);
+  sort_incremental(move_list, num_of_moves);
   // Start searching moves.
 
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
@@ -234,7 +234,7 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
     //   move_list[i] = move_list[r];
     //   move_list[r] = tmp;
     // }
-    sort_incremental(move_list, num_of_moves, 0);
+    sort_incremental(move_list, num_of_moves);
   }
 
   // printf("?? %d %d\n", depth, num_of_moves);

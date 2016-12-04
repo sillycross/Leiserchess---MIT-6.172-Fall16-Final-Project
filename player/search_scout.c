@@ -75,53 +75,6 @@ void perform_scout_search_expand_serial(int *break_flag,
   
   int local_index = (*number_of_moves_evaluated)++;
   move_t mv = get_move(move_list[local_index]);
-  // sorted_move_list[local_index] = move_list[range_tree[1]];
-  // // printf("?? %d\n", local_index + MAX_NUM_MOVES);
-  // int i = range_tree[1], j;
-  // // printf("%d\n", i);
-  // move_list[i] = 0;
-  // i += MAX_NUM_MOVES;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
 
   if (TRACE_MOVES) {
     print_move_info(mv, node->ply);
@@ -173,53 +126,6 @@ void perform_scout_search_expand(int *break_flag,
   
   int local_index = __sync_fetch_and_add(number_of_moves_evaluated,1);
   move_t mv = get_move(move_list[local_index]);
-  // sorted_move_list[local_index] = move_list[range_tree[1]];
-  // // printf("?? %d\n", local_index + MAX_NUM_MOVES);
-  // int i = range_tree[1], j;
-  // // printf("%d\n", i);
-  // move_list[i] = 0;
-  // i += MAX_NUM_MOVES;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
-  // j = i>>1;
-  // if (move_list[range_tree[i]] >= move_list[range_tree[i^1]])
-  //   range_tree[j] = range_tree[i];
-  // else
-  //   range_tree[j] = range_tree[i ^ 1];
-  // i = j;
 
   if (TRACE_MOVES) {
     print_move_info(mv, node->ply);
@@ -254,6 +160,19 @@ void perform_scout_search_expand(int *break_flag,
       *break_flag = 1;
     }
   }
+}
+
+// Incremental sort of the move list.
+void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
+  int lim = 5;
+  if (num_of_moves < lim) lim = num_of_moves;
+  for (int i = 0; i < lim; i++)
+    for (int j = i+1; j < num_of_moves; j++)
+      if (move_list[i] < move_list[j]) {
+        sortable_move_t temp = move_list[i];
+        move_list[i] = move_list[j];
+        move_list[j] = temp;
+      }
 }
 
 static score_t scout_search(searchNode *node, int depth,
@@ -301,7 +220,9 @@ static score_t scout_search(searchNode *node, int depth,
   
 
   // Sort the move list.
-  sort_incremental(move_list, num_of_moves, number_of_moves_evaluated);
+  sort_incremental(move_list, num_of_moves);
+  // use this after testing
+  // my_sort_incremental(move_list, num_of_moves);
 
   simple_mutex_t mutex;
   init_simple_mutex(&mutex);

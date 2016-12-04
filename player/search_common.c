@@ -364,7 +364,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
 }
 
 // Incremental sort of the move list.
-void sort_incremental(sortable_move_t *move_list, int num_of_moves, int mv_index) {
+void sort_incremental(sortable_move_t *move_list, int num_of_moves) {
   for (int j = 0; j < num_of_moves; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
