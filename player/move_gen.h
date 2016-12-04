@@ -204,9 +204,25 @@ rnk_t rnk_of(square_t sq);
 */
 int square_to_str(square_t sq, char *buf, size_t bufsize);
 
-int dir_of(int i);
-int beam_of(int direction);
-int reflect_of(int beam_dir, int pawn_ori);
+// direction map
+static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
+                      ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
+#define dir_of(i) dir[i]
+
+// directions for laser: NN, EE, SS, WW
+static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
+#define beam_of(direction) beam[direction]
+
+// reflect[beam_dir][pawn_orientation]
+// -1 indicates back of Pawn
+static const int reflect[NUM_ORI][NUM_ORI] = {
+  //  NW  NE  SE  SW
+  { -1, -1, EE, WW},   // NN
+  { NN, -1, -1, SS},   // EE
+  { WW, EE, -1, -1 },  // SS
+  { -1, NN, SS, -1 }   // WW
+};
+#define reflect_of(beam_dir, pawn_ori) reflect[beam_dir][pawn_ori]
 
 #define ptype_mv_of(mv) ( (ptype_t) (((mv) >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK))
 //ptype_t ptype_mv_of(move_t mv);
