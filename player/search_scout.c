@@ -128,7 +128,7 @@ void perform_scout_search_expand_serial(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;
   
     
@@ -226,7 +226,7 @@ void perform_scout_search_expand(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;
   
   // simple_release(mutex);
