@@ -457,8 +457,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
   // move phase 2 - shooting the laser
   square_t victim_sq = 0;
-  p->victims.zapped_count = 0;
-  p->victims.zapped_info = 0;
+  p->victims = 0;
   
   while ((victim_sq = fire_laser(p, color_to_move_of(old)))) {
     WHEN_DEBUG_VERBOSE({
@@ -468,8 +467,8 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
     // we definitely hit something with laser, remove it from board
     piece_t victim_piece = p->board[victim_sq];
-    p->victims.zapped_count++;
-    p->victims.zapped_info |= 1 << color_of(victim_piece);
+    p->victims ++;
+    p->victims |= 16 << color_of(victim_piece);
     p->key ^= zob[victim_sq][victim_piece];
     p->board[victim_sq] = 0;
     p->key ^= zob[victim_sq][0];
@@ -492,9 +491,9 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
     // laser halts on king
     if (ptype_of(victim_piece) == KING) {
-      p->victims.zapped_info |= 8;
+      p->victims |= 128;
       if (color_of(victim_piece))
-        p->victims.zapped_info |= 4;
+        p->victims |= 64;
       break;
     }
   }
@@ -561,8 +560,7 @@ static uint64_t perft_search(position_t *p, int depth, int ply) {
     low_level_make_move(p, &np, mv);  // make the move baby!
 
     square_t victim_sq = 0;  // the guys to disappear
-    np.victims.zapped_count = 0;
-    np.victims.zapped_info = 0;
+    np.victims = 0;
     
     while ((victim_sq = fire_laser(&np, color_to_move_of(p)))) {  // hit a piece
       piece_t victim_piece = np.board[victim_sq];
@@ -570,22 +568,22 @@ static uint64_t perft_search(position_t *p, int depth, int ply) {
                (ptype_of(victim_piece) != INVALID),
                "type: %d\n", ptype_of(victim_piece));
 
-      np.victims.zapped_count++;
-      np.victims.zapped_info |= 1 << color_of(victim_piece);
+      np.victims++;
+      np.victims |= 16 << color_of(victim_piece);
       np.key ^= zob[victim_sq][victim_piece];   // remove from board
       np.board[victim_sq] = 0;
       np.key ^= zob[victim_sq][0];
       np.mask[color_of(victim_piece)] ^= sq_to_board_bit[victim_sq];
 
       if (ptype_of(victim_piece) == KING) {
-        np.victims.zapped_info |= 8;
+        np.victims |= 128;
         if (color_of(victim_piece))
-          np.victims.zapped_info |= 4;
+          np.victims |= 64;
         break;
       }
     }
 
-    if (np.victims.zapped_info & 8) {
+    if (np.victims & 128) {
       // do not expand further: hit a King
       node_count++;
       continue;
