@@ -60,7 +60,7 @@ static const uint32_t range_tree_default[128] = {
   96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,
   112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};
 
-void perform_scout_search_expand1(int *break_flag, 
+inline void perform_scout_search_expand_serial(int *break_flag, 
              simple_mutex_t *mutex, 
              int mv_index, 
              searchNode *node,
@@ -159,7 +159,7 @@ void perform_scout_search_expand1(int *break_flag,
 }
 
 
-void perform_scout_search_expand(int *break_flag, 
+inline void perform_scout_search_expand(int *break_flag, 
 					   simple_mutex_t *mutex, 
 					   int mv_index, 
 					   searchNode *node,
@@ -319,7 +319,7 @@ static score_t scout_search(searchNode *node, int depth,
   if (lim>5) lim = 5;
   for (int mv_index = 0; mv_index < lim; mv_index++) {
     // Get the next move from the move list.
-    perform_scout_search_expand1(&break_flag, &mutex, mv_index, node, move_list, sorted_move_list, range_tree, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    perform_scout_search_expand_serial(&break_flag, &mutex, mv_index, node, move_list, sorted_move_list, range_tree, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
   
   cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {

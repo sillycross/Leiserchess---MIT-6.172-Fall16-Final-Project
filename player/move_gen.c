@@ -40,58 +40,6 @@ const char *color_to_str(color_t c) {
 // Piece getters and setters (including color, ptype, orientation)
 // -----------------------------------------------------------------------------
 
-// which color is moving next
-/*
-inline color_t color_to_move_of(position_t *p) {
-  return p -> ply & 1;
-  // if ((p->ply & 1) == 0) {
-  //   return WHITE;
-  // } else {
-  //   return BLACK;
-  // }
-}
-
-inline color_t color_of(piece_t x) {
-  return (color_t) ((x >> COLOR_SHIFT) & COLOR_MASK);
-}
-
-inline color_t opp_color(color_t c) {
-  return c ^ 1;
-  // if (c == WHITE) {
-  //   return BLACK;
-  // } else {
-  //   return WHITE;
-  // }
-}
-
-*/
-/*
-inline void set_color(piece_t *x, color_t c) {
-  tbassert((c >= 0) & (c <= COLOR_MASK), "color: %d\n", c);
-  *x = ((c & COLOR_MASK) << COLOR_SHIFT) |
-      (*x & ~(COLOR_MASK << COLOR_SHIFT));
-}
-
-
-inline ptype_t ptype_of(piece_t x) {
-  return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
-}
-*/
-/*
-inline void set_ptype(piece_t *x, ptype_t pt) {
-  *x = ((pt & PTYPE_MASK) << PTYPE_SHIFT) |
-      (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
-}
-
-inline int ori_of(piece_t x) {
-  return (x >> ORI_SHIFT) & ORI_MASK;
-}
-
-inline void set_ori(piece_t *x, int ori) {
-  *x = ((ori & ORI_MASK) << ORI_SHIFT) |
-      (*x & ~(ORI_MASK << ORI_SHIFT));
-}
-*/
 // -----------------------------------------------------------------------------
 // Piece orientation strings
 // -----------------------------------------------------------------------------
@@ -160,29 +108,7 @@ void init_zob() {
 // -----------------------------------------------------------------------------
 // Squares
 // -----------------------------------------------------------------------------
-/*
-// For no square, use 0, which is guaranteed to be off board
-inline square_t square_of(fil_t f, rnk_t r) {
-  square_t s = ARR_WIDTH * (FIL_ORIGIN + f) + RNK_ORIGIN + r;
-  DEBUG_LOG(1, "Square of (file %d, rank %d) is %d\n", f, r, s);
-  tbassert((s >= 0) && (s < ARR_SIZE), "s: %d\n", s);
-  return s;
-}
 
-// Finds file of square
-inline fil_t fil_of(square_t sq) {
-  fil_t f = sq / ARR_WIDTH - FIL_ORIGIN;
-  DEBUG_LOG(1, "File of square %d is %d\n", sq, f);
-  return f;
-}
-
-// Finds rank of square
-inline rnk_t rnk_of(square_t sq) {
-  rnk_t r = sq % ARR_WIDTH - RNK_ORIGIN;
-  DEBUG_LOG(1, "Rank of square %d is %d\n", sq, r);
-  return r;
-}
-*/
 // converts a square to string notation, returns number of characters printed
 inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
   fil_t f = fil_of(sq);
@@ -235,30 +161,6 @@ inline int reflect_of(int beam_dir, int pawn_ori) {
 // Move getters and setters
 // -----------------------------------------------------------------------------
 
-/*
-inline ptype_t ptype_mv_of(move_t mv) {
-  return (ptype_t) ((mv >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK);
-}
-
-inline square_t from_square(move_t mv) {
-  return (mv >> FROM_SHIFT) & FROM_MASK;
-}
-
-inline square_t to_square(move_t mv) {
-  return (mv >> TO_SHIFT) & TO_MASK;
-}
-
-inline rot_t rot_of(move_t mv) {
-  return (rot_t) ((mv >> ROT_SHIFT) & ROT_MASK);
-}
-
-inline move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq) {
-  return ((typ & PTYPE_MV_MASK) << PTYPE_MV_SHIFT) |
-      ((rot & ROT_MASK) << ROT_SHIFT) |
-      ((from_sq & FROM_MASK) << FROM_SHIFT) |
-      ((to_sq & TO_MASK) << TO_SHIFT);
-}
-*/
 
 // converts a move to string notation for FEN
 void move_to_str(move_t mv, char *buf, size_t bufsize) {
@@ -802,33 +704,3 @@ void display(position_t *p) {
   }
   printf("\n\n");
 }
-
-// -----------------------------------------------------------------------------
-// Ko and illegal move signalling
-// -----------------------------------------------------------------------------
-
-/*
-inline victims_t KO() {
-  return ((victims_t) {KO_ZAPPED, {0}});
-}
-
-inline victims_t ILLEGAL() {
-  return ((victims_t) {ILLEGAL_ZAPPED, {0}});
-}
-
-inline bool is_KO(victims_t victims) {
-  return (victims.zapped_count == KO_ZAPPED);
-}
-
-inline bool is_ILLEGAL(victims_t victims) {
-  return (victims.zapped_count == ILLEGAL_ZAPPED);
-}
-
-inline bool zero_victims(victims_t victims) {
-  return (victims.zapped_count == 0);
-}
-
-inline bool victim_exists(victims_t victims) {
-  return (victims.zapped_count > 0);
-}
-*/

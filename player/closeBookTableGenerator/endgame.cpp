@@ -14,10 +14,6 @@ using namespace std;
 typedef long long LL;
 typedef unsigned long long ULL;
 
-#define SIZE(x) (int((x).size()))
-#define rep(i,l,r) for (int i=(l); i<=(r); i++)
-#define repd(i,r,l) for (int i=(r); i>=(l); i--)
-#define rept(i,c) for (typeof((c).begin()) i=(c).begin(); i!=(c).end(); i++)
 
 #ifndef ONLINE_JUDGE
 #define debug(x) { cerr<<#x<<" = "<<(x)<<endl; }
@@ -27,8 +23,8 @@ typedef unsigned long long ULL;
 
 //0: only two kings
 //1: current hand have a pawn in 3rd dim
-//2: opponet hand have a pawn in 3rd dim
-struct atype
+//2: opponent hand have a pawn in 3rd dim
+struct piece_type
 {
 	int type;
 	int sKing;
@@ -85,7 +81,7 @@ void addEdge(int type, int sKing, int eKing, int pawn, int ntype, int nsKing, in
 	swap(nsKing,neKing);
 	if (ntype) ntype=3-ntype;
 	A[ntype][nsKing][neKing][npawn][nk].push_back(compress(type,sKing,eKing,pawn,0));
-	rep(i,0,3) 
+	for (int i = 0; i <= 3; i++)
 		if (checkCan(type,sKing,eKing,pawn,i,ntype,nsKing,neKing,npawn,nk))
 			deg[type][sKing][eKing][pawn][i]++;
 }
@@ -103,7 +99,7 @@ void checkAndAdd(int type, int sKing, int eKing, int pawn, int nsKing, int neKin
 	{
 		if (nextState[type][nsKing][neKing][npawn]==1)
 		{
-			rep(k,0,3)
+			for (int k = 0; k <= 3; k++)
 			{
 				dp[type][sKing][eKing][pawn][k]=1;
 				addToQueue(type,sKing,eKing,pawn,k);
@@ -140,7 +136,7 @@ void expand(int type, int sKing, int eKing, int pawn)
 		{
 			if (nextState[type][sKing][eKing][pawn]==1)
 			{
-				rep(k,0,3)
+				for (int k = 0; k <= 3; k++)
 				{
 					dp[type][sKing][eKing][pawn][k]=1;
 					addToQueue(type,sKing,eKing,pawn,k);
@@ -165,7 +161,7 @@ void expand(int type, int sKing, int eKing, int pawn)
 	int pawnY=pawnP%8;
 	int pawnD=pawnP%4;
 	//king move
-	rep(i,0,7)
+	for (int i = 0; i <= 7; i++)
 	{
 		int nsKing, neKing, npawn, nk=0;
 		
@@ -187,7 +183,7 @@ void expand(int type, int sKing, int eKing, int pawn)
 		checkAndAdd(type,sKing,eKing,pawn,nsKing,neKing,npawn,nk);
 	}
 	//king rotate
-	rep(i,0,3)
+	for (int i = 0; i <= 3; i++)
 	{
 		if (i==sKingD) continue;
 		int nsKing=sKingP*4+i, neKing=eKing, npawn=pawn, nk=0;
@@ -203,7 +199,7 @@ void expand(int type, int sKing, int eKing, int pawn)
 		if (!ineyesight)
 		{
 			//pawn move
-			rep(i,0,7)
+			for (int i = 0; i <= 7; i++)
 			{
 				int nsKing, neKing, npawn, nk=0;
 				
@@ -225,7 +221,7 @@ void expand(int type, int sKing, int eKing, int pawn)
 				checkAndAdd(type,sKing,eKing,pawn,nsKing,neKing,npawn,nk);
 			}
 			//pawn rotate
-			rep(i,0,3)
+			for (int i = 0; i <= 3; i++)
 			{
 				if (i==pawnD) continue;
 				int nsKing=sKing, neKing=eKing, npawn=pawnD*4+i, nk=0;
@@ -291,55 +287,56 @@ int calcNextState(int type, int sKing, int eKing, int pawn)
 	if (pawnZapped) return 3; else return 0;
 }
 
-void decompress(int v, int &type, int &sKing, int &eKing, int &pawn, int &k)
+void decompress(int v, int *type, int *sKing, int *eKing, int *pawn, int *k)
 {
-	k=v%4;
+	*k=v%4;
 	v/=4;
-	pawn=v%256;
+	*pawn=v%256;
 	v/=256;
-	eKing=v%256;
+	*eKing=v%256;
 	v/=256;
-	sKing=v%256;
+	*sKing=v%256;
 	v/=256;
-	type=v;
-	assert(type<=2 && sKing<=255 && eKing<=255 && pawn<=255 && k<=3); 
+	*type=v;
+	assert(*type<=2 && *sKing<=255 && *eKing<=255 && *pawn<=255 && *k<=3); 
 }
 
 uint8_t result[3][256][256][256];
 
-void lemon()
-{
-	rep(i,0,2)
-		rep(j,0,255)
-			rep(k,0,255)
+void step1() {
+	for (int i = 0; i <= 2; i++)
+		for (int j = 0; j <= 255; j++)
+			for (int k = 0; k <= 255; k++)
 			{
 				int ml;
 				if (i==0) ml=0; else ml=255;
-				rep(l,0,ml)
+				for (int l = 0; l <= ml; l++)
 					A[i][j][k][l]=new vector<int>[4];
 			}
 			
-	rep(i,0,2)
-		rep(j,0,255)
-			rep(k,0,255)
+	for (int i = 0; i <= 2; i++)
+		for (int j = 0; j <= 255; j++)
+			for (int k = 0; k <= 255; k++)
 			{
 				int ml;
 				if (i==0) ml=0; else ml=255;
-				rep(l,0,ml)
+				for (int l = 0; l <= ml; l++)
 					nextState[i][j][k][l]=calcNextState(i,j,k,l);
 			}
-			
 	fprintf(stderr,"step 1 done\n");
-			
-	rep(i,0,2)
-		rep(j,0,255)
+}
+
+
+void step2() {
+	for (int i = 0; i <= 2; i++)
+		for (int j = 0; j <= 255; j++)
 		{
 			fprintf(stderr,"%d %d\n",i,j);
-			rep(k,0,255)
+			for (int k = 0; k <= 255; k++)
 			{
 				int ml;
 				if (i==0) ml=0; else ml=255;
-				rep(l,0,ml)
+				for (int l = 0; l <= ml; l++)
 				{
 					expand(i,j,k,l);
 				}
@@ -347,23 +344,28 @@ void lemon()
 		}
 		
 	fprintf(stderr,"step 2 done exploredNum=%d\n",exploredNum);
+}
+
+void step3() {
+
 	
 	while (head<q.size())
 	{
 		int x=q[head]; head++;
 		int type, sKing, eKing, pawn, k;
-		decompress(x, type, sKing, eKing, pawn, k);
+		decompress(x, &type, &sKing, &eKing, &pawn, &k);
 		int res=dp[type][sKing][eKing][pawn][k];
 		if (res==0)
 		{
 			fprintf(stderr,"error %d %d %d %d %d %d\n",type, sKing, eKing, pawn, k, res);
 			exit(0);
 		}
-		rept(it,A[type][sKing][eKing][pawn][k])
+		for (typeof((A[type][sKing][eKing][pawn][k]).begin()) it=(A[type][sKing][eKing][pawn][k]).begin(); 
+						it!=(A[type][sKing][eKing][pawn][k]).end(); it++)
 		{
 			int otype, osKing, oeKing, opawn, tmp;
-			decompress(*it, otype, osKing, oeKing, opawn, tmp);
-			rep(oldk, 0, 3)
+			decompress(*it, &otype, &osKing, &oeKing, &opawn, &tmp);
+			for (int oldk = 0; oldk <= 3; oldk ++)
 				if (checkCan(otype, osKing, oeKing, opawn, oldk, type, sKing, eKing, pawn, k))
 				{
 					if (dp[otype][osKing][oeKing][opawn][oldk]!=0) continue;
@@ -387,17 +389,21 @@ void lemon()
 	
 	fprintf(stderr,"step 3 done q.size=%d\n",q.size());
 	
+}
+
+void step4() {
+	
 	int cnt=0;
-	rep(i,0,2)
-		rep(j,0,255)
-			rep(k,0,255)
+	for (int i = 0; i <= 2; i++)
+		for (int j = 0; j <= 255; j++)
+			for (int k = 0; k <= 255; k++)
 			{
 				int ml;
 				if (i==0) ml=0; else ml=255;
-				rep(l,0,ml)
+				for (int l = 0; l <= ml; l++)
 				{
 					int last=-1, lastt=-1, abnormal=0;
-					rep(t,0,3)
+					for (int t = 0; t <= 3; t++)
 					{
 						if (!vis[i][j][k][l][t]) continue;
 						if (last==-1)
@@ -424,21 +430,30 @@ void lemon()
 	fprintf(stderr,"Abnormality check finished\n");
 	fprintf(stderr,"True illegal state = %d\n",cnt);
 	
+}
+
+void MainJob()
+{
+	step1();
+	step2();
+	step3();
+	step4();
+
 	//0: not explored (should be an illegal state)
 	//1: win
 	//2: lose
 	//3: abnormal (previous move and KO rule determines result)
 	
 	
-	rep(i,0,2)
+	for (int i = 0; i <= 2; i++)
 	{
 		int cnt1=0, cnt2=0, cnt3=0, cnt4=0;
-		rep(j,0,255)
-			rep(k,0,255)
+		for (int j = 0; j <= 255; j++)
+			for (int k = 0; k <= 255; k++)
 			{
 				int ml;
 				if (i==0) ml=0; else ml=255;
-				rep(l,0,ml)
+				for (int l = 0; l <= ml; l++)
 				{
 					if (result[i][j][k][l]==0)
 						cnt1++;
@@ -455,12 +470,12 @@ void lemon()
 	
 	printf("#include <stdint.h>\n#include \"closebook.h\"\n\n");
 	printf("uint64_t closebook0[%d]={\n",256*256/32);
-	rep(i,0,255)
+	for (int i = 0; i <= 255; i++)
 	{
-		rep(j,0,7)
+		for (int j = 0; j <= 7; j++)
 		{
 			uint64_t t=0;
-			repd(k,j*32+31,j*32)
+			for (int k = j*32+31; k >= j*32; k --)
 				t=t*4+result[0][i][k][0];
 			printf("0x%llx",t);
 			if (i==255 && j==7) 
@@ -472,14 +487,14 @@ void lemon()
 	printf("\n");
 	
 	printf("uint64_t closebook1[%d]={\n",256*256*256/32);
-	rep(i,0,255)
+	for (int i = 0; i <= 255; i++)
 	{
-		rep(z,0,255)
+		for (int z = 0; z <= 255; z++)
 		{
-			rep(j,0,7)
+			for (int j = 0; j <= 7; j++)
 			{
 				uint64_t t=0;
-				repd(k,j*32+31,j*32)
+				for (int k = j*32+31; k >= j*32; k --)
 					t=t*4+result[1][i][z][k];
 				printf("0x%llx",t);
 				if (i==255 && z==255 && j==7) 
@@ -492,14 +507,14 @@ void lemon()
 	printf("\n");
 	
 	printf("uint64_t closebook2[%d]={\n",256*256*256/32);
-	rep(i,0,255)
+	for (int i = 0; i <= 255; i++)
 	{
-		rep(z,0,255)
+		for (int z = 0; z <=255; z++)
 		{
-			rep(j,0,7)
+			for (int j = 0; j <= 7; j++)
 			{
 				uint64_t t=0;
-				repd(k,j*32+31,j*32)
+				for (int k = j*32+31; k >= j*32; k --)
 					t=t*4+result[2][i][z][k];
 				printf("0x%llx",t);
 				if (i==255 && z==255 && j==7) 
@@ -517,7 +532,7 @@ int main()
 	#ifndef ONLINE_JUDGE
 		freopen("","r",stdin);
 	#endif
-	lemon();
+	MainJob();
 	return 0;
 }
 
