@@ -136,8 +136,7 @@ static bool is_repeated(position_t *p, int ply) {
 // game-over situation.  If so, also calculate the score depending on
 // the pov (which player's point of view)
 static bool is_game_over(victims_t victims, int pov, int ply) {
-  if (victims.zapped_count > 0 &&
-      ptype_of(victims.zapped[victims.zapped_count - 1]) == KING) {
+  if (victims.zapped_info & 8) {
     return true;
   }
   return false;
@@ -145,10 +144,10 @@ static bool is_game_over(victims_t victims, int pov, int ply) {
 
 static score_t get_game_over_score(victims_t victims, int pov, int ply) {
   score_t score;
-  if (color_of(victims.zapped[victims.zapped_count - 1]) == WHITE) {
-    score = -WIN * pov;
-  } else {
+  if (victims.zapped_info & 4) {
     score = WIN * pov;
+  } else {
+    score = -WIN * pov;
   }
   if (score < 0) {
     score += ply;
@@ -290,15 +289,8 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   }
 
   // Check whether we blundered (caused only our own pieces to be zapped).
-  if (victims.zapped_count > 0) {
-    blunder = true;
-    for (int i = 0; i < victims.zapped_count; i++) {
-      if (color_of(victims.zapped[i]) != node->fake_color_to_move) {
-        blunder = false;
-        break;
-      }
-    }
-  }
+  blunder = (victims.zapped_info == (1 << node->fake_color_to_move));
+
 
   // Do not consider moves that are blunders while in quiescence.
   if (node->quiescence && blunder) {

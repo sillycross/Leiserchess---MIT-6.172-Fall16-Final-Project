@@ -138,7 +138,7 @@ typedef enum {
 // A single move can zap up to 13 pieces.
 typedef struct victims_t {
   int8_t zapped_count;
-  piece_t zapped[13];
+  int8_t zapped_info;
 } victims_t;
 
 // returned by make move in illegal situation
@@ -230,9 +230,9 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv);
 victims_t make_move(position_t *old, position_t *p, move_t mv);
 void display(position_t *p);
 
-#define KO() ((victims_t) {KO_ZAPPED, {0}})
+#define KO() ((victims_t) {KO_ZAPPED, 0,})
 //victims_t KO();
-#define ILLEGAL() ((victims_t) {ILLEGAL_ZAPPED, {0}})
+#define ILLEGAL() ((victims_t) {ILLEGAL_ZAPPED, 0})
 //victims_t ILLEGAL();
 
 #define is_ILLEGAL(victims) ((victims).zapped_count == ILLEGAL_ZAPPED)
