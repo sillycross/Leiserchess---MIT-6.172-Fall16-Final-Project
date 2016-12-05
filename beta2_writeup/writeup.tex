@@ -109,8 +109,8 @@ scout\_search & make\_move & eval & perform\_scout\_search\_expand & low\_level\
 
 \section{Optimizations we plan to make}
 \begin{enumerate}
-  \item scout\_search and make\_move are currently the most costly functions, so we may be able to optimize them in more detail. We removed segmenttree sort for parallelism, so we need a faster sorting algorithm. Chengkai Zhang and Haoran Xu peer programming.
-  \item During beta 1 and 2, we found that make searchNode smaller can give significant speed up, so we can still use this to improve, Yuzhou Gu and Yinzhan Xu peer programming.
+  \item scout\_search and make\_move are currently the most costly functions, so we may be able to optimize them in more detail. We removed segmenttree sort for parallelization, so we need a faster sorting algorithm. Chengkai Zhang and Haoran Xu peer programming.
+  \item During beta 1 and 2, we found that making searchNode smaller can give significant speed up, so we can still use this to improve, Yuzhou Gu and Yinzhan Xu peer programming.
   \item We can also perform some strategy optimization. All team members can contribute to this (because it is currently unclear how to do this).
 \end{enumerate}
 
