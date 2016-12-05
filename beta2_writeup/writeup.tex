@@ -40,7 +40,7 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
 \end{tabular}
 
 \section{The changes so far}
-Speedup is given in terms of nps (nodes per second). That is, if nps before optimize is 1, and after optimize is 2, we say we have $100\%$ speedup.
+Speedup is given in terms of nps (nodes per second). That is, if nps before optimization is 1, and after optimization is 2, we say we have $100\%$ speedup.
 \begin{enumerate}
   \item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in eval.c, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup.
   \item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup.
