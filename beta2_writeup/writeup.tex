@@ -29,7 +29,7 @@
 \maketitle{}
 
 \section{Profiling Data}
-We tested the original program on the command ``go depth 8'' and recorded the profiling. Below is the result for the most costly six functions.
+We tested the original program on the command ``go depth 8'' and recorded the profiling. Below shows the six most costly functions.
 
 \begin{tabular}{ |l|l|l|l|l|l|l|l|l| }
 \hline
@@ -96,13 +96,13 @@ Speedup is given in terms of nps (nodes per second). That is, if nps before opti
 	is $256^3*2/4=8$ Megabytes, which is acceptable.
 
 \section{Current profile data}
-We tested the current program on the command ``go depth 8'' and recorded the profiling. Below is the result for the most costly six functions.
+We tested the current program on the command ``go depth 8'' and recorded the profiling. Below shows the five most costly functions.
 
-\begin{tabular}{ |l|l|l|l|l|l|l|l|l| }
+\begin{tabular}{ |l|l|l|l|l|l|l|l| }
 \hline
-scout\_search & make\_move & eval & perform\_scout\_search\_expand & low\_level\_make\_move & get\_sortable\_move\_list\\
+scout\_search & make\_move & eval & perform\_scout\_search\_expand & low\_level\_make\_move\\
 \hline
-32.55\% & 13.56\% & 8.94\% & 7.29\% & 4.73\% & 4.54\%\\
+32.55\% & 13.56\% & 8.94\% & 7.29\% & 4.73\%\\
 \hline
 \end{tabular}
 
