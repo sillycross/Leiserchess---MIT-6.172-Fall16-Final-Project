@@ -503,21 +503,23 @@ public class Harness {
 
         // Read the opening book
         if ( opening_book == "" ) {
-            System.out.printf("No opening book specified.");
-            System.exit(0);
-        }
-        try {
-            System.out.printf("Use opening book specified: " + opening_book + "\n");
-            File file = new File(opening_book);
-            InputStreamReader reader = new InputStreamReader( new FileInputStream(file) );
-            BufferedReader f = new BufferedReader(reader);
-            while ( (s = f.readLine()) != null ) {
-                Book.opening[Book.count] = s;
-                Book.count = Book.count + 1;
+            System.out.printf("No opening book specified, using starting position.\n");
+            Book.opening[Book.count] = null;
+            Book.count = Book.count + 1;
+        } else {
+            try {
+                System.out.printf("Use opening book specified: " + opening_book + "\n");
+                File file = new File(opening_book);
+                InputStreamReader reader = new InputStreamReader( new FileInputStream(file) );
+                BufferedReader f = new BufferedReader(reader);
+                while ( (s = f.readLine()) != null ) {
+                    Book.opening[Book.count] = s;
+                    Book.count = Book.count + 1;
+                }
+            } catch (IOException e) {
+                System.out.println( "Error:" + e.getMessage() );
+                System.exit(0);
             }
-        } catch (IOException e) {
-            System.out.println( "Error:" + e.getMessage() );
-            System.exit(0);
         }
 
         try {
