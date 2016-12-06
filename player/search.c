@@ -219,7 +219,7 @@ static void initialize_root_node(searchNode *node, score_t alpha, score_t beta, 
 
 score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
                    int ply, move_t *pv, uint64_t *node_count_serial,
-                   FILE *OUT) {
+                   FILE *OUT, score_t prev_cp) {
   static int num_of_moves = 0;  // number of moves in list
   // hopefully, more than we will need
   static sortable_move_t move_list[MAX_NUM_MOVES];
@@ -251,6 +251,79 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
 
   score_t score;
 
+  rootNode.alpha = prev_cp;
+  for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
+    // printf("?? %d\n", mv_index);
+    move_t mv = get_move(move_list[mv_index]);
+
+    if (TRACE_MOVES) {
+      print_move_info(mv, ply);
+    }
+
+    (*node_count_serial)++;
+
+    // make the move.
+    victims_t x = make_move(&(rootNode.position), &(next_node.position), mv);
+
+    if (is_KO(x)) {
+      continue;  // not a legal move
+    }
+
+    if (is_game_over(x, rootNode.pov, rootNode.ply)) {
+      score = get_game_over_score(x, rootNode.pov, rootNode.ply);
+      next_node.subpv = 0;
+      goto scored;
+    }
+
+    if (is_repeated(&(next_node.position), rootNode.ply)) {
+      score = get_draw_score(&(next_node.position), rootNode.ply);
+      next_node.subpv = 0;
+      goto scored;
+    }
+
+    score = -scout_search(&next_node, rootNode.depth-1, node_count_serial);
+
+    // Check if we should abort due to time control.
+    // if (abortf) {
+    //   return 0;
+    // }
+
+    // If its score exceeds the current best score,
+    if (score > rootNode.alpha) {
+      rootNode.best_score = score;
+      *pv = mv;
+      // memcpy(pv+1, next_node.subpv, sizeof(move_t) * (MAX_PLY_IN_SEARCH - 1));
+      // pv[MAX_PLY_IN_SEARCH - 1] = 0;
+
+      // Print out based on UCI (universal chess interface)
+      double et = elapsed_time();
+      char   pvbuf[MAX_CHARS_IN_MOVE];
+      getPV(*pv, pvbuf, MAX_CHARS_IN_MOVE);
+      if (et < 0.00001) {
+        et = 0.00001;  // hack so that we don't divide by 0
+      }
+
+      uint64_t nps = 1000 * *node_count_serial / et;
+      fprintf(OUT, "info depth %d move_no %d time (microsec) %d nodes %" PRIu64
+              " nps %" PRIu64 "\n",
+              depth, mv_index + 1, (int) (et * 1000), *node_count_serial, nps);
+      fprintf(OUT, "info score cp %d pv %s\n", score, pvbuf);
+
+      // Slide this move to the front of the move list
+      for (int j = mv_index; j > 0; j--) {
+        move_list[j] = move_list[j - 1];
+      }
+      move_list[0] = mv;
+      return score;
+    }
+      // score = -searchPV(&next_node, rootNode.depth-1, node_count_serial);
+      // Check if we should abort due to time control.
+      if (abortf) {
+        return 0;
+      }
+  }
+
+  rootNode.alpha = -INF;
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
     move_t mv = get_move(move_list[mv_index]);
 
