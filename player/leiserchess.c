@@ -195,14 +195,12 @@ void *entry_point(void *arg) {
   tt_age_hashtable();
 
   init_tics();
-  score_t sc = 0;
-  static score_t prev_cp = 0;
 
   for (int d = 1; d <= depth; d++) {  // Iterative deepening
     reset_abort();
 
-    sc = searchRoot(p, -INF, INF, d, 0, &subpv, &node_count_serial,
-                OUT, prev_cp);
+    searchRoot(p, -INF, INF, d, 0, &subpv, &node_count_serial,
+                OUT);
 
     et = elapsed_time();
     bestMoveSoFar = subpv;
@@ -217,7 +215,6 @@ void *entry_point(void *arg) {
     if (et > tme * RATIO_FOR_TIMEOUT) break;
   }
 
-  prev_cp = sc;
 
   // This unlock will allow the main thread lock/unlock in UCIBeginSearch to
   // proceed
