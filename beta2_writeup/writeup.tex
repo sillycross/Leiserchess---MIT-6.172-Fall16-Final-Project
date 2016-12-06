@@ -29,7 +29,7 @@
 \maketitle{}
 
 \section{Profiling Data}
-We tested the original program on the command "go depth 8" and recorded the profiling. Below is the result for the most costly six functions.
+We tested the original program on the command ``go depth 8'' and recorded the profiling. Below shows the six most costly functions.
 
 \begin{tabular}{ |l|l|l|l|l|l|l|l|l| }
 \hline
@@ -40,6 +40,7 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
 \end{tabular}
 
 \section{The changes so far}
+Speedup is given in terms of nps (nodes per second). That is, if nps before optimization is 1, and after optimization is 2, we say we have $100\%$ speedup.
 \begin{enumerate}
   \item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in eval.c, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup.
   \item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup.
@@ -54,11 +55,9 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
   \item subpv in searchNode is only used to store the best moves up the search depth, but we really only need the first move. Thus, we deleted the array and replaced it with a variable. This saves memory and thus improves the speed. It gives about $20\%$ speedup.
   \item We modified some logic in eval.c while keeping the result the same. For example, we merged the case for king and for pawn in the switch struct, and then minus score for king out of the loop. Such improvements give a $20\%$ speedup in total.
   \item We also created a closebook, which is discussed in detail in next section.
-  
-  \item We paralleled the code. 
-  
-  \item We found  out that it is not necessary to store the victim pieces; instead, we only need to record some necessary information. Thus, victims\_t can be packed into a int16\_t. 
-  
+  \item We parallelized the search\_scout function. This gives about $120\%$ speedup.
+  \item We found that it is unnecessary to store the victim pieces; instead, we only need to record some necessary information. Thus, victims\_t can be packed into a int16\_t. This gives about $5\%$ speedup.
+  \item We further made some functions into macros. This gives negligible speedup.
 \end{enumerate}
 
 \section{Generating Closebook}
@@ -91,29 +90,43 @@ scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_mov
 	The nodes that are not determined in the process are draw nodes. 
 	\end{itemize}
 	Note that KO rule does affect which opponent wins in some states. In that case 
-	we just record those states as "uncalculated". (The number of such cases is very small).
+	we just record those states as ``uncalculated''. (The number of such cases is very small).
 	To conclude, there are 4 possiblities for each state (win, lose, draw, determined by KO rule), 
 	which can be recorded in 2 bits. The total size of the output table
 	is $256^3*2/4=8$ Megabytes, which is acceptable.
 
-\section{Optimizations we plan to make}
+\section{Current profile data}
+We tested the current program on the command ``go depth 8'' and recorded the profiling. Below shows the five most costly functions.
 
+\begin{tabular}{ |l|l|l|l|l|l|l|l| }
+\hline
+scout\_search & make\_move & eval & perform\_scout\_search\_expand & low\_level\_make\_move\\
+\hline
+32.55\% & 13.56\% & 8.94\% & 7.29\% & 4.73\%\\
+\hline
+\end{tabular}
+
+
+\section{Optimizations we plan to make}
 \begin{enumerate}
-  \item scout\_search and make\_move are currently the most costly functions, so we may be able to optimize them in more detail. Especially the after we deleted the segment tree because of parallelism, we need a faster sorting algorithm. Chengkai Zhang and Haoran Xu peer programming.
-  \item During beta 1 and 2, we find that make searchNode smaller can give significant speed up, so we can still use this trick to improve, Yuzhou Gu and Yinzhan Xu peer programming.
+  \item scout\_search and make\_move are currently the most costly functions, so we may be able to optimize them in more detail. We removed segmenttree sort for parallelization, so we need a faster sorting algorithm. Chengkai Zhang and Haoran Xu peer programming.
+  \item During beta 1 and 2, we found that making searchNode smaller can give significant speed up, so we can still use this to improve, Yuzhou Gu and Yinzhan Xu peer programming.
   \item We can also perform some strategy optimization. All team members can contribute to this (because it is currently unclear how to do this).
 \end{enumerate}
 
-\section{Addressing MIT POSSE's comments}
+\section{Addressing MITPOSSE's comments}
 
-\begin{itemize}
-	\item Yinzhan Xu
-	
-	\begin{enumerate}
-		\item Deleted unused codes. 
-		\item Addressed some code style problems in the closebook generator. 
-		\item Defined constants so that they are not in the program body. 
-		\item Made long functions shorter. 
-	\end{enumerate}
-\end{itemize}
+We addressed MITPOSSE comments. We 
+\begin{enumerate}
+	\item removed useless code;
+	\item addressed some code style problems, particularly in the closebook generator;
+	\item replaced magic numbers with macros;
+	\item made long functions shorter;
+	\item added comments for auto-generated code.
+\end{enumerate}
+
+We
+\begin{enumerate}
+	\item did not attempt to improve the performance of the closebook generator because performance is not important here.
+\end{enumerate}
 \end{document}
