@@ -203,13 +203,33 @@ static inline bool valid_move(searchNode *node, move_t mv) {
 }
 
 static inline void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
-  for (int j = 0; j < num_of_moves; j++) {
+  int t = num_of_moves / 3 - 1;
+  for (int j = 0; j < t; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
     while (hole > 0 && insert > move_list[hole-1]) {
       move_list[hole] = move_list[hole-1];
       hole--;
     }
+    // memmove(move_list + hole + 1, move_list + hole, (j - hole) * sizeof(sortable_move_t));
+    move_list[hole] = insert;
+  }
+  // int t = num_of_moves / 2 - 1;
+  for (int j = t + 1; j < num_of_moves; j++) {
+    sortable_move_t insert = move_list[j];
+    if (insert < move_list[t]) {
+      move_list[j] = move_list[num_of_moves - 1];
+      move_list[num_of_moves - 1] = insert;
+      num_of_moves --;
+      j--;
+      continue;
+    }
+    int hole = j;
+    while (hole > 0 && insert > move_list[hole-1]) {
+      move_list[hole] = move_list[hole-1];
+      hole--;
+    }
+    // memmove(move_list + hole + 1, move_list + hole, (j - hole) * sizeof(sortable_move_t));
     move_list[hole] = insert;
   }
 }
