@@ -287,7 +287,7 @@ static score_t scout_search(searchNode *node, int depth,
     // if (valid_move(node, hash_table_move))
     //   move_list[0] = hash_table_move;
     // use this after testing
-    my_sort_incremental(move_list, num_of_moves);
+    sort_incremental(move_list, num_of_moves);
 
     simple_mutex_t mutex;
     init_simple_mutex(&mutex);
