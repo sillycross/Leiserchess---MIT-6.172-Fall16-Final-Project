@@ -118,15 +118,21 @@ public class PlayGame implements Runnable
         pB.snd("isready\n");
         pB.waitfor("readyok");
 
-        // todo: when reading in opening book, guarantee that only 1 space separates tokens
-        booklst = openLine.split(" ");
-        if (booklst.length < MIN_BOOKMOVES) {
-            System.out.printf("Too short opening line with " + booklst.length + " moves --ok\n");
+        if (openLine == null) {
+            // no opening book, use starting position
+            booklst = new String[0];
+        } else {
+            // todo: when reading in opening book, guarantee that only 1 space separates tokens
+            booklst = openLine.split(" ");
+            if (booklst.length < MIN_BOOKMOVES) {
+                System.out.printf("Too short opening line with " + booklst.length + " moves --ok\n");
+            }
         }
 
         gme.setupPosition("");
 
         ctm = 0;
+        moveclock = nMoveDrawRule;
 
         while (true) {
             String irr = null;    // irregular move or game loss
@@ -338,13 +344,15 @@ public class PlayGame implements Runnable
                 acc[c] += 0;
             }
 
-            // set status as 0, 1 or 2 = regular, draw, mate
+            // set status as 0, 1, 2, or 3 = regular, draw, mate (white wins), mate (black wins)
             int status = 0;   // ok
 
-            if (gme.status().equals("mate")) {
-                status = 2;
-            } else if (gme.status().equals("draw")) {
+            if (gme.status().equals("draw")) {
                 status = 1;
+            } else if (gme.status().equals("mate - white wins")) {
+                status = 2;
+            } else if (gme.status().equals("mate - black wins")) {
+                status = 3;
             }
 
             // hard code draw after some limit
@@ -370,13 +378,11 @@ public class PlayGame implements Runnable
                     pW.cleanup();
                     pB.cleanup();
                     if (status == 2) {
-                        if ((ctm & 1) == 1) {
-                            san.append( " 0-1" );
-                            head.append( "[Result \"0-1\"]\n" );
-                        } else {
-                            san.append( " 1-0" );
-                            head.append( "[Result \"1-0\"]\n" );
-                        }
+                        san.append( " 1-0" );
+                        head.append( "[Result \"1-0\"]\n" );
+                    } else if (status == 3) {
+                        san.append( " 0-1" );
+                        head.append( "[Result \"0-1\"]\n" );
                     } else {
                         san.append( " 1/2-1/2" );
                         head.append( "[Result \"1/2-1/2\"]\n" );

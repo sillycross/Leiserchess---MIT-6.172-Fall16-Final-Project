@@ -14,6 +14,7 @@
 // Evaluation
 // -----------------------------------------------------------------------------
 
+#define WINNING_SCORE 30000
 typedef int32_t ev_score_t;  // Static evaluator uses "hi res" values
 
 int RANDOMIZE;
@@ -60,7 +61,6 @@ static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7
 // returns true if c lies on or between a and b, which are not ordered
 inline bool between(int c, int a, int b) {
   bool x = ((c >= a) && (c <= b)) || ((c <= a) && (c >= b));
-  // bool x = ((c >= a) && (c <= b));
   return x;
 }
 
@@ -193,98 +193,28 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
 //   opposing king's laser --- and are thus mobile.
 
 inline int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
-  // color_t c = opp_color(color);
-  // char laser_map[ARR_SIZE];
-
-  // memcpy(laser_map, laser_map_s, sizeof laser_map);
-  // mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
-
-  // uint64_t laser_map = mark_laser_path_bit(p, c);
-  // if (transform(laser_map) != mark_laser_path_bit(p, c)) {
-  //   printf("%llu %llu\n", transform(laser_map), mark_laser_path_bit(p, c));
-  //   printf("ERROR\n");
-  // }
   tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[0], compute_mask(p, 0));
   tbassert(p->mask[1] == compute_mask(p, 1),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[1], compute_mask(p, 1));
-  // int unpinned_pawns = 0;
 
-  // Figure out which pawns are not pinned down by the laser.
   uint64_t mask = (~laser_map) & p -> mask[color];
   return __builtin_popcountl(mask) - ((1ULL << (fil_of(p -> kloc[color]) * 8 + rnk_of(p -> kloc[color])) & mask) != 0);
 
-  // for (fil_t f = 0; f < BOARD_WIDTH; ++f) {
-  //   for (rnk_t r = 0; r < BOARD_WIDTH; ++r) {
-  //     if ((mask & (1ULL << (8 * f + r))) != 0 &&
-  //         ptype_of(p->board[square_of(f, r)]) == PAWN) {
-  //       unpinned_pawns += 1;
-  //     }
-  //   }
-  // }
-  // printf("%d %d\n", __builtin_popcountl(mask) - ((1ULL << (fil_of(p -> kloc[color]) * 8 + rnk_of(p -> kloc[color])) & mask) != 0), unpinned_pawns);
-  // return unpinned_pawns;
 }
 
 // MOBILITY heuristic: safe squares around king of given color.
 
 inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
-  // color_t c = opp_color(color);
-  // char laser_map[ARR_SIZE];
-
-  // memcpy(laser_map, laser_map_s, sizeof laser_map);
-
-  // mark_laser_path(p, c, laser_map, 1);  // find path of laser given that you aren't moving
-  // uint64_t laser_map = mark_laser_path_bit(p, c);
-  // int mobility = 0;
-  // tbassert(ptype_of(p->board[king_sq]) == KING,
-  //          "ptype: %d\n", ptype_of(p->board[king_sq]));
-  // tbassert(color_of(p->board[king_sq]) == color,
-  //          "color: %d\n", color_of(p->board[king_sq]));
-
-  // int kingx = fil_of(p->kloc[color]), kingy = rnk_of(p->kloc[color]);
-  // for (int i = MAX(0, kingx - 1); i < MIN(8, kingx + 2); i++)
-  //   for (int j = MAX(0, kingy - 1); j < MIN(8, kingy + 2); j++)
-  //     if (!(laser_map & (1ULL << (i << 3) << j)))
-  //       mobility += 1;
-  // if (laser_map[king_sq] == 0) {
-  //   mobility++;
-  // }
-  // for (int d = 0; d < 8; ++d) {
-  //   int sq = king_sq + dir_64[d];
-  //   if (laser_map[sq] == 0) {
-  //     mobility++;
-  //   }
-  // }
   return __builtin_popcountl((~laser_map) & three_by_three_mask[p -> kloc[color]]);
-  // return mobility;
 }
 
-// Harmonic-ish distance: 1/(|dx|+1) + 1/(|dy|+1)
-// float h_dist(square_t a, square_t b) {
-//   //  printf("a = %d, FIL(a) = %d, RNK(a) = %d\n", a, FIL(a), RNK(a));
-//   //  printf("b = %d, FIL(b) = %d, RNK(b) = %d\n", b, FIL(b), RNK(b));
-//   int delta_fil = abs(fil_of(a) - fil_of(b));
-//   int delta_rnk = abs(rnk_of(a) - rnk_of(b));
-//   float x = inv_s[delta_fil] + inv_s[delta_rnk];
-//   //  printf("max_dist = %d\n\n", x);
-//   return x;
-// }
 
 // H_SQUARES_ATTACKABLE heuristic: for shooting the enemy king
 int h_squares_attackable(position_t *p, color_t c, uint64_t laser_map) {
-  // char laser_map[ARR_SIZE];
 
-  // memcpy(laser_map, laser_map_s, sizeof laser_map);
-  // mark_laser_path(p, c, laser_map, 1);  // 1 = path of laser with no moves
-  // uint64_t laser_map = mark_laser_path_bit(p, c);
-
-  // if (transform(laser_map) != mark_laser_path_bit(p, c)) {
-  //   printf("%llu %llu\n", transform(laser_map), mark_laser_path_bit(p, c));
-  //   printf("ERROR\n");
-  // }
   square_t o_king_sq = p->kloc[opp_color(c)];
   tbassert(ptype_of(p->board[o_king_sq]) == KING,
            "ptype: %d\n", ptype_of(p->board[o_king_sq]));
@@ -302,16 +232,6 @@ int h_squares_attackable(position_t *p, color_t c, uint64_t laser_map) {
     h_attackable += inv_s[abs(king_sq_fil - (i >> 3))] + inv_s[abs(king_sq_rnk - (i & 7))];
     laser_map ^= y;
   }
-  // for (int i = 0; i < 64; i++)
-  //   if (laser_map & (1ULL << i))
-  //     h_attackable += inv_s[abs(king_sq_fil - (i >> 3))] + inv_s[abs(king_sq_rnk - (i & 7))];
-  // for (fil_t f = 4 * 16; f < 4 * 16 + 8 * 16; f += 16) {
-  //   for (rnk_t r = f + 4; r < f + 12; ++r) {
-  //     if (laser_map[r] != 0) {
-  //       h_attackable += h_dist(r, o_king_sq);
-  //     }
-  //   }
-  // }
 
   return h_attackable;
 }
@@ -325,7 +245,7 @@ score_t eval(position_t *p, bool verbose) {
   int t = checkEndGame(p);
   if (t==1 || t==2)
   {
-	  if (t==1) return 30000; else return -30000;
+	  if (t==1) return WINNING_SCORE; else return -WINNING_SCORE;
   }
   
   ev_score_t score = 0;
@@ -339,16 +259,7 @@ score_t eval(position_t *p, bool verbose) {
 
   score -= kface(p, f1, r1) + kaggressive(p, f1, r1);
   score += pcentral(f1 * 8 + r1);
-  // if (f0 > f1) {
-  //   fil_t tmp = f0;
-  //   f0 = f1;
-  //   f1 = tmp;
-  // }
-  // if (r0 > r1) {
-  //   rnk_t tmp = r0;
-  //   r0 = r1;
-  //   r1 = tmp;
-  // }
+
 
   uint64_t mask = p -> mask[0];
   while (mask) {

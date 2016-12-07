@@ -319,18 +319,16 @@ int fen_to_pos(position_t *p, char *fen) {
   // these sentinels simplify checking previous
   // states without stepping past null pointers.
   dmy1.key = 0;
-  dmy1.victims.zapped_count = 1;
-  dmy1.victims.zapped[0] = 1;
+  dmy1.victims = 1;
   dmy1.history = NULL;
 
   dmy2.key = 0;
-  dmy2.victims.zapped_count = 1;
-  dmy2.victims.zapped[0] = 1;
+  dmy2.victims = 1;
   dmy2.history = &dmy1;
 
 
   p->key = 0;          // hash key
-  p->victims.zapped_count = 0;       // piece destroyed by shooter
+  p->victims = 0;
   p->history = &dmy2;  // history
 
 

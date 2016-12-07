@@ -115,6 +115,7 @@ typedef enum {
 // MOVE_MASK is 20 bits
 #define MOVE_MASK 0xfffff
 
+
 #define PTYPE_MV_SHIFT 18
 #define PTYPE_MV_MASK 3
 #define FROM_SHIFT 8
@@ -136,10 +137,7 @@ typedef enum {
 } rot_t;
 
 // A single move can zap up to 13 pieces.
-typedef struct victims_t {
-  int8_t zapped_count;
-  piece_t zapped[13];
-} victims_t;
+typedef int16_t victims_t;
 
 // returned by make move in illegal situation
 #define KO_ZAPPED -1
@@ -203,9 +201,25 @@ rnk_t rnk_of(square_t sq);
 */
 int square_to_str(square_t sq, char *buf, size_t bufsize);
 
-int dir_of(int i);
-int beam_of(int direction);
-int reflect_of(int beam_dir, int pawn_ori);
+// direction map
+static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
+                      ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
+#define dir_of(i) dir[i]
+
+// directions for laser: NN, EE, SS, WW
+static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
+#define beam_of(direction) beam[direction]
+
+// reflect[beam_dir][pawn_orientation]
+// -1 indicates back of Pawn
+static const int reflect[NUM_ORI][NUM_ORI] = {
+  //  NW  NE  SE  SW
+  { -1, -1, EE, WW},   // NN
+  { NN, -1, -1, SS},   // EE
+  { WW, EE, -1, -1 },  // SS
+  { -1, NN, SS, -1 }   // WW
+};
+#define reflect_of(beam_dir, pawn_ori) reflect[beam_dir][pawn_ori]
 
 #define ptype_mv_of(mv) ( (ptype_t) (((mv) >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK))
 //ptype_t ptype_mv_of(move_t mv);
@@ -230,18 +244,18 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv);
 victims_t make_move(position_t *old, position_t *p, move_t mv);
 void display(position_t *p);
 
-#define KO() ((victims_t) {KO_ZAPPED, {0}})
+#define KO() ((victims_t) -1)
 //victims_t KO();
-#define ILLEGAL() ((victims_t) {ILLEGAL_ZAPPED, {0}})
+#define ILLEGAL() ((victims_t) -1)
 //victims_t ILLEGAL();
 
-#define is_ILLEGAL(victims) ((victims).zapped_count == ILLEGAL_ZAPPED)
+#define is_ILLEGAL(victims) ((victims) == ILLEGAL_ZAPPED)
 //bool is_ILLEGAL(victims_t victims);
-#define is_KO(victims) ((victims).zapped_count == KO_ZAPPED)
+#define is_KO(victims) ((victims) == KO_ZAPPED)
 //bool is_KO(victims_t victims);
-#define zero_victims(victims) ((victims).zapped_count == 0)
+#define zero_victims(victims) ((victims) == 0)
 //bool zero_victims(victims_t victims);
-#define victim_exists(victims) ((victims).zapped_count > 0)
+#define victim_exists(victims) ((victims) > 0)
 //bool victim_exists(victims_t victims);
 
 #endif  // MOVE_GEN_H

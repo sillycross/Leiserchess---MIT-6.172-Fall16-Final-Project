@@ -40,58 +40,6 @@ const char *color_to_str(color_t c) {
 // Piece getters and setters (including color, ptype, orientation)
 // -----------------------------------------------------------------------------
 
-// which color is moving next
-/*
-inline color_t color_to_move_of(position_t *p) {
-  return p -> ply & 1;
-  // if ((p->ply & 1) == 0) {
-  //   return WHITE;
-  // } else {
-  //   return BLACK;
-  // }
-}
-
-inline color_t color_of(piece_t x) {
-  return (color_t) ((x >> COLOR_SHIFT) & COLOR_MASK);
-}
-
-inline color_t opp_color(color_t c) {
-  return c ^ 1;
-  // if (c == WHITE) {
-  //   return BLACK;
-  // } else {
-  //   return WHITE;
-  // }
-}
-
-*/
-/*
-inline void set_color(piece_t *x, color_t c) {
-  tbassert((c >= 0) & (c <= COLOR_MASK), "color: %d\n", c);
-  *x = ((c & COLOR_MASK) << COLOR_SHIFT) |
-      (*x & ~(COLOR_MASK << COLOR_SHIFT));
-}
-
-
-inline ptype_t ptype_of(piece_t x) {
-  return (ptype_t) ((x >> PTYPE_SHIFT) & PTYPE_MASK);
-}
-*/
-/*
-inline void set_ptype(piece_t *x, ptype_t pt) {
-  *x = ((pt & PTYPE_MASK) << PTYPE_SHIFT) |
-      (*x & ~(PTYPE_MASK << PTYPE_SHIFT));
-}
-
-inline int ori_of(piece_t x) {
-  return (x >> ORI_SHIFT) & ORI_MASK;
-}
-
-inline void set_ori(piece_t *x, int ori) {
-  *x = ((ori & ORI_MASK) << ORI_SHIFT) |
-      (*x & ~(ORI_MASK << ORI_SHIFT));
-}
-*/
 // -----------------------------------------------------------------------------
 // Piece orientation strings
 // -----------------------------------------------------------------------------
@@ -160,29 +108,7 @@ void init_zob() {
 // -----------------------------------------------------------------------------
 // Squares
 // -----------------------------------------------------------------------------
-/*
-// For no square, use 0, which is guaranteed to be off board
-inline square_t square_of(fil_t f, rnk_t r) {
-  square_t s = ARR_WIDTH * (FIL_ORIGIN + f) + RNK_ORIGIN + r;
-  DEBUG_LOG(1, "Square of (file %d, rank %d) is %d\n", f, r, s);
-  tbassert((s >= 0) && (s < ARR_SIZE), "s: %d\n", s);
-  return s;
-}
 
-// Finds file of square
-inline fil_t fil_of(square_t sq) {
-  fil_t f = sq / ARR_WIDTH - FIL_ORIGIN;
-  DEBUG_LOG(1, "File of square %d is %d\n", sq, f);
-  return f;
-}
-
-// Finds rank of square
-inline rnk_t rnk_of(square_t sq) {
-  rnk_t r = sq % ARR_WIDTH - RNK_ORIGIN;
-  DEBUG_LOG(1, "Rank of square %d is %d\n", sq, r);
-  return r;
-}
-*/
 // converts a square to string notation, returns number of characters printed
 inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
   fil_t f = fil_of(sq);
@@ -195,70 +121,9 @@ inline int square_to_str(square_t sq, char *buf, size_t bufsize) {
 }
 
 // -----------------------------------------------------------------------------
-// Board direction and laser direction
-// -----------------------------------------------------------------------------
-
-// direction map
-static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
-                      ARR_WIDTH - 1, ARR_WIDTH, ARR_WIDTH + 1 };
-inline int dir_of(int i) {
-  tbassert(i >= 0 && i < 8, "i: %d\n", i);
-  return dir[i];
-}
-
-
-// directions for laser: NN, EE, SS, WW
-static const int beam[NUM_ORI] = {1, ARR_WIDTH, -1, -ARR_WIDTH};
-
-inline int beam_of(int direction) {
-  tbassert(direction >= 0 && direction < NUM_ORI, "dir: %d\n", direction);
-  return beam[direction];
-}
-
-// reflect[beam_dir][pawn_orientation]
-// -1 indicates back of Pawn
-static const int reflect[NUM_ORI][NUM_ORI] = {
-  //  NW  NE  SE  SW
-  { -1, -1, EE, WW},   // NN
-  { NN, -1, -1, SS},   // EE
-  { WW, EE, -1, -1 },  // SS
-  { -1, NN, SS, -1 }   // WW
-};
-
-inline int reflect_of(int beam_dir, int pawn_ori) {
-  tbassert(beam_dir >= 0 && beam_dir < NUM_ORI, "beam-dir: %d\n", beam_dir);
-  tbassert(pawn_ori >= 0 && pawn_ori < NUM_ORI, "pawn-ori: %d\n", pawn_ori);
-  return reflect[beam_dir][pawn_ori];
-}
-
-// -----------------------------------------------------------------------------
 // Move getters and setters
 // -----------------------------------------------------------------------------
 
-/*
-inline ptype_t ptype_mv_of(move_t mv) {
-  return (ptype_t) ((mv >> PTYPE_MV_SHIFT) & PTYPE_MV_MASK);
-}
-
-inline square_t from_square(move_t mv) {
-  return (mv >> FROM_SHIFT) & FROM_MASK;
-}
-
-inline square_t to_square(move_t mv) {
-  return (mv >> TO_SHIFT) & TO_MASK;
-}
-
-inline rot_t rot_of(move_t mv) {
-  return (rot_t) ((mv >> ROT_SHIFT) & ROT_MASK);
-}
-
-inline move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq) {
-  return ((typ & PTYPE_MV_MASK) << PTYPE_MV_SHIFT) |
-      ((rot & ROT_MASK) << ROT_SHIFT) |
-      ((from_sq & FROM_MASK) << FROM_SHIFT) |
-      ((to_sq & TO_MASK) << TO_SHIFT);
-}
-*/
 
 // converts a move to string notation for FEN
 void move_to_str(move_t mv, char *buf, size_t bufsize) {
@@ -327,63 +192,42 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
     rnk_t r = i & 7;
 
     square_t sq = (f + FIL_ORIGIN) * ARR_WIDTH + r + RNK_ORIGIN;
-  // }
-  
-  // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-  //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-  //     square_t  sq = square_of(f, r);
-      piece_t x = p->board[sq];
+    piece_t x = p->board[sq];
 
-      ptype_t typ = ptype_of(x);
-      // color_t color = color_of(x);
+    ptype_t typ = ptype_of(x);
+    // color_t color = color_of(x);
 
-      if (typ == PAWN || typ == KING) {
-        // case EMPTY:
-        //   break;
-        // case PAWN:
-          // if (laser_map[sq] == 1) continue;  // Piece is pinned down by laser.
-        // case KING:
-          // if (color != color_to_move) {  // Wrong color
-          //   break;
-          // }
-          // directions
-          for (int d = 0; d < 8; d++) {
-            int dest = sq + dir_of(d);
-            // Skip moves into invalid squares
-            if (ptype_of(p->board[dest]) == INVALID) {
-              continue;    // illegal square
-            }
+    if (typ == PAWN || typ == KING) {
+      for (int d = 0; d < 8; d++) {
+        int dest = sq + dir_of(d);
+        // Skip moves into invalid squares
+        if (ptype_of(p->board[dest]) == INVALID) {
+          continue;    // illegal square
+        }
+        WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
+        WHEN_DEBUG_VERBOSE({
+          move_to_str(move_of(typ, (rot_t) 0, sq, dest), buf, MAX_CHARS_IN_MOVE);
+          DEBUG_LOG(1, "Before: %s ", buf);
+        });
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, dest);
+        WHEN_DEBUG_VERBOSE({
+          move_to_str(get_move(sortable_move_list[move_count-1]), buf, MAX_CHARS_IN_MOVE);
+          DEBUG_LOG(1, "After: %s\n", buf);
+        });
+      }
 
-            WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
-            WHEN_DEBUG_VERBOSE({
-                move_to_str(move_of(typ, (rot_t) 0, sq, dest), buf, MAX_CHARS_IN_MOVE);
-                DEBUG_LOG(1, "Before: %s ", buf);
-              });
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, dest);
-
-            WHEN_DEBUG_VERBOSE({
-                move_to_str(get_move(sortable_move_list[move_count-1]), buf, MAX_CHARS_IN_MOVE);
-                DEBUG_LOG(1, "After: %s\n", buf);
-              });
-          }
-
-          // rotations - three directions possible
-          for (int rot = 1; rot < 4; ++rot) {
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) rot, sq, sq);
-          }
-          if (typ == KING) {  // Also generate null move
-            tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
-            sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, sq);
-          }
-          // break;
-        // case INVALID:
-        // default:;
-        //   tbassert(false, "Bogus, man.\n");  // Couldn't BE more bogus!
+      // rotations - three directions possible
+      for (int rot = 1; rot < 4; ++rot) {
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) rot, sq, sq);
+      }
+      if (typ == KING) {  // Also generate null move
+        tbassert(move_count < MAX_NUM_MOVES, "move_count: %d\n", move_count);
+        sortable_move_list[move_count++] = move_of(typ, (rot_t) 0, sq, sq);
       }
     }
-  // }
+  }
 
   WHEN_DEBUG_VERBOSE({
       DEBUG_LOG(1, "\nGenerated moves: ");
@@ -440,9 +284,9 @@ square_t fire_laser(position_t *p, color_t c) {
       case INVALID:  // Ran off edge of board
         return 0;
         break;
-      default:  // Shouldna happen, man!
-        // tbassert(false, "Like porkchops and whipped cream.\n");
-        break;
+      // default:  // Shouldna happen, man!
+      //   // tbassert(false, "Like porkchops and whipped cream.\n");
+      //   break;
     }
   }
 }
@@ -592,8 +436,8 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
   // move phase 2 - shooting the laser
   square_t victim_sq = 0;
-  p->victims.zapped_count = 0;
-
+  p->victims = 0;
+  
   while ((victim_sq = fire_laser(p, color_to_move_of(old)))) {
     WHEN_DEBUG_VERBOSE({
         square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
@@ -602,7 +446,8 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
 
     // we definitely hit something with laser, remove it from board
     piece_t victim_piece = p->board[victim_sq];
-    p->victims.zapped[p->victims.zapped_count++] = victim_piece;
+    p->victims ++;
+    p->victims |= 16 << color_of(victim_piece);
     p->key ^= zob[victim_sq][victim_piece];
     p->board[victim_sq] = 0;
     p->key ^= zob[victim_sq][0];
@@ -624,7 +469,12 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       });
 
     // laser halts on king
-    if (ptype_of(victim_piece) == KING) break;
+    if (ptype_of(victim_piece) == KING) {
+      p->victims |= 128;
+      if (color_of(victim_piece))
+        p->victims |= 64;
+      break;
+    }
   }
 
   if (USE_KO) {  // Ko rule
@@ -638,15 +488,6 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
             match = false;
         }
       }
-
-      // for (fil_t f = 0; f < BOARD_WIDTH; f++) {
-      //   for (rnk_t r = 0; r < BOARD_WIDTH; r++) {
-      //     if (p->board[square_of(f, r)] !=
-      //         old->board[square_of(f, r)]) {
-      //       match = false;
-      //     }
-      //   }
-      // }
 
       if (match) return KO();
     }
@@ -698,25 +539,30 @@ static uint64_t perft_search(position_t *p, int depth, int ply) {
     low_level_make_move(p, &np, mv);  // make the move baby!
 
     square_t victim_sq = 0;  // the guys to disappear
-    np.victims.zapped_count = 0;
-
+    np.victims = 0;
+    
     while ((victim_sq = fire_laser(&np, color_to_move_of(p)))) {  // hit a piece
       piece_t victim_piece = np.board[victim_sq];
       tbassert((ptype_of(victim_piece) != EMPTY) &&
                (ptype_of(victim_piece) != INVALID),
                "type: %d\n", ptype_of(victim_piece));
 
-      np.victims.zapped[np.victims.zapped_count++] = victim_piece;
+      np.victims++;
+      np.victims |= 16 << color_of(victim_piece);
       np.key ^= zob[victim_sq][victim_piece];   // remove from board
       np.board[victim_sq] = 0;
       np.key ^= zob[victim_sq][0];
       np.mask[color_of(victim_piece)] ^= sq_to_board_bit[victim_sq];
 
-      if (ptype_of(victim_piece) == KING) break;
+      if (ptype_of(victim_piece) == KING) {
+        np.victims |= 128;
+        if (color_of(victim_piece))
+          np.victims |= 64;
+        break;
+      }
     }
 
-    if (np.victims.zapped_count > 0 &&
-        ptype_of(np.victims.zapped[np.victims.zapped_count - 1]) == KING) {
+    if (np.victims & 128) {
       // do not expand further: hit a King
       node_count++;
       continue;
@@ -802,33 +648,3 @@ void display(position_t *p) {
   }
   printf("\n\n");
 }
-
-// -----------------------------------------------------------------------------
-// Ko and illegal move signalling
-// -----------------------------------------------------------------------------
-
-/*
-inline victims_t KO() {
-  return ((victims_t) {KO_ZAPPED, {0}});
-}
-
-inline victims_t ILLEGAL() {
-  return ((victims_t) {ILLEGAL_ZAPPED, {0}});
-}
-
-inline bool is_KO(victims_t victims) {
-  return (victims.zapped_count == KO_ZAPPED);
-}
-
-inline bool is_ILLEGAL(victims_t victims) {
-  return (victims.zapped_count == ILLEGAL_ZAPPED);
-}
-
-inline bool zero_victims(victims_t victims) {
-  return (victims.zapped_count == 0);
-}
-
-inline bool victim_exists(victims_t victims) {
-  return (victims.zapped_count > 0);
-}
-*/

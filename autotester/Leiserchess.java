@@ -91,6 +91,7 @@ piece typs
     private static int BOARD_WIDTH = 8;
 
     private boolean gameOver = false;
+    private boolean whiteWins = true;
     public  String[] notes = new String[12];
 
     static int[] laser_map = new int[AS*AS];
@@ -502,8 +503,12 @@ private int parse_fen_board() {
 
     public String status() {
 
-        if(gameOver) {
-            return "mate";
+        if (gameOver) {
+            if (whiteWins) {
+                return "mate - white wins";
+            } else {
+                return "mate - black wins";
+            }
         }
         if (isRep()) {
             return "draw";
@@ -643,6 +648,7 @@ private int parse_fen_board() {
 
             if ((victim & 12) == 8) {
                 gameOver = true;
+                whiteWins = (victim & 48) == 16;
                 break;
             }
         }

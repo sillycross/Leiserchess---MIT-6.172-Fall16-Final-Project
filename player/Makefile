@@ -6,12 +6,12 @@ UNAME := $(shell uname)
 
 ifeq ($(PARALLEL),1)
 	OS_TYPE := Parallel Linux
-	PFLAG := -DPARALLEL -D_BSD_SOURCE -D_XOPEN_SOURCE
+	PFLAG := -DPARALLEL -D_BSD_SOURCE -D_XOPEN_SOURCE=700
 	# -g needed for test framework assertions
 	#
 	# switch -fdetach to -ftapir to enable Tapir optimization passes for better
 	# performance.
-	CFLAGS := -std=gnu99 -Wall -g -fdetach
+	CFLAGS := -std=gnu99 -Wall -g -ftapir
 	LDFLAGS= -Wall -lm -lrt -ldl -lpthread -lcilkrts
 else
 ifeq ($(UNAME),Darwin)
@@ -30,7 +30,7 @@ endif
 ifeq ($(DEBUG),1)
 	CFLAGS += -O0 -DDEBUG $(PFLAG)
 else
-	CFLAGS += -O3 -fdetach -DNDEBUG $(PFLAG)
+	CFLAGS += -O3 -ftapir -DNDEBUG $(PFLAG)
 endif
 
 ifeq ($(REFERENCE),1)

@@ -24,6 +24,7 @@
 #include "./tbassert.h"
 #include "./tt.h"
 #include "./util.h"
+#define get_move(mv) ((mv) & MOVE_MASK)
 
 char  VERSION[] = "1038";
 
@@ -213,6 +214,7 @@ void *entry_point(void *arg) {
     // don't start iteration that you cannot complete
     if (et > tme * RATIO_FOR_TIMEOUT) break;
   }
+
 
   // This unlock will allow the main thread lock/unlock in UCIBeginSearch to
   // proceed

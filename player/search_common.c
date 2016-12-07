@@ -73,9 +73,9 @@ void init_tics() {
   tics = 0;
 }
 
-move_t get_move(sortable_move_t sortable_mv) {
-  return (move_t) (sortable_mv & MOVE_MASK);
-}
+// move_t get_move(sortable_move_t sortable_mv) {
+//   return (move_t) (sortable_mv & MOVE_MASK);
+// }
 
 static score_t get_draw_score(position_t *p, int ply) {
   position_t *x = p->history;
@@ -136,8 +136,7 @@ static bool is_repeated(position_t *p, int ply) {
 // game-over situation.  If so, also calculate the score depending on
 // the pov (which player's point of view)
 static bool is_game_over(victims_t victims, int pov, int ply) {
-  if (victims.zapped_count > 0 &&
-      ptype_of(victims.zapped[victims.zapped_count - 1]) == KING) {
+  if (victims & 128) {
     return true;
   }
   return false;
@@ -145,10 +144,10 @@ static bool is_game_over(victims_t victims, int pov, int ply) {
 
 static score_t get_game_over_score(victims_t victims, int pov, int ply) {
   score_t score;
-  if (color_of(victims.zapped[victims.zapped_count - 1]) == WHITE) {
-    score = -WIN * pov;
-  } else {
+  if (victims & 64) {
     score = WIN * pov;
+  } else {
+    score = -WIN * pov;
   }
   if (score < 0) {
     score += ply;
@@ -290,15 +289,8 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   }
 
   // Check whether we blundered (caused only our own pieces to be zapped).
-  if (victims.zapped_count > 0) {
-    blunder = true;
-    for (int i = 0; i < victims.zapped_count; i++) {
-      if (color_of(victims.zapped[i]) != node->fake_color_to_move) {
-        blunder = false;
-        break;
-      }
-    }
-  }
+  blunder = ((victims >> 4) == (1 << node->fake_color_to_move));
+
 
   // Do not consider moves that are blunders while in quiescence.
   if (node->quiescence && blunder) {
@@ -372,7 +364,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
 }
 
 // Incremental sort of the move list.
-void sort_incremental(sortable_move_t *move_list, int num_of_moves, int mv_index) {
+void sort_incremental(sortable_move_t *move_list, int num_of_moves) {
   for (int j = 0; j < num_of_moves; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
@@ -441,9 +433,9 @@ static int get_sortable_move_list(searchNode *node, sortable_move_t * move_list,
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
     move_t mv = get_move(move_list[mv_index]);
     if (mv == hash_table_move) {
-      set_sort_key(&move_list[mv_index], SORT_MASK);
-    } else if (mv == killer_a) {
       set_sort_key(&move_list[mv_index], SORT_MASK - 1);
+    } else if (mv == killer_a) {
+      set_sort_key(&move_list[mv_index], SORT_MASK);
     } else if (mv == killer_b) {
       set_sort_key(&move_list[mv_index], SORT_MASK - 2);
     } else {

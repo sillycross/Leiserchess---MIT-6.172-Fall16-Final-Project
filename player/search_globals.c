@@ -20,7 +20,7 @@ static move_t killer __KMT_dim__;  // up to 4 killers
     (color * 6 * ARR_SIZE * NUM_ORI + piece * ARR_SIZE * NUM_ORI + \
      square * NUM_ORI + ori)
 
-static int best_move_history __BMH_dim__;
+static int32_t best_move_history __BMH_dim__;
 
 void init_best_move_history() {
   memset(best_move_history, 0, sizeof(best_move_history));

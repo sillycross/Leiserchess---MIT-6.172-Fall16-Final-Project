@@ -9,6 +9,8 @@
 #include <sys/time.h>
 #endif
 
+#include <time.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 
