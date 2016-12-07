@@ -433,9 +433,9 @@ static int get_sortable_move_list(searchNode *node, sortable_move_t * move_list,
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
     move_t mv = get_move(move_list[mv_index]);
     if (mv == hash_table_move) {
-      set_sort_key(&move_list[mv_index], SORT_MASK);
-    } else if (mv == killer_a) {
       set_sort_key(&move_list[mv_index], SORT_MASK - 1);
+    } else if (mv == killer_a) {
+      set_sort_key(&move_list[mv_index], SORT_MASK);
     } else if (mv == killer_b) {
       set_sort_key(&move_list[mv_index], SORT_MASK - 2);
     } else {

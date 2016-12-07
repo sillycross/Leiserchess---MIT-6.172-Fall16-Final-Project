@@ -171,6 +171,37 @@ void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
       }
 }
 
+static const uint64_t sq_to_board_bit[100] = {
+0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
+0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
+0ULL, 1ULL<<8, 1ULL<<9, 1ULL<<10, 1ULL<<11, 1ULL<<12, 1ULL<<13, 1ULL<<14, 1ULL<<15, 0ULL,
+0ULL, 1ULL<<16, 1ULL<<17, 1ULL<<18, 1ULL<<19, 1ULL<<20, 1ULL<<21, 1ULL<<22, 1ULL<<23, 0ULL,
+0ULL, 1ULL<<24, 1ULL<<25, 1ULL<<26, 1ULL<<27, 1ULL<<28, 1ULL<<29, 1ULL<<30, 1ULL<<31, 0ULL,
+0ULL, 1ULL<<32, 1ULL<<33, 1ULL<<34, 1ULL<<35, 1ULL<<36, 1ULL<<37, 1ULL<<38, 1ULL<<39, 0ULL,
+0ULL, 1ULL<<40, 1ULL<<41, 1ULL<<42, 1ULL<<43, 1ULL<<44, 1ULL<<45, 1ULL<<46, 1ULL<<47, 0ULL,
+0ULL, 1ULL<<48, 1ULL<<49, 1ULL<<50, 1ULL<<51, 1ULL<<52, 1ULL<<53, 1ULL<<54, 1ULL<<55, 0ULL,
+0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
+0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
+
+bool valid_move(searchNode *node, move_t mv) {
+  if (!mv)
+    return false;
+  ptype_t  pce = ptype_mv_of(mv);
+  rot_t    ro  = rot_of(mv);   // rotation
+  square_t fs  = from_square(mv);
+  square_t ts  = to_square(mv);
+  if (ptype_of(node -> position.board[fs]) != pce)
+    return false;
+  if (color_of(node -> position.board[fs]) != (node -> position.ply & 1))
+    return false;
+  if (fs == ts && !ro && pce != KING)
+    return false;
+  uint64_t laser_map = mark_laser_path_bit(&node -> position, opp_color(node -> position.ply & 1));
+  if (laser_map & sq_to_board_bit[fs])
+    return false;
+  return true;
+}
+
 static score_t scout_search(searchNode *node, int depth,
                             uint64_t *node_count_serial) {
   // Initialize the search node.
@@ -203,38 +234,66 @@ static score_t scout_search(searchNode *node, int depth,
   //   MAX_NUM_MOVES is all that we need.
   
   sortable_move_t move_list[MAX_NUM_MOVES];
-
+  int number_of_moves_evaluated = 0;
+  // int start = 0;
+  int break_flag = 0;
+  // static int sum = 0, cnt = 0;
+  // sum += 1;
+  // if (valid_move(node, hash_table_move)) {
+  //   move_list[number_of_moves_evaluated] = hash_table_move;
+  //   // printf("%d %d\n", , );
+  //   perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+  //   // printf("%d %d\n", number_of_moves_evaluated, break_flag);
+  // }
+  if (valid_move(node, killer_a)) {
+    move_list[number_of_moves_evaluated] = killer_a;
+    // printf("%d %d\n", , );
+    perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    // printf("%d %d\n", number_of_moves_evaluated, break_flag);
+  }
+  // if (hash_table_move != killer_a && valid_move(node, hash_table_move)) {
+  //   move_list[number_of_moves_evaluated] = killer_a;
+  //   // printf("%d %d\n", , );
+  //   perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+  //   // printf("%d %d\n", number_of_moves_evaluated, break_flag);
+  // }
   // Obtain the sorted move list.
   // memset(move_list, 0, sizeof move_list);
-  int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
+  if (!break_flag) {
+    // cnt += 1;
+    int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
 
-  int number_of_moves_evaluated = 0;
-  // A simple mutex. See simple_mutex.h for implementation details.
-  
+    
+    // A simple mutex. See simple_mutex.h for implementation details.
+    
 
-  // Sort the move list.
-  sort_incremental(move_list, num_of_moves);
-  // use this after testing
-  // my_sort_incremental(move_list, num_of_moves);
+    // Sort the move list.
+    sort_incremental(move_list, num_of_moves);
+    // if (valid_move(node, hash_table_move))
+    //   move_list[0] = hash_table_move;
+    // use this after testing
+    // my_sort_incremental(move_list, num_of_moves);
 
-  simple_mutex_t mutex;
-  init_simple_mutex(&mutex);
-  // simple_mutex_t mutexes[8];
-  // for (int i = 0; i < 8; i++)
-  //   init_simple_mutex(&mutexes[i]);
+    simple_mutex_t mutex;
+    init_simple_mutex(&mutex);
+    // simple_mutex_t mutexes[8];
+    // for (int i = 0; i < 8; i++)
+    //   init_simple_mutex(&mutexes[i]);
 
-  int break_flag = 0;
-  int lim = num_of_moves; 
-  if (lim>5) lim = 5;
-  for (int mv_index = 0; mv_index < lim; mv_index++) {
-    // Get the next move from the move list.
-    perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    int lim = num_of_moves; 
+    if (lim>5) lim = 5;
+
+    for (int mv_index = number_of_moves_evaluated; mv_index < lim; mv_index++) {
+      // Get the next move from the move list.
+      perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    }
+    
+    cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
+      perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    }
   }
-  
-  cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
-    perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
-  }
 
+  // printf("%.5lf\n", 1.0 * cnt / sum);
   if (parallel_parent_aborted(node)) {
     return 0;
   }
