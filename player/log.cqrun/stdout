@@ -1,27 +1,23 @@
-info depth 1 move_no 1 time (microsec) 24 nodes 79 nps 3192181
+info depth 1 move_no 1 time (microsec) 36 nodes 79 nps 2178766
 info score cp -3 pv h0L
-info depth 1 move_no 31 time (microsec) 65 nodes 187 nps 2857316
+info depth 1 move_no 31 time (microsec) 79 nodes 187 nps 2359650
 info score cp 15 pv h4g5
-info depth 2 move_no 1 time (microsec) 145 nodes 718 nps 4931457
+info depth 2 move_no 1 time (microsec) 161 nodes 556 nps 3452171
 info score cp 3 pv h4g5
-info depth 3 move_no 1 time (microsec) 1536 nodes 16583 nps 10790955
+info depth 3 move_no 1 time (microsec) 2126 nodes 1279 nps 601576
 info score cp -2 pv h4g5
-info depth 3 move_no 24 time (microsec) 3585 nodes 27688 nps 7723246
+info depth 3 move_no 24 time (microsec) 3793 nodes 1539 nps 405713
 info score cp 15 pv g3R
-info depth 4 move_no 1 time (microsec) 7285 nodes 59720 nps 8196838
+info depth 4 move_no 1 time (microsec) 6434 nodes 2129 nps 330862
 info score cp 3 pv g3R
-info depth 4 move_no 2 time (microsec) 10662 nodes 92699 nps 8693724
+info depth 4 move_no 2 time (microsec) 10926 nodes 5229 nps 478543
 info score cp 13 pv h4g5
-info depth 5 move_no 1 time (microsec) 31881 nodes 473364 nps 14847630
+info depth 5 move_no 1 time (microsec) 30671 nodes 6342 nps 206771
 info score cp 8 pv h4g5
-info depth 6 move_no 1 time (microsec) 78402 nodes 1076270 nps 13727499
-info score cp 4 pv h4g5
-info depth 6 move_no 30 time (microsec) 136714 nodes 2136345 nps 15626332
-info score cp 11 pv h4h5
-info depth 7 move_no 1 time (microsec) 269342 nodes 4010024 nps 14888191
-info score cp 7 pv h4h5
-info depth 8 move_no 1 time (microsec) 991613 nodes 17129751 nps 17274626
-info score cp 2 pv h4h5
-info depth 8 move_no 2 time (microsec) 1407073 nodes 25522827 nps 18138949
+info depth 6 move_no 1 time (microsec) 71166 nodes 11255 nps 158149
+info score cp 12 pv h4g5
+info depth 7 move_no 1 time (microsec) 198942 nodes 18631 nps 93649
+info score cp -2 pv h4g5
+info depth 8 move_no 1 time (microsec) 972046 nodes 118538 nps 121946
 info score cp 3 pv h4g5
 bestmove h4g5

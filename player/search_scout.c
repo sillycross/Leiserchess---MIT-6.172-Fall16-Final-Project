@@ -80,7 +80,7 @@ static inline void perform_scout_search_expand_serial(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;
   
     
@@ -128,7 +128,7 @@ void perform_scout_search_expand(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;  
   
   // simple_release(mutex);
@@ -269,26 +269,35 @@ static score_t scout_search(searchNode *node, int depth,
   sortable_move_t move_list[MAX_NUM_MOVES];
   int number_of_moves_evaluated = 0;
   int break_flag = 0;
+  int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
 
-  if (valid_move(node, killer_a)) {
-    move_list[number_of_moves_evaluated] = killer_a;
-    perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+    
+  // A simple mutex. See simple_mutex.h for implementation details.
+  
+
+  // Sort the move list.
+
+  // sort_incremental(move_list, num_of_moves);
+  // if (valid_move(node, hash_table_move))
+  //   move_list[0] = hash_table_move;
+  // use this after testing
+  sortable_move_t move_list2[3];
+
+  if (valid_move(node, hash_table_move)) {
+    move_list2[number_of_moves_evaluated] = hash_table_move;
+    perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
+  if (!break_flag && killer_a != hash_table_move && valid_move(node, killer_a)) {
+    move_list2[number_of_moves_evaluated] = killer_a;
+    perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+  }
+  if (!break_flag && killer_b != hash_table_move && killer_b != killer_a && valid_move(node, killer_b)) {
+    move_list2[number_of_moves_evaluated] = killer_b;
+    perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+  }
+
   if (!break_flag) {
-    int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
-
-    
-    // A simple mutex. See simple_mutex.h for implementation details.
-    
-
-    // Sort the move list.
-
-    // sort_incremental(move_list, num_of_moves);
-    // if (valid_move(node, hash_table_move))
-    //   move_list[0] = hash_table_move;
-    // use this after testing
     sort_incremental(move_list, num_of_moves);
-
     simple_mutex_t mutex;
     init_simple_mutex(&mutex);
 
@@ -311,15 +320,23 @@ static score_t scout_search(searchNode *node, int depth,
         perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
       }
     }
-  }
-  
-  if (parallel_parent_aborted(node)) {
-    return 0;
-  }
+    if (parallel_parent_aborted(node)) {
+      return 0;
+    }
 
-  if (node->quiescence == false) {
-    update_best_move_history(&(node->position), node->best_move_index,
-                             move_list, number_of_moves_evaluated);
+    if (node->quiescence == false) {
+      update_best_move_history(&(node->position), node->best_move_index,
+                               move_list, number_of_moves_evaluated);
+    }
+  }else {
+    if (parallel_parent_aborted(node)) {
+      return 0;
+    }
+
+    if (node->quiescence == false) {
+      update_best_move_history(&(node->position), node->best_move_index,
+                               move_list2, number_of_moves_evaluated);
+    }
   }
 
   tbassert(abs(node->best_score) != -INF, "best_score = %d\n",
