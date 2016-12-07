@@ -18,9 +18,10 @@ void simple_acquire(simple_mutex_t* mutex) {
 }
 
 void simple_release(simple_mutex_t* mutex) {
-  if (!__sync_bool_compare_and_swap(mutex, 1, 0)) {
-    printf("ERROR!\n");
-  }
+  __sync_bool_compare_and_swap(mutex, 1, 0);
+  // if (!__sync_bool_compare_and_swap(mutex, 1, 0)) {
+  //   printf("ERROR!\n");
+  // }
 }
 
 #endif  // SIMPLE_MUTEX_H
