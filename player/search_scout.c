@@ -300,9 +300,11 @@ static score_t scout_search(searchNode *node, int depth,
       perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
     }
     
-    if (node -> depth > 1) {
+    if (node -> depth > 1 && !break_flag) {
       cilk_for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
         perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+        if (break_flag)
+          break;
       }
     }else {
       for (int mv_index = lim; mv_index < num_of_moves && !break_flag; mv_index++) {
