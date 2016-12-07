@@ -80,7 +80,7 @@ static inline void perform_scout_search_expand_serial(int *break_flag,
   // }
 
   // increase node count
-  // __sync_fetch_and_add(node_count_serial, 1);
+  __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;
   
     
@@ -128,7 +128,7 @@ void perform_scout_search_expand(int *break_flag,
   // }
 
   // increase node count
-  // __sync_fetch_and_add(node_count_serial, 1);
+  __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;  
   
   // simple_release(mutex);
@@ -203,8 +203,8 @@ static inline bool valid_move(searchNode *node, move_t mv) {
 }
 
 static inline void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
-  int t = num_of_moves / 3 - 1;
-  for (int j = 0; j < t; j++) {
+  int t = num_of_moves / 4 - 1;
+  for (int j = 0; j <= t; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
     while (hole > 0 && insert > move_list[hole-1]) {
