@@ -69,7 +69,7 @@ static inline void perform_scout_search_expand_serial(int *break_flag,
              move_t killer_a,
              move_t killer_b,
              int *number_of_moves_evaluated) {
-  if (*break_flag) return;
+  // if (*break_flag) return;
   
   
   int local_index = (*number_of_moves_evaluated)++;
@@ -80,7 +80,7 @@ static inline void perform_scout_search_expand_serial(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;
   
     
@@ -128,7 +128,7 @@ void perform_scout_search_expand(int *break_flag,
   // }
 
   // increase node count
-  __sync_fetch_and_add(node_count_serial, 1);
+  // __sync_fetch_and_add(node_count_serial, 1);
   // (*node_count_serial)++;  
   
   // simple_release(mutex);
@@ -159,17 +159,17 @@ void perform_scout_search_expand(int *break_flag,
 }
 
 // Incremental sort of the move list.
-void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
-  int lim = 5;
-  if (num_of_moves < lim) lim = num_of_moves;
-  for (int i = 0; i < lim; i++)
-    for (int j = i+1; j < num_of_moves; j++)
-      if (move_list[i] < move_list[j]) {
-        sortable_move_t temp = move_list[i];
-        move_list[i] = move_list[j];
-        move_list[j] = temp;
-      }
-}
+// void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
+//   int lim = 5;
+//   if (num_of_moves < lim) lim = num_of_moves;
+//   for (int i = 0; i < lim; i++)
+//     for (int j = i+1; j < num_of_moves; j++)
+//       if (move_list[i] < move_list[j]) {
+//         sortable_move_t temp = move_list[i];
+//         move_list[i] = move_list[j];
+//         move_list[j] = temp;
+//       }
+// }
 
 static const uint64_t sq_to_board_bit[100] = {
 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
@@ -183,7 +183,7 @@ static const uint64_t sq_to_board_bit[100] = {
 0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
-bool valid_move(searchNode *node, move_t mv) {
+static inline bool valid_move(searchNode *node, move_t mv) {
   if (!mv)
     return false;
   ptype_t  pce = ptype_mv_of(mv);
@@ -201,6 +201,19 @@ bool valid_move(searchNode *node, move_t mv) {
     return false;
   return true;
 }
+
+static inline void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
+  for (int j = 0; j < num_of_moves; j++) {
+    sortable_move_t insert = move_list[j];
+    int hole = j;
+    while (hole > 0 && insert > move_list[hole-1]) {
+      move_list[hole] = move_list[hole-1];
+      hole--;
+    }
+    move_list[hole] = insert;
+  }
+}
+
 
 static score_t scout_search(searchNode *node, int depth,
                             uint64_t *node_count_serial) {
@@ -250,11 +263,11 @@ static score_t scout_search(searchNode *node, int depth,
 
     // Sort the move list.
 
-    sort_incremental(move_list, num_of_moves);
+    // sort_incremental(move_list, num_of_moves);
     // if (valid_move(node, hash_table_move))
     //   move_list[0] = hash_table_move;
     // use this after testing
-    // my_sort_incremental(move_list, num_of_moves);
+    my_sort_incremental(move_list, num_of_moves);
 
     simple_mutex_t mutex;
     init_simple_mutex(&mutex);
@@ -262,7 +275,7 @@ static score_t scout_search(searchNode *node, int depth,
     int lim = num_of_moves; 
     if (lim>5) lim = 5;
 
-    for (int mv_index = number_of_moves_evaluated; mv_index < lim; mv_index++) {
+    for (int mv_index = number_of_moves_evaluated; mv_index < lim && !break_flag; mv_index++) {
       // Get the next move from the move list.
       perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
     }
@@ -272,8 +285,8 @@ static score_t scout_search(searchNode *node, int depth,
         perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
       }
     }else {
-      for (int mv_index = lim; mv_index < num_of_moves; mv_index++) {
-        perform_scout_search_expand(&break_flag, &mutex, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
+      for (int mv_index = lim; mv_index < num_of_moves && !break_flag; mv_index++) {
+        perform_scout_search_expand_serial(&break_flag, node, move_list, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
       }
     }
   }
