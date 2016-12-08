@@ -262,14 +262,13 @@ static score_t scout_search(searchNode *node, int depth,
   // Grab the killer-moves for later use.
   move_t killer_a = killer[KMT(node->ply, 0)];
   move_t killer_b = killer[KMT(node->ply, 1)];
-  
   // Store the sorted move list on the stack.
   //   MAX_NUM_MOVES is all that we need.
   
   sortable_move_t move_list[MAX_NUM_MOVES];
   int number_of_moves_evaluated = 0;
   int break_flag = 0;
-  int num_of_moves = get_sortable_move_list(node, move_list, hash_table_move);
+  
 
     
   // A simple mutex. See simple_mutex.h for implementation details.
@@ -287,16 +286,20 @@ static score_t scout_search(searchNode *node, int depth,
     move_list2[number_of_moves_evaluated] = hash_table_move;
     perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
+  
+  
   if (!break_flag && killer_a != hash_table_move && valid_move(node, killer_a)) {
     move_list2[number_of_moves_evaluated] = killer_a;
     perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
+  
   if (!break_flag && killer_b != hash_table_move && killer_b != killer_a && valid_move(node, killer_b)) {
     move_list2[number_of_moves_evaluated] = killer_b;
     perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
 
   if (!break_flag) {
+    int num_of_moves = get_sortable_move_list2(node, move_list, hash_table_move, killer_a, killer_b);
     sort_incremental(move_list, num_of_moves);
     simple_mutex_t mutex;
     init_simple_mutex(&mutex);
