@@ -59,22 +59,22 @@ static const double inv_s[16] = {1.0/1, 1.0/2, 1.0/3, 1.0/4, 1.0/5, 1.0/6, 1.0/7
 #define pcentral(x) pcentral_s[x]
 
 // returns true if c lies on or between a and b, which are not ordered
-inline bool between(int c, int a, int b) {
+static inline  bool between(int c, int a, int b) {
   bool x = ((c >= a) && (c <= b)) || ((c <= a) && (c >= b));
   return x;
 }
 
 // PBETWEEN heuristic: Bonus for Pawn at (f, r) in rectangle defined by Kings at the corners
-inline ev_score_t pbetween(position_t *p, fil_t f, rnk_t r) {
-  bool is_between =
-      between(f, fil_of(p->kloc[WHITE]), fil_of(p->kloc[BLACK])) &&
-      between(r, rnk_of(p->kloc[WHITE]), rnk_of(p->kloc[BLACK]));
-  return is_between ? PBETWEEN : 0;
-}
+// static inline  ev_score_t pbetween(position_t *p, fil_t f, rnk_t r) {
+//   bool is_between =
+//       between(f, fil_of(p->kloc[WHITE]), fil_of(p->kloc[BLACK])) &&
+//       between(r, rnk_of(p->kloc[WHITE]), rnk_of(p->kloc[BLACK]));
+//   return is_between ? PBETWEEN : 0;
+// }
 
 
 // KFACE heuristic: bonus (or penalty) for King facing toward the other King
-ev_score_t kface(position_t *p, fil_t f, rnk_t r) {
+static inline  ev_score_t kface(position_t *p, fil_t f, rnk_t r) {
   square_t sq = square_of(f, r);
   piece_t x = p->board[sq];
   color_t c = color_of(x);
@@ -108,7 +108,7 @@ ev_score_t kface(position_t *p, fil_t f, rnk_t r) {
 }
 
 // KAGGRESSIVE heuristic: bonus for King with more space to back
-ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
+static inline  ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
   square_t sq = square_of(f, r);
   piece_t x = p->board[sq];
   color_t c = color_of(x);
@@ -188,7 +188,7 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
 // PAWNPIN Heuristic: count number of pawns that are not pinned by the
 //   opposing king's laser --- and are thus mobile.
 
-inline int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
+static inline int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
   tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[0], compute_mask(p, 0));
@@ -203,13 +203,13 @@ inline int pawnpin(position_t *p, color_t color, uint64_t laser_map) {
 
 // MOBILITY heuristic: safe squares around king of given color.
 
-inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
+static inline int mobility(position_t *p, color_t color, uint64_t laser_map) {
   return __builtin_popcountl((~laser_map) & three_by_three_mask[p -> kloc[color]]);
 }
 
 
 // H_SQUARES_ATTACKABLE heuristic: for shooting the enemy king
-int h_squares_attackable(position_t *p, color_t c, uint64_t laser_map) {
+static inline int h_squares_attackable(position_t *p, color_t c, uint64_t laser_map) {
 
   square_t o_king_sq = p->kloc[opp_color(c)];
   tbassert(ptype_of(p->board[o_king_sq]) == KING,
@@ -237,7 +237,6 @@ score_t eval(position_t *p, bool verbose) {
   // seed rand_r with a value of 1, as per
   // http://linux.die.net/man/3/rand_r
 
-  
   static __thread unsigned int seed = 1;
   
   int t = checkEndGame(p);

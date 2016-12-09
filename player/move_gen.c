@@ -251,7 +251,7 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
 //
 // p : Current board state.
 // c : Color of king shooting laser.
-square_t fire_laser(position_t *p, color_t c) {
+static inline square_t fire_laser(position_t *p, color_t c) {
   tbassert(p->mask[0] == compute_mask(p, 0),
            "p->mask: %"PRIu64", mask: %"PRIu64"\n",
            p->mask[0], compute_mask(p, 0));
@@ -268,7 +268,6 @@ square_t fire_laser(position_t *p, color_t c) {
   while (true) {
     sq += beam_of(bdir);
     tbassert(sq < ARR_SIZE && sq >= 0, "sq: %d\n", sq);
-
     switch (ptype_of(p->board[sq])) {
       case EMPTY:  // empty square
         break;

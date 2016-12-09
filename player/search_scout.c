@@ -50,6 +50,34 @@ static void initialize_scout_node(searchNode *node, int depth) {
   node->abort = false;
 }
 
+static inline bool search_process_score_local(searchNode *node, move_t mv, int mv_index,
+                                moveEvaluationResult *result, searchType_t type) {
+  if (result->score > node->best_score) {
+    node->best_score = result->score;
+    node->best_move_index = mv_index;
+    node->subpv = mv;
+
+    // write best move into right position in PV buffer.
+    // memcpy(node->subpv + 1, result->next_node.subpv,
+    //        sizeof(move_t) * (MAX_PLY_IN_SEARCH - 1));
+    // node->subpv[MAX_PLY_IN_SEARCH - 1] = 0;
+
+    // if (type != SEARCH_SCOUT && result->score > node->alpha) {
+    //   node->alpha = result->score;
+    // }
+
+    if (result->score >= node->beta) {
+      if (mv != killer[KMT(node->ply, 0)] && ENABLE_TABLES) {
+        killer[KMT(node->ply, 1)] = killer[KMT(node->ply, 0)];
+        killer[KMT(node->ply, 0)] = mv;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+
 static inline void perform_scout_search_expand_serial(int *break_flag, 
              searchNode *node,
              sortable_move_t *move_list,
@@ -88,7 +116,7 @@ static inline void perform_scout_search_expand_serial(int *break_flag,
     }
 
     // process the score. Note that this mutates fields in node.
-    bool cutoff = search_process_score(node, mv, local_index, &result, SEARCH_SCOUT);
+    bool cutoff = search_process_score_local(node, mv, local_index, &result, SEARCH_SCOUT);
 
     if (cutoff) {
       node->abort = true;
@@ -138,7 +166,7 @@ void perform_scout_search_expand(int *break_flag,
 
     // process the score. Note that this mutates fields in node.
     simple_acquire(mutex);
-    bool cutoff = search_process_score(node, mv, local_index, &result, SEARCH_SCOUT);
+    bool cutoff = search_process_score_local(node, mv, local_index, &result, SEARCH_SCOUT);
     simple_release(mutex);
 
     if (cutoff) {
