@@ -98,6 +98,7 @@ static void initialize_pv_node(searchNode* node, int depth) {
 //
 // https://chessprogramming.wikispaces.com/Principal+Variation+Search
 static score_t searchPV(searchNode *node, int depth, uint64_t *node_count_serial) {
+  
   // Initialize the searchNode data structure.
   initialize_pv_node(node, depth);
 
@@ -148,13 +149,13 @@ static score_t searchPV(searchNode *node, int depth, uint64_t *node_count_serial
 
   for (int mv_index = 0; mv_index < num_of_moves; mv_index++) {
     // Incrementally sort the move list.
-    
 
     move_t mv = get_move(move_list[mv_index]);
 
     num_moves_tried++;
     (*node_count_serial)++;
 
+    
     moveEvaluationResult result = evaluateMove(node, mv, killer_a, killer_b,
                                                SEARCH_PV,
                                                node_count_serial);
@@ -174,10 +175,12 @@ static score_t searchPV(searchNode *node, int depth, uint64_t *node_count_serial
       return 0;
     }
 
+    
     bool cutoff = search_process_score(node, mv, mv_index, &result, SEARCH_PV);
     if (cutoff) {
       break;
     }
+
   }
 
   if (node->quiescence == false) {
@@ -260,8 +263,9 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
     (*node_count_serial)++;
 
     // make the move.
+    
     victims_t x = make_move(&(rootNode.position), &(next_node.position), mv);
-
+    
     if (is_KO(x)) {
       continue;  // not a legal move
     }
@@ -277,17 +281,16 @@ score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,
       next_node.subpv = 0;
       goto scored;
     }
-
     if (mv_index == 0 || rootNode.depth == 1) {
       // We guess that the first move is the principle variation
       score = -searchPV(&next_node, rootNode.depth-1, node_count_serial);
+      
       // Check if we should abort due to time control.
       if (abortf) {
         return 0;
       }
     } else {
       score = -scout_search(&next_node, rootNode.depth-1, node_count_serial);
-
       // Check if we should abort due to time control.
       if (abortf) {
         return 0;

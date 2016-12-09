@@ -161,7 +161,7 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
   tbassert(ptype_of(p->board[sq]) == KING,
            "ptype: %d\n", ptype_of(p->board[sq]));
   laser_map |= (1ULL << loc64);
-
+  
   while (true) {
     sq += beam_of(bdir);
     int x = ptype_of(p->board[sq]);

@@ -376,7 +376,8 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
   piece_t from_piece = p->board[from_sq];
   piece_t to_piece = p->board[to_sq];
 
-  
+    
+  // printf("?? %d %d\n", from_sq, to_sq);
 
   if (to_sq != from_sq) {  // move, not rotation
     // Hash key updates
@@ -453,6 +454,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
   // static int count = 0, cnt = 0;
   // count += 1;
 
+  
   while ((victim_sq = fire_laser(p, color_to_move_of(old)))) {
     WHEN_DEBUG_VERBOSE({
         square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
@@ -491,6 +493,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       break;
     }
   }
+  
 
   // square_t from_sq = from_square(mv);
   // square_t to_sq = to_square(mv);
@@ -523,8 +526,12 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       if (match) return KO();
     }
   }
-  p -> laser[0] = mark_laser_path_bit(p, 0);
-  p -> laser[1] = mark_laser_path_bit(p, 1);
+  // printf("in\n");
+  if (!(p->victims & 128)) {
+    p -> laser[0] = mark_laser_path_bit(p, 0);
+    p -> laser[1] = mark_laser_path_bit(p, 1);
+  }
+  // printf("out\n");
   return p->victims;
 }
 
