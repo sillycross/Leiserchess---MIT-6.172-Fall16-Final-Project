@@ -173,8 +173,8 @@ static inline bool valid_move(searchNode *node, move_t mv) {
     return false;
   if (fs == ts && !ro && pce != KING)
     return false;
-  uint64_t laser_map = mark_laser_path_bit(&node -> position, opp_color(node -> position.ply & 1));
-  if (laser_map & sq_to_board_bit[fs])
+  // uint64_t laser_map = mark_laser_path_bit(&node -> position, opp_color(node -> position.ply & 1));
+  if (node -> position.laser[opp_color(node -> position.ply & 1)] & sq_to_board_bit[fs])
     return false;
   return true;
 }

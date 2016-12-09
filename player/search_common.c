@@ -247,6 +247,9 @@ leafEvalResult evaluate_as_leaf(searchNode *node, searchType_t type) {
 }
 
 
+
+
+
 static inline bool check_zero_victims(position_t *old, move_t mv) {
   square_t from_sq = from_square(mv);
   square_t to_sq = to_square(mv);
@@ -276,6 +279,9 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   moveEvaluationResult result;
   result.next_node.subpv = 0;
   result.next_node.parent = node;
+
+
+
   
   if (node->quiescence) {
       // if (is_game_over(victims, node->pov, node->ply) && check_zero_victims(&(node->position), mv) == true) {
@@ -333,7 +339,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
 
   
   // Make the move, and get any victim pieces.
-  victims_t victims = make_move(&(node->position), &(result.next_node.position),
+  victims_t victims = make_move2(&(node->position), &(result.next_node.position),
                                 mv);
 
 
@@ -377,10 +383,16 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
     return result;
   }
 
+  
+  result.next_node.position.laser[0] = mark_laser_path_bit(&(result.next_node.position), 0);
+  result.next_node.position.laser[1] = mark_laser_path_bit(&(result.next_node.position), 1);
+  
   // Extend the search-depth by 1 if we captured a piece, since that means the
   // move was interesting.
   //
   // https://chessprogramming.wikispaces.com/Capture+Extensions
+
+
   if (victim_exists(victims) && !blunder) {
     ext = 1;
   }
@@ -388,6 +400,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   // Late move reductions - or LMR. Only done in scout search.
   //
   // https://chessprogramming.wikispaces.com/Late+Move+Reductions
+
   int next_reduction = 0;
   if (type == SEARCH_SCOUT && node->legal_move_count + 1 >= LMR_R1 && node->depth > 2 &&
       zero_victims(victims) && mv != killer_a && mv != killer_b) {

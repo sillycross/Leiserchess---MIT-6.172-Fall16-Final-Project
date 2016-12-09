@@ -492,23 +492,9 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     }
   }
 
-  square_t from_sq = from_square(mv);
-  square_t to_sq = to_square(mv);
+  // square_t from_sq = from_square(mv);
+  // square_t to_sq = to_square(mv);
 
-  if (p->victims) {
-    p->laser[0] = mark_laser_path_bit(p, 0);
-    p->laser[1] = mark_laser_path_bit(p, 1);
-  }else {
-    if ((sq_to_board_bit[from_sq] & p->laser[0]) || (sq_to_board_bit[to_sq] & p->laser[0]))
-      p->laser[0] = mark_laser_path_bit(p, 0);
-    if ((sq_to_board_bit[from_sq] & p->laser[1]) || (sq_to_board_bit[to_sq] & p->laser[1]))
-      p->laser[1] = mark_laser_path_bit(p, 1);
-  }
-
-  // if (p -> victims)
-  //   cnt += 1;
-  // if (count % 1000000 == 0)
-  // printf("%d %lf\n", count, 1.0 * cnt / count);
   if (USE_KO) {  // Ko rule
     if (p->key == (old->key ^ zob_color) && p->mask[0] == old->mask[0] && p->mask[1] == old->mask[1]) {
       bool match = true;
@@ -537,7 +523,99 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
       if (match) return KO();
     }
   }
+  p -> laser[0] = mark_laser_path_bit(p, 0);
+  p -> laser[1] = mark_laser_path_bit(p, 1);
+  return p->victims;
+}
 
+victims_t make_move2(position_t *old, position_t *p, move_t mv) {
+
+  tbassert(mv != 0, "mv was zero.\n");
+
+  WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
+
+  // move phase 1 - moving a piece
+  low_level_make_move(old, p, mv);
+  
+  //================================================
+
+  // move phase 2 - shooting the laser
+  square_t victim_sq = 0;
+  p->victims = 0;
+  
+  // static int count = 0, cnt = 0;
+  // count += 1;
+
+  while ((victim_sq = fire_laser(p, color_to_move_of(old)))) {
+    WHEN_DEBUG_VERBOSE({
+        square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
+        DEBUG_LOG(1, "Zapping piece on %s\n", buf);
+      });
+
+    // we definitely hit something with laser, remove it from board
+    piece_t victim_piece = p->board[victim_sq];
+    p->victims ++;
+    p->victims |= 16 << color_of(victim_piece);
+    p->key ^= zob[victim_sq][victim_piece];
+    p->board[victim_sq] = 0;
+    p->key ^= zob[victim_sq][0];
+    p->mask[color_of(victim_piece)] ^= sq_to_board_bit[victim_sq];
+    
+    tbassert(p->key == compute_zob_key(p),
+             "p->key: %"PRIu64", zob-key: %"PRIu64"\n",
+             p->key, compute_zob_key(p));
+    tbassert(p->mask[0] == compute_mask(p, 0),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[0], compute_mask(p, 0));
+    tbassert(p->mask[1] == compute_mask(p, 1),
+           "p->mask: %"PRIu64", mask: %"PRIu64"\n",
+           p->mask[1], compute_mask(p, 1));
+
+    WHEN_DEBUG_VERBOSE({
+        square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
+        DEBUG_LOG(1, "Zapped piece on %s\n", buf);
+      });
+
+    // laser halts on king
+    if (ptype_of(victim_piece) == KING) {
+      p->victims |= 128;
+      if (color_of(victim_piece))
+        p->victims |= 64;
+      break;
+    }
+  }
+
+  // square_t from_sq = from_square(mv);
+  // square_t to_sq = to_square(mv);
+
+  if (USE_KO) {  // Ko rule
+    if (p->key == (old->key ^ zob_color) && p->mask[0] == old->mask[0] && p->mask[1] == old->mask[1]) {
+      bool match = true;
+
+
+      for (fil_t f = FIL_ORIGIN * ARR_WIDTH; f < FIL_ORIGIN * ARR_WIDTH + BOARD_WIDTH * ARR_WIDTH; f += ARR_WIDTH) {
+        for (rnk_t r = f + RNK_ORIGIN; r < f + RNK_ORIGIN + BOARD_WIDTH; ++r) {
+          if (p -> board[r] != old -> board[r])
+            match = false;
+        }
+      }
+
+      if (match) return KO();
+    }
+
+    if (p->key == old->history->key && p->mask[0] == old->history->mask[0] && p->mask[1] == old->history->mask[1]) {
+      bool match = true;
+
+      for (fil_t f = FIL_ORIGIN * ARR_WIDTH; f < FIL_ORIGIN * ARR_WIDTH + BOARD_WIDTH * ARR_WIDTH; f += ARR_WIDTH) {
+        for (rnk_t r = f + RNK_ORIGIN; r < f + RNK_ORIGIN + BOARD_WIDTH; ++r) {
+          if (p -> board[r] != old -> history -> board[r])
+            match = false;
+        }
+      }
+
+      if (match) return KO();
+    }
+  }
   return p->victims;
 }
 

@@ -256,6 +256,7 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
 void do_perft(position_t *gme, int depth, int ply);
 void low_level_make_move(position_t *old, position_t *p, move_t mv);
 victims_t make_move(position_t *old, position_t *p, move_t mv);
+victims_t make_move2(position_t *old, position_t *p, move_t mv);
 
 void display(position_t *p);
 

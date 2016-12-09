@@ -148,6 +148,10 @@ ev_score_t kaggressive(position_t *p, fil_t f, rnk_t r) {
 static const int beam_64[NUM_ORI] = {1, 8, -1, -8};
 
 uint64_t mark_laser_path_bit(position_t *p, color_t c) {
+  // static int count = 0;
+  // count += 1;
+  // if (count % 10000 == 0)
+  //   printf("%d\n", count);
   square_t sq = p->kloc[c];
   int loc64 = fil_of(sq) * 8 + rnk_of(sq);
   uint64_t laser_map = 0;
@@ -160,33 +164,22 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
 
   while (true) {
     sq += beam_of(bdir);
-    if (ptype_of(p->board[sq]) == INVALID)
+    int x = ptype_of(p->board[sq]);
+    if (x == INVALID)
       return laser_map;
-    tbassert(sq < ARR_SIZE && sq >= 0, "sq: %d\n", sq);
+    // tbassert(sq < ARR_SIZE && sq >= 0, "sq: %d\n", sq);
     loc64 += beam_64[bdir];
     laser_map |= (1ULL << loc64);
-
-    switch (ptype_of(p->board[sq])) {
-      case EMPTY:  // empty square
-        break;
-      case PAWN:  // Pawn
-        bdir = reflect_of(bdir, ori_of(p->board[sq]));
-        if (bdir < 0) {  // Hit back of Pawn
-          p->kill_d[c] = true;
-          return laser_map;
-        }
-        break;
-      case KING:  // King
+    if (x == KING) {
+      p->kill_d[c] = true;
+      return laser_map;
+    }
+    if (x == PAWN) {
+      bdir = reflect_of(bdir, ori_of(p->board[sq]));
+      if (bdir < 0) {  // Hit back of Pawn
         p->kill_d[c] = true;
-        return laser_map;  // sorry, game over my friend!
-        break;
-      // This is checked above
-      // case INVALID:  // Ran off edge of board
-      //   return laser_map;
-      //   break;
-      default:  // Shouldna happen, man!
-        tbassert(false, "Not cool, man.  Not cool.\n");
-        break;
+        return laser_map;
+      }
     }
   }
   return laser_map;
