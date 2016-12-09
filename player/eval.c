@@ -152,6 +152,7 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
   int loc64 = fil_of(sq) * 8 + rnk_of(sq);
   uint64_t laser_map = 0;
   int bdir = ori_of(p->board[sq]);
+  p->kill_d[c] = false;
 
   tbassert(ptype_of(p->board[sq]) == KING,
            "ptype: %d\n", ptype_of(p->board[sq]));
@@ -171,10 +172,12 @@ uint64_t mark_laser_path_bit(position_t *p, color_t c) {
       case PAWN:  // Pawn
         bdir = reflect_of(bdir, ori_of(p->board[sq]));
         if (bdir < 0) {  // Hit back of Pawn
+          p->kill_d[c] = true;
           return laser_map;
         }
         break;
       case KING:  // King
+        p->kill_d[c] = true;
         return laser_map;  // sorry, game over my friend!
         break;
       // This is checked above
@@ -240,6 +243,8 @@ int h_squares_attackable(position_t *p, color_t c, uint64_t laser_map) {
 score_t eval(position_t *p, bool verbose) {
   // seed rand_r with a value of 1, as per
   // http://linux.die.net/man/3/rand_r
+
+  
   static __thread unsigned int seed = 1;
   
   int t = checkEndGame(p);
@@ -248,6 +253,7 @@ score_t eval(position_t *p, bool verbose) {
 	  if (t==1) return WINNING_SCORE; else return -WINNING_SCORE;
   }
   
+
   ev_score_t score = 0;
   
   fil_t f0 = fil_of(p -> kloc[0]);
@@ -287,8 +293,10 @@ score_t eval(position_t *p, bool verbose) {
     score -= pcentral(i);
   }
 
-  uint64_t laser_WHITE = mark_laser_path_bit(p, WHITE);
-  uint64_t laser_BLACK = mark_laser_path_bit(p, BLACK);
+  uint64_t laser_WHITE = p -> laser[0];
+  uint64_t laser_BLACK = p -> laser[1];
+  // if (laser_WHITE != p -> laser[0])
+  //   printf("error\n");
   
   // H_SQUARES_ATTACKABLE heuristic
   ev_score_t w_hattackable = HATTACK * h_squares_attackable(p, WHITE, laser_WHITE);

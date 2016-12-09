@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #include "./move_gen.h"
+#include "./eval.h"
 #include "./tbassert.h"
 
 static void fen_error(char *fen, int c_count, char *msg) {
@@ -420,6 +421,8 @@ int fen_to_pos(position_t *p, char *fen) {
     p->key = compute_zob_key(p);
     p->mask[0] = compute_mask(p, 0);
     p->mask[1] = compute_mask(p, 1);
+    p->laser[0] = mark_laser_path_bit(p, 0);
+    p->laser[1] = mark_laser_path_bit(p, 1);
     return 0;
   }
 

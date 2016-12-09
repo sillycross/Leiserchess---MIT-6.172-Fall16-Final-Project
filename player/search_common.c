@@ -246,19 +246,96 @@ leafEvalResult evaluate_as_leaf(searchNode *node, searchType_t type) {
   return result;
 }
 
+
+static inline bool check_zero_victims(position_t *old, move_t mv) {
+  square_t from_sq = from_square(mv);
+  square_t to_sq = to_square(mv);
+
+  if (old -> kill_d[color_to_move_of(old)]
+    || (sq_to_board_bit[from_sq] & old -> laser[color_to_move_of(old)])
+    || (sq_to_board_bit[to_sq] & old -> laser[color_to_move_of(old)]))
+  return false;
+    else
+  return true;
+
+  // if (old -> laser[0] != mark_laser_path_bit(old, 0))
+  //   printf("error\n");
+  // if (old -> laser[1] != mark_laser_path_bit(old, 1))
+  //   printf("error\n");
+  // return false;
+}
+
+
 // Evaluate the move by performing a search.
 moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
                                   move_t killer_b, searchType_t type,
                                   uint64_t *node_count_serial) {
+
   int ext = 0;  // extensions
   bool blunder = false;  // shoot our own piece
   moveEvaluationResult result;
   result.next_node.subpv = 0;
   result.next_node.parent = node;
+  
+  if (node->quiescence) {
+      // if (is_game_over(victims, node->pov, node->ply) && check_zero_victims(&(node->position), mv) == true) {
+      //   if (node->position.laser[0] != mark_laser_path_bit(&(node->position), 0))
+      //     printf("error0\n");
+      //   if (node->position.laser[1] != mark_laser_path_bit(&(node->position), 1))
+      //     printf("error1\n");
+        
+      //   for (int i = 0; i < 8; i++) {
+      //     for (int j = 0; j < 8; j++) {
+      //       if (ptype_of(node->position.board[i * 10 + 10 + j + 1]) == EMPTY)
+      //         printf("*");
+      //       else
+      //         printf("%d", color_of(node->position.board[i * 10 + 10 + j + 1]));
+      //     }
+      //     printf("\n");
+      //   }
+      //   printf("\n");
+      //   printf("%d %d\n", from_square(mv), to_square(mv));
+      //   printf("\n");
+      //   printf("%d %d\n", node->position.kloc[0], node->position.kloc[1]);
+      //   printf("%d\n", color_to_move_of(&(node->position)));
+      //   int c = color_to_move_of(&(node->position));
+      //   int cnt = 0;
+      //   for (int i = 0; i < 8; i++) {
+      //     for (int j = 0; j < 8; j++) {
+            
+      //       if (node->position.laser[c] & (1LL << cnt))
+      //         printf("%d", 1);
+      //       else
+      //         printf("%d", 0);
+      //       cnt += 1;
+      //     }
+      //     printf("\n");
+      //   }
+      //   printf("***\n");
+      //   for (int i = 0; i < 8; i++) {
+      //     for (int j = 0; j < 8; j++) {
+      //       if (ptype_of(result.next_node.position.board[i * 10 + 10 + j + 1]) == EMPTY)
+      //         printf("*");
+      //       else
+      //         printf("%d", color_of(result.next_node.position.board[i * 10 + 10 + j + 1]));
+      //     }
+      //     printf("\n");
+      //   }
+      //   printf("%d\n", victims);
+      //   printf("====================\n");
+      // }
+    if (check_zero_victims(&(node->position), mv)) {
+      result.type = MOVE_IGNORE;
+      return result;
+    }
+  }
 
+
+  
   // Make the move, and get any victim pieces.
   victims_t victims = make_move(&(node->position), &(result.next_node.position),
                                 mv);
+
 
   // Check whether this move changes the board state (moves that don't are
   // illegal).
@@ -266,6 +343,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
     result.type = MOVE_ILLEGAL;
     return result;
   }
+
 
   // Check whether the game is over.
   if (is_game_over(victims, node->pov, node->ply)) {
@@ -280,6 +358,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
     result.type = MOVE_IGNORE;
     return result;
   }
+
 
   // Check whether the board state has been repeated, this results in a draw.
   if (is_repeated(&(result.next_node.position), node->ply)) {

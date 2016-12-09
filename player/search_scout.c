@@ -50,16 +50,6 @@ static void initialize_scout_node(searchNode *node, int depth) {
   node->abort = false;
 }
 
-static const uint32_t range_tree_default[128] = {
-  0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-  16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
-  32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,
-  48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,
-  64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,
-  80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,
-  96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,
-  112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127};
-
 static inline void perform_scout_search_expand_serial(int *break_flag, 
              searchNode *node,
              sortable_move_t *move_list,
@@ -158,30 +148,17 @@ void perform_scout_search_expand(int *break_flag,
   }
 }
 
-// Incremental sort of the move list.
-// void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
-//   int lim = 5;
-//   if (num_of_moves < lim) lim = num_of_moves;
-//   for (int i = 0; i < lim; i++)
-//     for (int j = i+1; j < num_of_moves; j++)
-//       if (move_list[i] < move_list[j]) {
-//         sortable_move_t temp = move_list[i];
-//         move_list[i] = move_list[j];
-//         move_list[j] = temp;
-//       }
-// }
-
-static const uint64_t sq_to_board_bit[100] = {
-0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
-0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
-0ULL, 1ULL<<8, 1ULL<<9, 1ULL<<10, 1ULL<<11, 1ULL<<12, 1ULL<<13, 1ULL<<14, 1ULL<<15, 0ULL,
-0ULL, 1ULL<<16, 1ULL<<17, 1ULL<<18, 1ULL<<19, 1ULL<<20, 1ULL<<21, 1ULL<<22, 1ULL<<23, 0ULL,
-0ULL, 1ULL<<24, 1ULL<<25, 1ULL<<26, 1ULL<<27, 1ULL<<28, 1ULL<<29, 1ULL<<30, 1ULL<<31, 0ULL,
-0ULL, 1ULL<<32, 1ULL<<33, 1ULL<<34, 1ULL<<35, 1ULL<<36, 1ULL<<37, 1ULL<<38, 1ULL<<39, 0ULL,
-0ULL, 1ULL<<40, 1ULL<<41, 1ULL<<42, 1ULL<<43, 1ULL<<44, 1ULL<<45, 1ULL<<46, 1ULL<<47, 0ULL,
-0ULL, 1ULL<<48, 1ULL<<49, 1ULL<<50, 1ULL<<51, 1ULL<<52, 1ULL<<53, 1ULL<<54, 1ULL<<55, 0ULL,
-0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
-0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
+// static const uint64_t sq_to_board_bit[100] = {
+// 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
+// 0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
+// 0ULL, 1ULL<<8, 1ULL<<9, 1ULL<<10, 1ULL<<11, 1ULL<<12, 1ULL<<13, 1ULL<<14, 1ULL<<15, 0ULL,
+// 0ULL, 1ULL<<16, 1ULL<<17, 1ULL<<18, 1ULL<<19, 1ULL<<20, 1ULL<<21, 1ULL<<22, 1ULL<<23, 0ULL,
+// 0ULL, 1ULL<<24, 1ULL<<25, 1ULL<<26, 1ULL<<27, 1ULL<<28, 1ULL<<29, 1ULL<<30, 1ULL<<31, 0ULL,
+// 0ULL, 1ULL<<32, 1ULL<<33, 1ULL<<34, 1ULL<<35, 1ULL<<36, 1ULL<<37, 1ULL<<38, 1ULL<<39, 0ULL,
+// 0ULL, 1ULL<<40, 1ULL<<41, 1ULL<<42, 1ULL<<43, 1ULL<<44, 1ULL<<45, 1ULL<<46, 1ULL<<47, 0ULL,
+// 0ULL, 1ULL<<48, 1ULL<<49, 1ULL<<50, 1ULL<<51, 1ULL<<52, 1ULL<<53, 1ULL<<54, 1ULL<<55, 0ULL,
+// 0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
+// 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
 static inline bool valid_move(searchNode *node, move_t mv) {
   if (!mv)
@@ -204,7 +181,9 @@ static inline bool valid_move(searchNode *node, move_t mv) {
 
 static inline void my_sort_incremental(sortable_move_t *move_list, int num_of_moves) {
   int t = num_of_moves / 4 - 1;
-  for (int j = 0; j <= t; j++) {
+  if (t < 2)
+    t = 2;
+  for (int j = 0; j < num_of_moves; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
     while (hole > 0 && insert > move_list[hole-1]) {
@@ -234,6 +213,29 @@ static inline void my_sort_incremental(sortable_move_t *move_list, int num_of_mo
   }
 }
 
+static inline void my_sort_incremental2(sortable_move_t *move_list, int num_of_moves) {
+  num_of_moves -= 1;
+  
+  for (int j = 0; j <= num_of_moves; j++)
+    if (move_list[j] < (1LL << 32)) {
+      sortable_move_t temp = move_list[num_of_moves];
+      move_list[num_of_moves] = move_list[j];
+      move_list[j] = temp;
+      j -= 1;
+      num_of_moves -= 1;
+    }
+
+  for (int j = 0; j <= num_of_moves; j++) {
+    sortable_move_t insert = move_list[j];
+    int hole = j;
+    while (hole > 0 && insert > move_list[hole-1]) {
+      move_list[hole] = move_list[hole-1];
+      hole--;
+    }
+    // memmove(move_list + hole + 1, move_list + hole, (j - hole) * sizeof(sortable_move_t));
+    move_list[hole] = insert;
+  }
+}
 
 static score_t scout_search(searchNode *node, int depth,
                             uint64_t *node_count_serial) {
@@ -265,7 +267,7 @@ static score_t scout_search(searchNode *node, int depth,
   // Store the sorted move list on the stack.
   //   MAX_NUM_MOVES is all that we need.
   
-  sortable_move_t move_list[MAX_NUM_MOVES];
+  
   int number_of_moves_evaluated = 0;
   int break_flag = 0;
   
@@ -297,10 +299,18 @@ static score_t scout_search(searchNode *node, int depth,
     move_list2[number_of_moves_evaluated] = killer_b;
     perform_scout_search_expand_serial(&break_flag, node, move_list2, node_count_serial, killer_a, killer_b, &number_of_moves_evaluated);
   }
-
+  // static long long count = 0, cnt = 0, count1 = 0, cnt1 = 0;
+  // count += 1;
   if (!break_flag) {
+    sortable_move_t move_list[MAX_NUM_MOVES];
     int num_of_moves = get_sortable_move_list2(node, move_list, hash_table_move, killer_a, killer_b);
-    sort_incremental(move_list, num_of_moves);
+    // cnt += 1;
+    // count1 += num_of_moves;
+    // for (int i = 0; i < num_of_moves; i++)
+    //   if (move_list[i] < (1LL << 32))
+    //     cnt1 += 1;
+    // printf("%.5lf %.5lf %.5lf\n", 1.0 * cnt / count, 1.0 * cnt1 / count1, 1.0 * count1 / cnt);
+    my_sort_incremental2(move_list, num_of_moves);
     simple_mutex_t mutex;
     init_simple_mutex(&mutex);
 

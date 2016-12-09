@@ -16,17 +16,17 @@
 #include "./tbassert.h"
 #include "./util.h"
 
-static const uint64_t sq_to_board_bit[100] = {
-0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
-0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
-0ULL, 1ULL<<8, 1ULL<<9, 1ULL<<10, 1ULL<<11, 1ULL<<12, 1ULL<<13, 1ULL<<14, 1ULL<<15, 0ULL,
-0ULL, 1ULL<<16, 1ULL<<17, 1ULL<<18, 1ULL<<19, 1ULL<<20, 1ULL<<21, 1ULL<<22, 1ULL<<23, 0ULL,
-0ULL, 1ULL<<24, 1ULL<<25, 1ULL<<26, 1ULL<<27, 1ULL<<28, 1ULL<<29, 1ULL<<30, 1ULL<<31, 0ULL,
-0ULL, 1ULL<<32, 1ULL<<33, 1ULL<<34, 1ULL<<35, 1ULL<<36, 1ULL<<37, 1ULL<<38, 1ULL<<39, 0ULL,
-0ULL, 1ULL<<40, 1ULL<<41, 1ULL<<42, 1ULL<<43, 1ULL<<44, 1ULL<<45, 1ULL<<46, 1ULL<<47, 0ULL,
-0ULL, 1ULL<<48, 1ULL<<49, 1ULL<<50, 1ULL<<51, 1ULL<<52, 1ULL<<53, 1ULL<<54, 1ULL<<55, 0ULL,
-0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
-0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
+// static const uint64_t sq_to_board_bit[100] = {
+// 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL,
+// 0ULL, 1ULL<<0, 1ULL<<1, 1ULL<<2, 1ULL<<3, 1ULL<<4, 1ULL<<5, 1ULL<<6, 1ULL<<7, 0ULL,
+// 0ULL, 1ULL<<8, 1ULL<<9, 1ULL<<10, 1ULL<<11, 1ULL<<12, 1ULL<<13, 1ULL<<14, 1ULL<<15, 0ULL,
+// 0ULL, 1ULL<<16, 1ULL<<17, 1ULL<<18, 1ULL<<19, 1ULL<<20, 1ULL<<21, 1ULL<<22, 1ULL<<23, 0ULL,
+// 0ULL, 1ULL<<24, 1ULL<<25, 1ULL<<26, 1ULL<<27, 1ULL<<28, 1ULL<<29, 1ULL<<30, 1ULL<<31, 0ULL,
+// 0ULL, 1ULL<<32, 1ULL<<33, 1ULL<<34, 1ULL<<35, 1ULL<<36, 1ULL<<37, 1ULL<<38, 1ULL<<39, 0ULL,
+// 0ULL, 1ULL<<40, 1ULL<<41, 1ULL<<42, 1ULL<<43, 1ULL<<44, 1ULL<<45, 1ULL<<46, 1ULL<<47, 0ULL,
+// 0ULL, 1ULL<<48, 1ULL<<49, 1ULL<<50, 1ULL<<51, 1ULL<<52, 1ULL<<53, 1ULL<<54, 1ULL<<55, 0ULL,
+// 0ULL, 1ULL<<56, 1ULL<<57, 1ULL<<58, 1ULL<<59, 1ULL<<60, 1ULL<<61, 1ULL<<62, 1ULL<<63, 0ULL,
+// 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL, 0ULL};
 
 int USE_KO;  // Respect the Ko rule
 
@@ -291,6 +291,14 @@ square_t fire_laser(position_t *p, color_t c) {
   }
 }
 
+// bool check_zero_victims(position_t *old, move_t mv) {
+//   if (old -> laser[0] != mark_laser_path_bit(old, 0))
+//     printf("error\n");
+//   if (old -> laser[1] != mark_laser_path_bit(old, 1))
+//     printf("error\n");
+//   return false;
+// }
+
 void low_level_make_move(position_t *old, position_t *p, move_t mv) {
   tbassert(mv != 0, "mv was zero.\n");
 
@@ -405,6 +413,9 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
     p->key ^= zob[from_sq][from_piece];              // ... and in hash
   }
 
+  // p->laser[0] = mark_laser_path_bit(p, 0);
+  // p->laser[1] = mark_laser_path_bit(p, 1);
+
   // Increment ply
   p->ply++;
 
@@ -427,6 +438,7 @@ void low_level_make_move(position_t *old, position_t *p, move_t mv) {
 
 // return victim pieces or KO
 victims_t make_move(position_t *old, position_t *p, move_t mv) {
+
   tbassert(mv != 0, "mv was zero.\n");
 
   WHEN_DEBUG_VERBOSE(char buf[MAX_CHARS_IN_MOVE]);
@@ -438,6 +450,9 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
   square_t victim_sq = 0;
   p->victims = 0;
   
+  // static int count = 0, cnt = 0;
+  // count += 1;
+
   while ((victim_sq = fire_laser(p, color_to_move_of(old)))) {
     WHEN_DEBUG_VERBOSE({
         square_to_str(victim_sq, buf, MAX_CHARS_IN_MOVE);
@@ -452,7 +467,7 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     p->board[victim_sq] = 0;
     p->key ^= zob[victim_sq][0];
     p->mask[color_of(victim_piece)] ^= sq_to_board_bit[victim_sq];
-
+    
     tbassert(p->key == compute_zob_key(p),
              "p->key: %"PRIu64", zob-key: %"PRIu64"\n",
              p->key, compute_zob_key(p));
@@ -477,6 +492,23 @@ victims_t make_move(position_t *old, position_t *p, move_t mv) {
     }
   }
 
+  square_t from_sq = from_square(mv);
+  square_t to_sq = to_square(mv);
+
+  if (p->victims) {
+    p->laser[0] = mark_laser_path_bit(p, 0);
+    p->laser[1] = mark_laser_path_bit(p, 1);
+  }else {
+    if ((sq_to_board_bit[from_sq] & p->laser[0]) || (sq_to_board_bit[to_sq] & p->laser[0]))
+      p->laser[0] = mark_laser_path_bit(p, 0);
+    if ((sq_to_board_bit[from_sq] & p->laser[1]) || (sq_to_board_bit[to_sq] & p->laser[1]))
+      p->laser[1] = mark_laser_path_bit(p, 1);
+  }
+
+  // if (p -> victims)
+  //   cnt += 1;
+  // if (count % 1000000 == 0)
+  // printf("%d %lf\n", count, 1.0 * cnt / count);
   if (USE_KO) {  // Ko rule
     if (p->key == (old->key ^ zob_color) && p->mask[0] == old->mask[0] && p->mask[1] == old->mask[1]) {
       bool match = true;
@@ -572,6 +604,8 @@ static uint64_t perft_search(position_t *p, int depth, int ply) {
     node_count += partialcount;
   }
 
+  np.laser[0] = mark_laser_path_bit(&np, 0);
+  np.laser[1] = mark_laser_path_bit(&np, 1);
   return node_count;
 }
 
