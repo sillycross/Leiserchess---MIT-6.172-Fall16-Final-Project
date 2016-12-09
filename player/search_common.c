@@ -280,64 +280,6 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
   result.next_node.subpv = 0;
   result.next_node.parent = node;
 
-
-
-  
-  if (node->quiescence) {
-      // if (is_game_over(victims, node->pov, node->ply) && check_zero_victims(&(node->position), mv) == true) {
-      //   if (node->position.laser[0] != mark_laser_path_bit(&(node->position), 0))
-      //     printf("error0\n");
-      //   if (node->position.laser[1] != mark_laser_path_bit(&(node->position), 1))
-      //     printf("error1\n");
-        
-      //   for (int i = 0; i < 8; i++) {
-      //     for (int j = 0; j < 8; j++) {
-      //       if (ptype_of(node->position.board[i * 10 + 10 + j + 1]) == EMPTY)
-      //         printf("*");
-      //       else
-      //         printf("%d", color_of(node->position.board[i * 10 + 10 + j + 1]));
-      //     }
-      //     printf("\n");
-      //   }
-      //   printf("\n");
-      //   printf("%d %d\n", from_square(mv), to_square(mv));
-      //   printf("\n");
-      //   printf("%d %d\n", node->position.kloc[0], node->position.kloc[1]);
-      //   printf("%d\n", color_to_move_of(&(node->position)));
-      //   int c = color_to_move_of(&(node->position));
-      //   int cnt = 0;
-      //   for (int i = 0; i < 8; i++) {
-      //     for (int j = 0; j < 8; j++) {
-            
-      //       if (node->position.laser[c] & (1LL << cnt))
-      //         printf("%d", 1);
-      //       else
-      //         printf("%d", 0);
-      //       cnt += 1;
-      //     }
-      //     printf("\n");
-      //   }
-      //   printf("***\n");
-      //   for (int i = 0; i < 8; i++) {
-      //     for (int j = 0; j < 8; j++) {
-      //       if (ptype_of(result.next_node.position.board[i * 10 + 10 + j + 1]) == EMPTY)
-      //         printf("*");
-      //       else
-      //         printf("%d", color_of(result.next_node.position.board[i * 10 + 10 + j + 1]));
-      //     }
-      //     printf("\n");
-      //   }
-      //   printf("%d\n", victims);
-      //   printf("====================\n");
-      // }
-    if (check_zero_victims(&(node->position), mv)) {
-      result.type = MOVE_IGNORE;
-      return result;
-    }
-  }
-
-
-  
   // Make the move, and get any victim pieces.
   victims_t victims = make_move2(&(node->position), &(result.next_node.position),
                                 mv);
@@ -564,6 +506,12 @@ static int get_sortable_move_list2(searchNode *node, sortable_move_t * move_list
     } else if (mv == killer_b) {
       set_sort_key(&move_list[mv_index], SORT_MASK - 2);
     } else {
+      if (node -> quiescence && check_zero_victims(&(node -> position), mv)) {
+        move_list[mv_index] = move_list[num_of_moves - 1];
+        num_of_moves -= 1;
+        mv_index -= 1;
+        continue;
+      }
       ptype_t  pce = ptype_mv_of(mv);
       rot_t    ro  = rot_of(mv);   // rotation
       square_t fs  = from_square(mv);
