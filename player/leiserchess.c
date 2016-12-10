@@ -24,6 +24,8 @@
 #include "./tbassert.h"
 #include "./tt.h"
 #include "./util.h"
+#include "./openbook.h"
+
 #define get_move(mv) ((mv) & MOVE_MASK)
 
 char  VERSION[] = "1038";
@@ -185,7 +187,7 @@ void *entry_point(void *arg) {
   int depth = real_arg->depth;
   position_t *p = real_arg->p;
   double tme = real_arg->tme;
-
+  
   double et = 0.0;
 
   // start time of search
@@ -232,9 +234,13 @@ void UciBeginSearch(position_t *p, int depth, double tme) {
   args.p = p;
   args.tme = tme;
   node_count_serial = 0;
-  entry_point(&args);
-
+  
+  if (check_is_in_openbook(p, OUT)) {
+    pthread_mutex_unlock(&entry_mutex);
+    return;
+  }
   char bms[MAX_CHARS_IN_MOVE];
+  entry_point(&args);
   move_to_str(bestMoveSoFar, bms, MAX_CHARS_IN_MOVE);
   snprintf(theMove, MAX_CHARS_IN_MOVE, "%s", bms);
   fprintf(OUT, "bestmove %s\n", bms);
