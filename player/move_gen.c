@@ -181,9 +181,9 @@ int generate_all(position_t *p, sortable_move_t *sortable_move_list,
   
   // 1 = path of laser with no moves
   // mark_laser_path(p, opp_color(color_to_move), laser_map, 1);
-  uint64_t laser_map = mark_laser_path_bit(p, opp_color(color_to_move));
+  // uint64_t laser_map = mark_laser_path_bit(p, opp_color(color_to_move));
   int move_count = 0;
-  uint64_t mask = p -> mask[color_to_move] & ~laser_map;
+  uint64_t mask = p -> mask[color_to_move] & ~p -> laser[opp_color(color_to_move)];
   while (mask) {
     uint64_t y = mask & (-mask);
     mask ^= y;
