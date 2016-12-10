@@ -96,7 +96,7 @@ static int_options iopts[] = {
   { "pawnpin",             &PAWNPIN,   0.4 * PAWN_EV_VALUE,   0,              PAWN_EV_VALUE },
   { "pbetween",           &PBETWEEN,   0.2 * PAWN_EV_VALUE,   -PAWN_EV_VALUE, PAWN_EV_VALUE },
   { "pcentral",           &PCENTRAL,   0.05 * PAWN_EV_VALUE,  -PAWN_EV_VALUE, PAWN_EV_VALUE },
-  { "hash",                   &HASH,   16,                    1,              MAX_HASH   },
+  { "hash",                   &HASH,   64,                    1,              MAX_HASH   },
   { "draw",                   &DRAW,   -0.07 * PAWN_VALUE,    -PAWN_VALUE,    PAWN_VALUE    },
   { "randomize",         &RANDOMIZE,   0,                     0,              PAWN_EV_VALUE },
   { "lmr_r1",               &LMR_R1,   5,                     1,              MAX_NUM_MOVES },
