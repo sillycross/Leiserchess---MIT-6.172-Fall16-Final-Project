@@ -53,9 +53,9 @@
 		\frametitle{Validation of the Idea}
 		Validating the idea on real-world data:\pause
 		\begin{itemize}
-		\item[*] Downloaded the most recent 83000 games from Scrimmage.
-		\item[*] Training Set: about 39000 Scrimmage games.\pause
-		\item[*] Test Set: about 44000 Scrimmage games.\pause
+		\item[*] Downloaded the most recent 83000 games from Scrimmage.\pause
+		\item[*] Training Set: about 39000 games.\pause
+		\item[*] Test Set: about 44000 games.\pause
 		\item[*] Consider the first \textcolor{dred}{5} rounds of game.\pause
 		\item[*] In Training Set, \textcolor{fgreen}{782} openings occurred at least \textcolor{fgreen}{twice}.\pause
 		\item[*] In Testing Set, \textcolor{fgreen}{2/3} of the openings falls into the 782 openings.\pause
@@ -97,7 +97,7 @@
 		
 		Impossible to calculate all of them with a single machine!\pause
 		
-		\textcolor{fgreen}{Distributed computing!}
+		\textcolor{fgreen}{Distributed computing!}\pause
 		
 		\begin{itemize}
 		\item[*] LAMP (Linux+Apache+MySQL+PHP) web server to distribute down tasks and collect up results.\pause
@@ -140,7 +140,7 @@
 		An unlucky bad move in the hotspot of openbook might actually degrade performance.\pause
 		\end{itemize}
 		
-		Experiments shows both explanations are correct.
+		Experiments shows \textcolor{fgreen}{both} explanations are correct.
 	\end{frame}
 	
 	\begin{frame}
@@ -184,8 +184,8 @@
 		In the end, our openbook:\pause
 		\begin{itemize}
 		\item[*] Contains about \textcolor{fgreen}{200000} game states arose from \textcolor{fgreen}{140000} games.\pause
-		\item[*] Almost always hits the first \textcolor{fgreen}{5} rounds.\pause
-		\item[*] With a good probability, hits \textcolor{fgreen}{7} or \textcolor{fgreen}{8} rounds.\pause
+		\item[*] Almost always hits \textcolor{fgreen}{6} rounds.\pause
+		\item[*] With high probability hits \textcolor{fgreen}{7} or \textcolor{fgreen}{8} rounds.\pause
 		\item[*] Can sometime even reach \textcolor{fgreen}{10} rounds or more.
 		\end{itemize}
 	\end{frame}

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Arch Linux) (preloaded format=pdflatex 2016.6.8)  12 DEC 2016 00:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Arch Linux) (preloaded format=pdflatex 2016.6.8)  12 DEC 2016 03:38
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1047,14 +1047,14 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <4> not available
 
 ] [25
 
+] [26
+
 ]
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/sc' in size <10> not available
 (Font)              Font shape `OT1/cmr/m/sc' tried instead on input line 108.
 
-[26
-
-] [27
+[27
 
 ] [28
 
@@ -1064,20 +1064,20 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/sc' in size <10> not available
 
 ] [31
 
+] [32
+
+] [33
+
 ]
-<screenshot1.png, id=849, 398.99063pt x 223.58531pt>
+<screenshot1.png, id=904, 398.99063pt x 223.58531pt>
 File: screenshot1.png Graphic file (type png)
  <use screenshot1.png>
 Package pdftex.def Info: screenshot1.png used on input line 118.
 (pdftex.def)             Requested size: 199.49483pt x 111.79237pt.
 
-[32
+[34
 
- <./screenshot1.png (PNG copy)>] [33
-
-] [34
-
-] [35
+ <./screenshot1.png (PNG copy)>] [35
 
 ] [36
 
@@ -1089,12 +1089,12 @@ Package pdftex.def Info: screenshot1.png used on input line 118.
 
 ] [40
 
-]
-[41
+] [41
 
 ] [42
 
-] [43
+]
+[43
 
 ] [44
 
@@ -1120,16 +1120,20 @@ Package pdftex.def Info: screenshot1.png used on input line 118.
 
 ] [55
 
-]
-[56
+] [56
 
 ] [57
 
-] [58
+]
+[58
 
 ] [59
 
 ] [60
+
+] [61
+
+] [62
 
 ]
 \tf@nav=\write6
@@ -1156,9 +1160,9 @@ LaTeX Font Warning: Size substitutions with differences
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 202.
  ) 
 Here is how much of TeX's memory you used:
- 18781 strings out of 493054
- 349434 string characters out of 6140587
- 448296 words of memory out of 5000000
+ 18785 strings out of 493054
+ 349472 string characters out of 6140587
+ 448297 words of memory out of 5000000
  21744 multiletter control sequences out of 15000+600000
  5259 words of font info for 20 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1167,10 +1171,10 @@ Here is how much of TeX's memory you used:
 /texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texmf-dist/fo
 nts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texmf-dist/fonts/type1/publ
 ic/amsfonts/cm/cmss8.pfb>
-Output written on slide.pdf (60 pages, 185151 bytes).
+Output written on slide.pdf (62 pages, 189623 bytes).
 PDF statistics:
- 1658 PDF objects out of 1728 (max. 8388607)
- 1563 compressed objects within 16 object streams
- 121 named destinations out of 1000 (max. 500000)
+ 1712 PDF objects out of 1728 (max. 8388607)
+ 1614 compressed objects within 17 object streams
+ 125 named destinations out of 1000 (max. 500000)
  78 words of extra memory for PDF output out of 10000 (max. 10000000)
 
