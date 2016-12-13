@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.6.12)  12 DEC 2016 23:26
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.6.12)  12 DEC 2016 23:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -969,32 +969,46 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <4> not available
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./slide.toc) [2
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+<scrimmage_old.png, id=64, 439.6425pt x 407.5225pt>
+File: scrimmage_old.png Graphic file (type png)
+ <use scrimmage_old.png>
+Package pdftex.def Info: scrimmage_old.png used on input line 93.
+(pdftex.def)             Requested size: 139.3972pt x 129.20973pt.
+
+<scrimmage_current.png, id=66, 876.27374pt x 814.04124pt>
+File: scrimmage_current.png Graphic file (type png)
+
+<use scrimmage_current.png>
+Package pdftex.def Info: scrimmage_current.png used on input line 93.
+(pdftex.def)             Requested size: 139.3972pt x 129.49156pt.
+ [2
+
+ <./scrimmage_old.png> <./scrimmage_current.png>] (./slide.toc) [3
+
+] (./slide.toc) [4
 
 ]
-(./slide.toc) [3
+LaTeX Font Info:    Try loading font information for OT1+pcr on input line 109.
 
-]
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 86.
- (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-LaTeX Font Info:    Try loading font information for U+msa on input line 86.
+LaTeX Font Info:    Try loading font information for U+msa on input line 109.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 86.
+LaTeX Font Info:    Try loading font information for U+msb on input line 109.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [4
+) [5
 
-] [5
+] [6
 
-] (./slide.toc) [6
-
-] [7
+] (./slide.toc) [7
 
 ] [8
 
@@ -1016,18 +1030,18 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 ] [17
 
+] [18
+
 ]
-<screenshot1.png, id=507, 398.99063pt x 223.58531pt>
+<screenshot1.png, id=538, 398.99063pt x 223.58531pt>
 File: screenshot1.png Graphic file (type png)
  <use screenshot1.png>
-Package pdftex.def Info: screenshot1.png used on input line 186.
+Package pdftex.def Info: screenshot1.png used on input line 209.
 (pdftex.def)             Requested size: 199.49483pt x 111.79237pt.
 
-[18
+[19
 
- <./screenshot1.png (PNG copy)>] [19
-
-] [20
+ <./screenshot1.png (PNG copy)>] [20
 
 ] [21
 
@@ -1039,14 +1053,16 @@ Package pdftex.def Info: screenshot1.png used on input line 186.
 
 ] [25
 
+] [26
+
 ]
-(./slide.toc) [26
+(./slide.toc) [27
 
-] [27
+] [28
 
-] (./slide.toc) [28
+] (./slide.toc) [29
 
-] [29
+] [30
 
 ]
 \tf@nav=\write6
@@ -1058,11 +1074,11 @@ Package pdftex.def Info: screenshot1.png used on input line 186.
 \tf@snm=\write8
 \openout8 = `slide.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 291.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 291.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 314.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 314.
  (./slide.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 291.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 291.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 314.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 314.
 Package rerunfilecheck Info: File `slide.out' has not changed.
 (rerunfilecheck)             Checksum: B317AF7D3101A401CA789ACD41E609C8;227.
 
@@ -1070,13 +1086,13 @@ Package rerunfilecheck Info: File `slide.out' has not changed.
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 291.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 314.
  ) 
 Here is how much of TeX's memory you used:
- 17804 strings out of 493304
- 323153 string characters out of 6139871
+ 17819 strings out of 493304
+ 323430 string characters out of 6139871
  423353 words of memory out of 5000000
- 20754 multiletter control sequences out of 15000+600000
+ 20765 multiletter control sequences out of 15000+600000
  8745 words of font info for 34 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
  49i,16n,64p,394b,640s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1088,10 +1104,10 @@ f-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist
 public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
 c/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier
 /ucrr8a.pfb>
-Output written on slide.pdf (29 pages, 148738 bytes).
+Output written on slide.pdf (30 pages, 309376 bytes).
 PDF statistics:
- 870 PDF objects out of 1000 (max. 8388607)
- 813 compressed objects within 9 object streams
- 63 named destinations out of 1000 (max. 500000)
- 92 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 901 PDF objects out of 1000 (max. 8388607)
+ 839 compressed objects within 9 object streams
+ 65 named destinations out of 1000 (max. 500000)
+ 102 words of extra memory for PDF output out of 10000 (max. 10000000)
 
