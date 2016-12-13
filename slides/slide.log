@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Arch Linux) (preloaded format=pdflatex 2016.6.8)  12 DEC 2016 23:50
+=======
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.8.12)  12 DEC 2016 23:46
+>>>>>>> 0c08f940dcebdcd974127400ce422e008be6604c
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1001,12 +1005,12 @@ File: scrimmage_old.png Graphic file (type png)
 Package pdftex.def Info: scrimmage_old.png used on input line 93.
 (pdftex.def)             Requested size: 139.3972pt x 129.20973pt.
 
-<scrimmage_current.png, id=66, 876.27374pt x 814.04124pt>
+<scrimmage_current.png, id=66, 876.27374pt x 817.0525pt>
 File: scrimmage_current.png Graphic file (type png)
 
 <use scrimmage_current.png>
 Package pdftex.def Info: scrimmage_current.png used on input line 93.
-(pdftex.def)             Requested size: 139.3972pt x 129.49156pt.
+(pdftex.def)             Requested size: 139.3972pt x 129.97057pt.
  [2
 
  <./scrimmage_old.png> <./scrimmage_current.png>] (./slide.toc) [3
@@ -1137,6 +1141,7 @@ LaTeX Font Warning: Size substitutions with differences
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 361.
  ) 
 Here is how much of TeX's memory you used:
+<<<<<<< HEAD
  18901 strings out of 493054
  351387 string characters out of 6140587
  445848 words of memory out of 5000000
@@ -1153,6 +1158,25 @@ ist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr/share/texmf-dist/fonts/typ
 e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/urw/courier
 /ucrr8a.pfb>
 Output written on slide.pdf (37 pages, 333335 bytes).
+=======
+ 17837 strings out of 493304
+ 323595 string characters out of 6139871
+ 423353 words of memory out of 5000000
+ 20770 multiletter control sequences out of 15000+600000
+ 9051 words of font info for 35 fonts, out of 8000000 for 9000
+ 957 hyphenation exceptions out of 8191
+ 49i,16n,64p,394b,640s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a
+.pfb>
+Output written on slide.pdf (36 pages, 329865 bytes).
+>>>>>>> 0c08f940dcebdcd974127400ce422e008be6604c
 PDF statistics:
  1097 PDF objects out of 1200 (max. 8388607)
  1025 compressed objects within 11 object streams
