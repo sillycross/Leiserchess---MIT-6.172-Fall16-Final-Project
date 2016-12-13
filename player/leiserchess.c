@@ -98,7 +98,7 @@ static int_options iopts[] = {
   { "pawnpin",             &PAWNPIN,   0.4 * PAWN_EV_VALUE,   0,              PAWN_EV_VALUE },
   { "pbetween",           &PBETWEEN,   0.2 * PAWN_EV_VALUE,   -PAWN_EV_VALUE, PAWN_EV_VALUE },
   { "pcentral",           &PCENTRAL,   0.05 * PAWN_EV_VALUE,  -PAWN_EV_VALUE, PAWN_EV_VALUE },
-  { "hash",                   &HASH,   64,                    1,              MAX_HASH   },
+  { "hash",                   &HASH,   1024,                    1,              MAX_HASH   },
   { "draw",                   &DRAW,   -0.07 * PAWN_VALUE,    -PAWN_VALUE,    PAWN_VALUE    },
   { "randomize",         &RANDOMIZE,   0,                     0,              PAWN_EV_VALUE },
   { "lmr_r1",               &LMR_R1,   5,                     1,              MAX_NUM_MOVES },
@@ -187,7 +187,7 @@ void *entry_point(void *arg) {
   int depth = real_arg->depth;
   position_t *p = real_arg->p;
   double tme = real_arg->tme;
-  
+
   double et = 0.0;
 
   // start time of search
@@ -234,7 +234,7 @@ void UciBeginSearch(position_t *p, int depth, double tme) {
   args.p = p;
   args.tme = tme;
   node_count_serial = 0;
-  
+
   if (check_is_in_openbook(p, OUT)) {
     pthread_mutex_unlock(&entry_mutex);
     return;

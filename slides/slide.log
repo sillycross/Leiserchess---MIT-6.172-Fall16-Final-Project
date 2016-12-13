@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.8.12)  12 DEC 2016 22:35
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.8.12)  12 DEC 2016 22:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1021,7 +1021,7 @@ LaTeX Font Warning: Font shape `OT1/cmss/m/sc' in size <10> not available
 
 ] [17
 
-] <screenshot1.png, id=507, 398.99063pt x 223.58531pt>
+] <screenshot1.png, id=508, 398.99063pt x 223.58531pt>
 File: screenshot1.png Graphic file (type png)
 
 <use screenshot1.png>
@@ -1091,12 +1091,13 @@ mf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dis
 t/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/font
 s/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier
-/ucrr8a.pfb>
-Output written on slide.pdf (29 pages, 146422 bytes).
+c/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr
+8a.pfb>
+Output written on slide.pdf (29 pages, 154263 bytes).
 PDF statistics:
- 870 PDF objects out of 1000 (max. 8388607)
- 813 compressed objects within 9 object streams
+ 874 PDF objects out of 1000 (max. 8388607)
+ 816 compressed objects within 9 object streams
  63 named destinations out of 1000 (max. 500000)
  92 words of extra memory for PDF output out of 10000 (max. 10000000)
 

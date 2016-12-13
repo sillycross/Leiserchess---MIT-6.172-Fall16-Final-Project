@@ -81,7 +81,7 @@
         \begin{itemize}
             \itema Get a list of possible moves
             \itema Sort the moves
-            \itema Check if the move is concerned, in order
+            \itema Check each move in order, do a recursive search if {\it necessary}
         \end{itemize}
     \end{frame}
 
@@ -150,12 +150,12 @@
 		\frametitle{Calculating Openbook}
 		Generating popular openings:
 		\begin{itemize}
-		\item[*] Used MySQL to manage data set for its convience and power,
+		\item[*] Used MySQL to manage data set for its convenience and power,
 		and easiness to interact with web applications.
 		\item[*] Downloaded the most recent 83000 games from Scrimmage.
 		\item[*] Extracted frequent openings, and store them into MySQL.
 		\item[*] Search depth varies from \textcolor{fgreen}{9} to \textcolor{fgreen}{11} for each opening move.
-		\item[*] Openings with higher \# of occurences are calculated with deeper depth, for a possibly better move.
+		\item[*] Openings with higher \# of occurrences are calculated with deeper depth, for a possibly better move.
 		\end{itemize}
 	\end{frame}
 
@@ -204,7 +204,7 @@
 		\begin{itemize}
 		\item[*] The opening patterns of ReferencePlus are not captured in the data
 		(at the time we capture data ReferencePlus is still not available).
-		\item[*] A deeper search doesn't gaurenteed a better move, but just gives a good move with higher probability.
+		\item[*] A deeper search doesn't guaranteed a better move, but just gives a good move with higher probability.
 		An unlucky bad move in the hotspot of openbook might actually degrade performance.
 		\end{itemize}
 
@@ -214,7 +214,7 @@
 	\begin{frame}
 		\frametitle{Boosting Openbook}
 
-		Addressing the problem casued by missing opening patterns:
+		Addressing the problem caused by missing opening patterns:
 
 		\textcolor{fgreen}{Add the games played against ReferencePlus into Openbook!}
 
@@ -253,13 +253,13 @@
 		\begin{itemize}
 		\item[*] Contains about \textcolor{fgreen}{200000} game states arose from \textcolor{fgreen}{140000} games.
 		\item[*] Almost always hits \textcolor{fgreen}{6} rounds.
-		\item[*] With high probability hits \textcolor{fgreen}{7} or \textcolor{fgreen}{8} rounds.
+		\item[*] With good probability hits \textcolor{fgreen}{7} or \textcolor{fgreen}{8} rounds.
 		\item[*] Can sometime even reach \textcolor{fgreen}{10} rounds or more.
 		\end{itemize}
 	\end{frame}
 
 	\begin{frame}
-		\frametitle{Openbook Final Results aganist Refplus}
+		\frametitle{Openbook Final Results against Refplus}
 
 		\tred{remember to add in final result against refplus..}
 
