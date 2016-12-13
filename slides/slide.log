@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.6.12)  12 DEC 2016 23:34
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2014.8.12)  12 DEC 2016 23:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -976,12 +976,12 @@ File: scrimmage_old.png Graphic file (type png)
 Package pdftex.def Info: scrimmage_old.png used on input line 93.
 (pdftex.def)             Requested size: 139.3972pt x 129.20973pt.
 
-<scrimmage_current.png, id=66, 876.27374pt x 814.04124pt>
+<scrimmage_current.png, id=66, 876.27374pt x 817.0525pt>
 File: scrimmage_current.png Graphic file (type png)
 
 <use scrimmage_current.png>
 Package pdftex.def Info: scrimmage_current.png used on input line 93.
-(pdftex.def)             Requested size: 139.3972pt x 129.49156pt.
+(pdftex.def)             Requested size: 139.3972pt x 129.97057pt.
  [2
 
  <./scrimmage_old.png> <./scrimmage_current.png>] (./slide.toc) [3
@@ -1104,7 +1104,7 @@ Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 352.
 Here is how much of TeX's memory you used:
  17837 strings out of 493304
  323595 string characters out of 6139871
- 424353 words of memory out of 5000000
+ 423353 words of memory out of 5000000
  20770 multiletter control sequences out of 15000+600000
  9051 words of font info for 35 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
@@ -1118,7 +1118,7 @@ public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
 amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfo
 nts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrr8a
 .pfb>
-Output written on slide.pdf (36 pages, 331311 bytes).
+Output written on slide.pdf (36 pages, 329865 bytes).
 PDF statistics:
  1066 PDF objects out of 1200 (max. 8388607)
  996 compressed objects within 10 object streams

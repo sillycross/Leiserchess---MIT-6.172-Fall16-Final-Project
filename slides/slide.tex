@@ -83,7 +83,7 @@
         \centering
         \includegraphics[width=0.9\textwidth]{scrimmage_current.png}
 
-        Current: 1418
+        Current: 1433
         \end{minipage}
         \end{table}
         \centering
@@ -192,7 +192,7 @@
 
 		\begin{itemize}
 		\item[*] LAMP (Linux+Apache+MySQL+PHP) web server to distribute down tasks and collect up results.
-		\item[*] Clients use \tt{wget} to interact with web server.
+		\item[*] Clients use {\tt wget} to interact with web server.
 		\item[*] \textcolor{fgreen}{150+} CPUs in Microsoft Azure.
 		\item[*] \textcolor{fgreen}{15000+} CPU Hours in total.
 		\end{itemize}
@@ -271,9 +271,9 @@
 
 	\begin{frame}
 		\frametitle{Boosting Openbook}
-		
+
 		Is there a better first move?\pause
-		
+
 		Experimented with 8 first moves:
 		\begin{itemize}
 		\item[*] \textcolor{fgreen}{5} Pawn moves (considered ``\textcolor{fgreen}{good}'' by Bot hueristic).
@@ -290,23 +290,23 @@ h0h1 & \textcolor{fgreen}{83\%} & f4L  & 76\% & h0L  & 73\% & h4h5 & 71\% \\\hli
 
 {\small WR based on a better AI, for relative comparision only.}
 		\end{center}
-		
+
 		King move ``h0h1'' has highest winrate.
-		
+
 	\end{frame}
-	
+
 	\begin{frame}
 		\frametitle{Boosting Openbook}
-		
+
 		\begin{itemize}
 		\item[*] In the 140000 game records we downloaded, the starting King
 		\item move ``h0h1'' (also ``h0L'') has never been used by anyone.\pause
 		\item[*] Yet it yields the highest winrate. \pause
 		\item[*] Hueristic function and depth are not absolute measurement criteria.
 		\end{itemize}
-		
+
 	\end{frame}
-	
+
 	\begin{frame}
 		\frametitle{Openbook Summary}
 
