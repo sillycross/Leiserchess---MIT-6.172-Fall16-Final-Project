@@ -1,13 +1,5 @@
-<<<<<<< HEAD
-\beamer@endinputifotherversion {3.36pt}
-\beamer@sectionintoc {1}{Bottleneck Improvement}{3}{0}{1}
-\beamer@sectionintoc {2}{Openbook}{6}{0}{2}
-\beamer@sectionintoc {3}{Constant Optimization}{32}{0}{3}
-\beamer@sectionintoc {4}{Strategies without performance gains}{34}{0}{4}
-=======
 \beamer@endinputifotherversion {3.24pt}
 \beamer@sectionintoc {1}{Bottleneck Improvement}{4}{0}{1}
 \beamer@sectionintoc {2}{Openbook}{7}{0}{2}
-\beamer@sectionintoc {3}{Constant Optimization}{27}{0}{3}
-\beamer@sectionintoc {4}{Strategies without performance gains}{29}{0}{4}
->>>>>>> df2c8d7bfb4cfba9732de0367d9e593d66169d87
+\beamer@sectionintoc {3}{Constant Optimization}{33}{0}{3}
+\beamer@sectionintoc {4}{Strategies without performance gains}{35}{0}{4}
