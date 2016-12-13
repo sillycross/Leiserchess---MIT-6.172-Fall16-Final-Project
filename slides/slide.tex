@@ -123,7 +123,7 @@
 		\item[*] Test Set: about 44000 games.
 		\pause
 		\item[*] Consider the first \textcolor{dred}{5} rounds of game.
-		\item[*] In Training Set, \textcolor{fgreen}{782 (2\%)} openings occurred at least \textcolor{fgreen}{twice}.
+		\item[*] In Training Set, \textcolor{fgreen}{782} (\textcolor{fgreen}{2\%}) openings occurred at least \textcolor{fgreen}{twice}.
 		\item[*] In Testing Set, \textcolor{fgreen}{2/3} of the openings falls into the 782 openings.
 		\end{itemize}
 		\pause
@@ -237,7 +237,7 @@
 
 		\begin{itemize}
 		\item[*] Might the opening move ``h4g5'' actually be a bad move?
-		\item[*] Rotate the King in the first move!
+		\item[*] Rotate the King in the first move! (h0L)
 		\item[*] Now the game is very similar to as if we were moving second.
 		\end{itemize}
 
@@ -246,6 +246,44 @@
 		Together with boosted openbook: \textcolor{fgreen}{69\%} winrate against ReferencePlus!
 	\end{frame}
 
+	\begin{frame}
+		\frametitle{Boosting Openbook}
+		
+		Is there a better first move?\pause
+		
+		Experimented with 8 first moves:
+		\begin{itemize}
+		\item[*] \textcolor{fgreen}{5} Pawn moves (considered ``\textcolor{fgreen}{good}'' by Bot hueristic).
+		\item[*] \textcolor{fgreen}{3} King moves (considered ``\textcolor{dred}{bad}'' by Bot hueristic).
+		\end{itemize}
+		\pause
+		\begin{center}
+\begin{tabular}{cc|cc|cc|cc}\hline\hline
+Move & WR   & Move & WR   & Move & WR   & Move & WR   \\\hline
+h0h1 & \textcolor{fgreen}{83\%} & f4L  & 76\% & h0L  & 73\% & h4h5 & 71\% \\\hline\hline
+\end{tabular}
+
+\
+
+{\small WR based on a better AI, for relative comparision only.}
+		\end{center}
+		
+		King move ``h0h1'' has highest winrate.
+		
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Boosting Openbook}
+		
+		\begin{itemize}
+		\item[*] In the 140000 game records we downloaded, the starting King
+		\item move ``h0h1'' (also ``h0L'') has never been used by anyone.\pause
+		\item[*] Yet it yields the highest winrate. \pause
+		\item[*] Hueristic function and depth are not absolute measurement criteria.
+		\end{itemize}
+		
+	\end{frame}
+	
 	\begin{frame}
 		\frametitle{Openbook Summary}
 
