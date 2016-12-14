@@ -1,6 +1,6 @@
 CC = clang
 TARGET := leiserchess
-SRC := util.c tt.c fen.c move_gen.c search.c eval.c closebook.c openbook.c
+SRC := all.c closebook.c openbook.c
 OBJ := $(SRC:.c=.o)
 UNAME := $(shell uname)
 
@@ -66,7 +66,7 @@ default : $(TARGET)
 search.c: search_scout.c
 
 
-leiserchess : leiserchess.o $(OBJ)
+leiserchess : all.o $(OBJ)
 	$(CC) $^ $(LDFLAGS) -o $@ -lrt
 
 clean :

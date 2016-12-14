@@ -31,7 +31,7 @@
 #include "./fasttime.h"
 #endif
 void debug_log(int log_level, const char *str, ...);
-double  milliseconds();
-uint64_t myrand();
+static inline double  milliseconds();
+static inline uint64_t myrand();
 
 #endif  // UTIL_H

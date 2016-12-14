@@ -51,25 +51,25 @@ inline static void set_sort_key(sortable_move_t *mv, sort_key_t key) {
   return;
 }
 
-void init_abort_timer(double goal_time) {
+static inline void init_abort_timer(double goal_time) {
   sstart = milliseconds();
   // don't go over any more than 3 times the goal
   timeout = sstart + goal_time * 3.0;
 }
 
-double elapsed_time() {
+static inline double elapsed_time() {
   return milliseconds() - sstart;
 }
 
-bool should_abort() {
+static inline bool should_abort() {
   return abortf;
 }
 
-void reset_abort() {
+static inline void reset_abort() {
   abortf = false;
 }
 
-void init_tics() {
+static inline void init_tics() {
   tics = 0;
 }
 
@@ -77,7 +77,7 @@ void init_tics() {
 //   return (move_t) (sortable_mv & MOVE_MASK);
 // }
 
-static score_t get_draw_score(position_t *p, int ply) {
+static inline  score_t get_draw_score(position_t *p, int ply) {
   position_t *x = p->history;
   uint64_t cur = p->key;
   score_t score;
@@ -106,7 +106,7 @@ static score_t get_draw_score(position_t *p, int ply) {
 
 
 // Detect move repetition
-static bool is_repeated(position_t *p, int ply) {
+static inline  bool is_repeated(position_t *p, int ply) {
   if (!DETECT_DRAWS) {
     return false;  // no draw detected
   }
@@ -135,14 +135,14 @@ static bool is_repeated(position_t *p, int ply) {
 // check the victim pieces returned by the move to determine if it's a
 // game-over situation.  If so, also calculate the score depending on
 // the pov (which player's point of view)
-static bool is_game_over(victims_t victims, int pov, int ply) {
+static inline  bool is_game_over(victims_t victims, int pov, int ply) {
   if (victims & 128) {
     return true;
   }
   return false;
 }
 
-static score_t get_game_over_score(victims_t victims, int pov, int ply) {
+static inline  score_t get_game_over_score(victims_t victims, int pov, int ply) {
   score_t score;
   if (victims & 64) {
     score = WIN * pov;
@@ -157,7 +157,7 @@ static score_t get_game_over_score(victims_t victims, int pov, int ply) {
   return score;
 }
 
-static void getPV(move_t pv, char *buf, size_t bufsize) {
+static inline  void getPV(move_t pv, char *buf, size_t bufsize) {
   buf[0] = 0;
   if (pv) {
   // for (int i = 0; i < 1 && pv[i] != 0; i++) {
@@ -170,7 +170,7 @@ static void getPV(move_t pv, char *buf, size_t bufsize) {
   }
 }
 
-static void print_move_info(move_t mv, int ply) {
+static inline  void print_move_info(move_t mv, int ply) {
   char buf[MAX_CHARS_IN_MOVE];
   move_to_str(mv, buf, MAX_CHARS_IN_MOVE);
   printf("info");
@@ -183,7 +183,7 @@ static void print_move_info(move_t mv, int ply) {
 
 // Evaluates the node before performing a full search.
 //   does a few things differently if in scout search.
-leafEvalResult evaluate_as_leaf(searchNode *node, searchType_t type) {
+static inline leafEvalResult evaluate_as_leaf(searchNode *node, searchType_t type) {
   leafEvalResult result;
   result.type = MOVE_IGNORE;
   result.score = -INF;
@@ -270,7 +270,7 @@ static inline bool check_zero_victims(position_t *old, move_t mv) {
 
 
 // Evaluate the move by performing a search.
-moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
+static inline moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
                                   move_t killer_b, searchType_t type,
                                   uint64_t *node_count_serial) {
 
@@ -398,7 +398,7 @@ moveEvaluationResult evaluateMove(searchNode *node, move_t mv, move_t killer_a,
 }
 
 // Incremental sort of the move list.
-void sort_incremental(sortable_move_t *move_list, int num_of_moves) {
+static inline void sort_incremental(sortable_move_t *move_list, int num_of_moves) {
   for (int j = 0; j < num_of_moves; j++) {
     sortable_move_t insert = move_list[j];
     int hole = j;
@@ -411,7 +411,7 @@ void sort_incremental(sortable_move_t *move_list, int num_of_moves) {
 }
 
 // Returns true if a cutoff was triggered, false otherwise.
-bool search_process_score(searchNode *node, move_t mv, int mv_index,
+static inline bool search_process_score(searchNode *node, move_t mv, int mv_index,
                                 moveEvaluationResult *result, searchType_t type) {
   if (result->score > node->best_score) {
     node->best_score = result->score;
@@ -439,7 +439,7 @@ bool search_process_score(searchNode *node, move_t mv, int mv_index,
 }
 
 // Check if we should abort.
-bool should_abort_check() {
+static inline bool should_abort_check() {
   tics++;
   if ((tics & ABORT_CHECK_PERIOD) == 0) {
     if (milliseconds() >= timeout) {
@@ -453,7 +453,7 @@ bool should_abort_check() {
 // Obtain a sorted move list.
 //
 // https://chessprogramming.wikispaces.com/Move+Ordering
-static int get_sortable_move_list(searchNode *node, sortable_move_t * move_list,
+static inline  int get_sortable_move_list(searchNode *node, sortable_move_t * move_list,
                          int hash_table_move) {
   // number of moves in list
   int num_of_moves = generate_all(&(node->position), move_list, false);
@@ -486,7 +486,7 @@ static int get_sortable_move_list(searchNode *node, sortable_move_t * move_list,
 }
 
 
-static int get_sortable_move_list2(searchNode *node, sortable_move_t * move_list,
+static inline int get_sortable_move_list2(searchNode *node, sortable_move_t * move_list,
                          int hash_table_move, int killer_a, int killer_b) {
   // number of moves in list
   int num_of_moves = generate_all(&(node->position), move_list, false);

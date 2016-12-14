@@ -6,13 +6,33 @@
 //   parallelize scout search separately from searchPV.
 
 #include "./tbassert.h"
-#include "./simple_mutex.h"
+// #include "./simple_mutex.h"
+
+
+typedef int simple_mutex_t;
+
+static inline void init_simple_mutex(simple_mutex_t* mutex) {
+  *mutex = 0;
+}
+
+static inline void simple_acquire(simple_mutex_t* mutex) {
+  while (!__sync_bool_compare_and_swap(mutex, 0, 1)) {
+    continue;  // Did not acquire lock yet.
+  }
+}
+
+static inline void simple_release(simple_mutex_t* mutex) {
+  __sync_bool_compare_and_swap(mutex, 1, 0);
+  // if (!__sync_bool_compare_and_swap(mutex, 1, 0)) {
+  //   printf("ERROR!\n");
+  // }
+}
 
 #include <cilk/cilk.h>
 
 // Checks whether a node's parent has aborted.
 //   If this occurs, we should just stop and return 0 immediately.
-bool parallel_parent_aborted(searchNode* node) {
+static inline bool parallel_parent_aborted(searchNode* node) {
   searchNode* pred = node->parent;
   while (pred != NULL) {
     if (pred->abort) {
@@ -25,7 +45,7 @@ bool parallel_parent_aborted(searchNode* node) {
 
 // Checks whether this node has aborted due to a cut-off.
 //   If this occurs, we should actually return the score.
-bool parallel_node_aborted(searchNode* node) {
+static inline bool parallel_node_aborted(searchNode* node) {
   if (node->abort) {
     return true;
   }
@@ -35,7 +55,7 @@ bool parallel_node_aborted(searchNode* node) {
 // Initialize a scout search node for a "Null Window" search.
 //   https://chessprogramming.wikispaces.com/Scout
 //   https://chessprogramming.wikispaces.com/Null+Window
-static void initialize_scout_node(searchNode *node, int depth) {
+static inline void initialize_scout_node(searchNode *node, int depth) {
   node->type = SEARCH_SCOUT;
   node->beta = -(node->parent->alpha);
   node->alpha = node->beta - 1;

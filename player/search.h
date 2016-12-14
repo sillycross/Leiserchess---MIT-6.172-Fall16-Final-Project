@@ -63,12 +63,12 @@ typedef struct searchNode {
 } searchNode;
 
 
-void init_tics();
-void init_abort_timer(double goal_time);
-double elapsed_time();
-bool should_abort();
-void reset_abort();
-void init_best_move_history();
+static inline void init_tics();
+static inline void init_abort_timer(double goal_time);
+static inline double elapsed_time();
+static inline bool should_abort();
+static inline void reset_abort();
+static inline void init_best_move_history();
 #define get_move(mv) ((mv) & MOVE_MASK)
 
 score_t searchRoot(position_t *p, score_t alpha, score_t beta, int depth,

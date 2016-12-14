@@ -201,9 +201,9 @@ const char *color_to_str(color_t c);
 #define set_ori(x, ori) *(x) = (((ori) & ORI_MASK) << ORI_SHIFT) | (*(x) & ~(ORI_MASK << ORI_SHIFT));
 //void set_ori(piece_t *x, int ori);
 
-void init_zob();
-uint64_t compute_zob_key(position_t *p);
-uint64_t compute_mask(position_t *p, color_t color);
+static inline void init_zob();
+static inline uint64_t compute_zob_key(position_t *p);
+static inline uint64_t compute_mask(position_t *p, color_t color);
 
 #define square_of(f,r) (ARR_WIDTH * (FIL_ORIGIN + (f)) + RNK_ORIGIN + (r))
 #define fil_of(sq) ((sq) / ARR_WIDTH - FIL_ORIGIN)
@@ -213,7 +213,7 @@ square_t square_of(fil_t f, rnk_t r);
 fil_t fil_of(square_t sq);
 rnk_t rnk_of(square_t sq);
 */
-int square_to_str(square_t sq, char *buf, size_t bufsize);
+static inline int square_to_str(square_t sq, char *buf, size_t bufsize);
 
 // direction map
 static const int dir[8] = { -ARR_WIDTH - 1, -ARR_WIDTH, -ARR_WIDTH + 1, -1, 1,
@@ -251,12 +251,12 @@ static const int reflect[NUM_ORI][NUM_ORI] = {
 //move_t move_of(ptype_t typ, rot_t rot, square_t from_sq, square_t to_sq);
 void move_to_str(move_t mv, char *buf, size_t bufsize);
 
-int generate_all(position_t *p, sortable_move_t *sortable_move_list,
+static inline int generate_all(position_t *p, sortable_move_t *sortable_move_list,
                  bool strict);
 void do_perft(position_t *gme, int depth, int ply);
-void low_level_make_move(position_t *old, position_t *p, move_t mv);
-victims_t make_move(position_t *old, position_t *p, move_t mv);
-victims_t make_move2(position_t *old, position_t *p, move_t mv);
+static inline void low_level_make_move(position_t *old, position_t *p, move_t mv);
+static inline victims_t make_move(position_t *old, position_t *p, move_t mv);
+static inline victims_t make_move2(position_t *old, position_t *p, move_t mv);
 
 void display(position_t *p);
 
