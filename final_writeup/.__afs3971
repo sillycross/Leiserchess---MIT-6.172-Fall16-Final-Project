@@ -9,9 +9,16 @@
 \newlabel{tbl:openbook_rf}{{1}{3}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {1.2.4}Summary}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Constant optimization}{3}}
+<<<<<<< HEAD
 \@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces A table of winrate of our bot before and after adding the openbook, for both Blitz and Regular games. }}{4}}
 \newlabel{tbl:openbook_final}{{2}{4}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Optimization without performance gain}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Generating Closebook}{5}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Other optimizations}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Meetings with MITPOSSE}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Addressing MITPOSSE's comments}{6}}
+=======
+\@writefile{toc}{\contentsline {section}{\numberline {2}Optimization without performance gain}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Generating Closebook}{4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Other optimizations}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Meetings with MITPOSSE}{5}}
+>>>>>>> bcff8577e8b1c87d861f4c21d07caf34ce48c62e
