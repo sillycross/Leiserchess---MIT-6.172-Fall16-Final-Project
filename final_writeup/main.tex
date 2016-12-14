@@ -1,0 +1,208 @@
+\documentclass[10pt,twosidep]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{indentfirst}
+\usepackage{syntonly}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{amsthm}
+\usepackage{xspace}
+
+\usepackage[top = 1.2in, bottom = 1.2in, left = 1.3in, right = 1.3in]{geometry}
+%\usepackage{xcolor}
+%\usepackage{listings}
+%\usepackage{minted}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\pagestyle{fancy}
+%\definecolor{bg}{RGB}{30, 30, 30}
+%\newminted[C++]{cpp}{mathescape, numbersep = 5pt, obeytabs, gobble = 10, frame = single, framesep = -2mm, bgcolor = bg}
+
+\setlength{\parindent}{2em}
+\setlength{\footskip}{30pt}
+\setlength{\baselineskip}{1.3\baselineskip}
+
+\definecolor{fgreen}{rgb}{0.1333,0.5451,0.1333}
+\definecolor{dred}{rgb}{0.5451,0,0}
+
+\newcommand{\tgreen}[1]{\textcolor{fgreen}{#1}}
+\newcommand{\tred}[1]{\textcolor{dred}{#1}}
+
+\newcommand{\scs}{{\tt scout\_search}\xspace}
+
+\title{Project 4 Final Writeup}
+\author{Yuzhou Gu, Haoran Xu, Yinzhan Xu, Chengkai Zhang}
+\maketitle{}
+
+For the final writeup, we first present the optimizations we have made, and their performance, then we give the optimization without much performance gains, as well as our final ranking.  
+
+% \section{Profiling Data}
+% We tested the original program on the command ``go depth 8'' and recorded the profiling. Below shows the six most costly functions.
+
+% \begin{tabular}{ |l|l|l|l|l|l|l|l|l| }
+% \hline
+% scout\_search & pawnpin & h\_squares\_attackable & eval & square\_of & make\_move\\
+% \hline
+% 14.59\% & 13.34\% & 9.71\% & 8.74\% & 6.18\% & 6.04\%\\
+% \hline
+% \end{tabular}
+
+\section{Optimizations made}
+In this section, whenever the speedup is referred to without mentioning the metric, it is measured in terms of nps (nodes per second). That is, if nps before optimization is 1, and after optimization is 2, we say we have $100\%$ speedup.
+
+\subsection{Bottleneck improvement: \scs}
+According to our profiling, the function \scs takes up to 32.55\% of the total time, and it does the following: for a given node, it retrieves a list of all possible moves, sorts these moves, checks each move in order and performs a recursive search if necessary. To improve the performance of \scs, we first parallelized it, which gives  about $120\%$ speedup. Furthermore, we made optimizations based on our observations below: 
+\begin{enumerate}
+    \item We noticed that hash table move from pre-evaluation and killer moves are returned with high probability, so we check them first before generating the move list
+    \item Since a move is ignored when the node is quiescent and there is no victim, so we try to predict whether there is a victim without running the move. Since we are certain that if both  positions involved in the move are not on the current laser path, no new victim can show up, so in this case we exclude the move from the move list. This is a conservative prediction, but it decreases the number of moves in the move list by $2/3$. 
+    \item We noticed that about half of the moves have a sort key of 0, and thus they are checking the last in the move list, and the relative order among these moves are not important. Therefore, we directly move them to the end of the move list and exclude them from the sorting procedure. 
+    \item Since maintaining the node count introduces true sharing between threads, we directly removed it. 
+\end{enumerate}
+
+\subsection{Openbook}
+\subsubsection{Motivation}
+The idea of generating an openbook is based on the assumption that good AI makes similar moves and the number of possible good moves at each given state is limited. 
+
+To justify our assumptions, we downloaded 83000 games from Scrimmage and split them into a training set of 39000 games and a test set of 44000 games. For the first 5 rounds of games, 782 (2\%) openings in the training set occurred at least twice. When comparing with the test set, we noticed that around 30000 ($2/3$) of the games are covered by these 782 openings. Therefore, it suffices to say that an openbook would be useful. 
+
+On the other hand, the advantages provided by openbook is quite tempting: we can search very deep for a good move in the openbook, giving optimized moves for our first several moves, at the cost of {\it no} time at all. Quantitatively, the time saved by openbook under the default timing strategy is 20s in Regular, 8s in Blitz for hitting 5 rounds, and is 38s in Regular and 15s in Blitz for hitting 10 rounds. 
+
+Considering the justification and advantages above, we decided to calculate the openbook. 
+
+\subsubsection{Implementation}
+We first generate all popular openings. For this step, the 83000 downloaded games are used, and frequent openings were stored into MySQL. The search depth for each opening move varies from 9 to 11, with deeper depth used for openings with higher number of occurrences. Over 100000 openings are generated in this step. 
+
+To calculate all these openings, we used distributed computing with LAMP (Linux+Apache+MySQL+PHP) web server to distribute down tasks and collect up results, and each client only needs {\tt wget} to interact with web server. Overall, over 150 CPUs in Microsoft Azure were used, with over 15000 CPU hours in total. 
+
+\subsubsection{Improvements based on test results on ReferencePlus}
+We tested our openbook on one of our bot that has a 50\% winrate against ReferencePlus. When running our bot with openbook with the same bot without openbook, we get a winrate of 61\%. However, the winrate against ReferencePlus decreases to 45\%. Therefore, we made further improvements on our openbook based these results. 
+
+For the decrease in winrate, two reasons are possible: 
+\begin{enumerate}
+    \item The opening patterns of ReferencePlus were not captured in the data (at thetime we capture data ReferencePlus is still not available).
+    \item Deeper search doesn't guarantee a better move, but just a good move with higher probability. So an unlucky bad move in the hotspot of openbook may actually degrade performance.
+\end{enumerate}
+
+To address the first possibility, we add the games played against ReferencePlus into our openbook. The winrate increases steadily, as shown by Table.~\ref{tbl:openbook_rf}. 
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\# games added & 0 & 1500 & 3000 & 4500 \\
+\hline
+winrate & 45\% & 50\% & 56\% & 61\% \\
+\hline
+\end{tabular} 
+\caption{A table of winrate of our bot against ReferencePlus, before and after adding games played against ReferencePlus to openbook. } 
+\label{tbl:openbook_rf}
+\end{table}
+
+To address the second possibility, \tred{todo(lemon): I can't really understand this part of the slide... please fill it up...}
+
+\subsubsection{Summary}
+After all the improvements, our openbook contains about 200000 games arisen from 140000 games. It almost always hits 6 rounds, and can hit 7 or 8 rounds with good probability. Sometimes, even 10 rounds or more are hit in games. 
+
+The winrate against ReferencePlus is also listed in Table.~\ref{tbl:openbook_final}. It clearly shows that our openbook leads to a significant increase in winrate. 
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+    & Blitz & Regular \\
+\hline
+Before  & 74.6\%    & 67.6\%\\
+\hline
+After   & 82.5\%    & 82.3\%\\
+\hline
+Improvement   & 7.9\%    & 14.7\%\\
+\hline
+\end{tabular}
+\caption{A table of winrate of our bot before and after adding the openbook, for both Blitz and Regular games. }
+\label{tbl:openbook_final}
+\end{table}
+
+
+\subsection{Constant optimization}
+We also made constant optimization to improve our code performance. They are listed below: 
+
+\begin{enumerate}
+  \item We used a uint64\_t to store the cells on board that are lasered. This replacement saves some scans of the whole board, and also saved some memory space. Also, in {\tt eval.c}, the laser was computed several times on the same board; since we are using a bitmap, we can simply use a bitmap to store the laser and use this bitmap for all the computation. It gives about $20\%$ speedup.
+  \item We also use a bitmap to store the cells on the board that are white pieces and another bitmap to store the cells that are black pieces (it is supplementary and the original representation is still stored). This helps to reduce some blind scan of the whole board.  It gives about $15\%$ speedup.
+  \item We change ARR\_WIDTH from 16 to 10. Therefore ARR\_SIZE decreases from 256 to 100. This gives about $30\%$ speedup.
+  \item We used some constant tables to reduce work. 
+  The {\tt pcentral} function in {\tt eval.c} repeats calculation a lot of times. We precompute the results and stores the result in a constant table.
+  We use constant table to remove many divisions in the code.
+  These optimizations give about $10\%$ speedup.
+  \item We changed a lot of small functions to inline functions or macros. This gives about $20\%$ speedup.
+  \item We found that in some places, it is unnecessary to use int. We replaced them with appropriate smaller types such as uint8\_t and uint16\_t. This gives about $10\%$ speedup.
+  \item {\tt subpv} in {\tt searchNode} is only used to store the best moves up the search depth, but we really only need the first move. Thus, we deleted the array and replaced it with a variable. This saves memory and thus improves the speed. It gives about $20\%$ speedup.
+  \item We modified some logic in {\tt eval.c} while keeping the result the same. For example, we merged the case for king and for pawn in the switch struct, and then minus score for king out of the loop. Such improvements give a $20\%$ speedup in total.
+  \item We found that it is unnecessary to store the victim pieces; instead, we only need to record some necessary information. Thus, victims\_t can be packed into a int16\_t. This gives about $5\%$ speedup.
+  \item We further made some functions into macros. This gives negligible speedup.
+  \item We changed the set in transposition table to be 4-way set-associative, which gave a significant speedup. 
+\end{enumerate}
+
+\section{Optimization without performance gain}
+\subsection{Generating Closebook}
+
+    We generated a closebook for cases with two kings and only one pawn. However, this does not give much performance gain, since most games end with more than one pawn. In this subsection we list details of our closebook. 
+
+	As suggested in the handout, we generated a closebook 
+	for cases where the total number of pawns is no more than one. 
+	There are 64 positions on the chessboard and each piece has 4 directions, 
+	so there are 256 possibilities for each piece. 
+	Two kings and a pawn gives us about $256^3*2\approx 3.2\times 10^7$ possible chessboard states 
+	(the pawn may belong to either side).
+	Our goal is to calculate precisely which states are winning states and which states are losing states.
+	The huge data scale, not acyclic transition graph and KO rule 
+	(which limits possible moves according to the previous move) complicate the problem.
+	Below we will explain our solution to those complications. 
+
+	\begin{itemize}
+	\item KO rule: KO rule prevents a player to swap back two pieces that are just swapped by the opponent 
+	if no pieces are zagged. Since there are only 3 pieces on the board, only 3 swap moves are possible. 
+	Therefore, we add into our chessboard state an extra variable, denoting if the previous move was a swap move, 
+	and the type of swap move. This enlarges the number of possible states to $256^3*2*4$.
+	\item Storing the transition graph: we compressed a board state into an int, which takes 4 bytes. 
+	There are 17 possible moves on average, so it takes about 8GB memory to store the graph. 
+	\item Since the graph contains cycles, 
+	we cannot use simple DFS to determine the winning states like what we do for decision trees. Instead, 
+	we need to do it in the other direction. 
+	We first figure out the nodes that can be won/will lose in the next move, 
+	record the result for those nodes, and put them into a queue. 
+	Every time we pick out a node and remove the node from graph. 
+	If the node is a losing node, we mark all nodes that can reach it in one move as winning and put them into queue. 
+	If all moves of a node lead to a winning node, we mark this node as losing and put it into queue. 
+	The nodes that are not determined in the process are draw nodes. 
+	\end{itemize}
+	Note that KO rule does affect which opponent wins in some states. In that case 
+	we just record those states as ``uncalculated''. (The number of such cases is very small).
+	To conclude, there are 4 possiblities for each state (win, lose, draw, determined by KO rule), 
+	which can be recorded in 2 bits. The total size of the output table
+	is $256^3*2/4=8$ Megabytes, which is acceptable.
+
+\subsection{Other optimizations}
+During our beta I submission, we used a range tree to replace the incremental sorting used in \scs. However, since the range tree implementation is not compatible with parallelization, we removed the range tree and used the original incremental sorting, with optimizations mentioned in the bottleneck section. 
+
+\section{Addressing MITPOSSE's comments}
+
+We addressed MITPOSSE comments. We 
+\begin{enumerate}
+	\item removed useless code;
+	\item addressed some code style problems, particularly in the closebook generator;
+	\item replaced magic numbers with macros;
+	\item made long functions shorter;
+	\item added comments for auto-generated code.
+\end{enumerate}
+
+We
+\begin{enumerate}
+	\item did not attempt to improve the performance of the closebook generator because performance is not important here.
+\end{enumerate}
+\end{document}
+
