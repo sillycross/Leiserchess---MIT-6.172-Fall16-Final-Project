@@ -205,22 +205,20 @@ We also made constant optimization to improve our code performance. They are lis
 	is $256^3*2/4=8$ Megabytes, which is acceptable.
 
 \subsection{Other optimizations}
-During our beta I submission, we used a range tree to replace the incremental sorting used in \scs. However, since the range tree implementation is not compatible with parallelization, we removed the range tree and used the original incremental sorting, with optimizations mentioned in the bottleneck section. 
+During our beta I submission, we used a range tree to replace the incremental sorting used in \scs. However, since the range tree implementation is not compatible with parallelization, we removed the range tree and used the original incremental sorting, with optimizations mentioned in the bottleneck section.
 
-\section{Addressing MITPOSSE's comments}
-
-We addressed MITPOSSE comments. We 
+\section{Meetings with MITPOSSE}
 \begin{enumerate}
-	\item removed useless code;
-	\item addressed some code style problems, particularly in the closebook generator;
-	\item replaced magic numbers with macros;
-	\item made long functions shorter;
-	\item added comments for auto-generated code.
+	\item Yuzhou Gu.
+	Harry Levinson gave a lot of useful comments, mostly about the closebook generator.
+	\item Haoran Xu.
+	\item Yinzhan Xu.
+	
+	Diego was very kind and valued my codes a lot. He tried to understand my code and gave very useful feedback. Sometimes he even referred to some books and recommended them to me. 
+	
+	In conclusion, I think MITPOSSE's meeting was very useful in improving the readability of my code, and I learned a lot from this experience.
+	\item Chengkai Zhang.
 \end{enumerate}
 
-We
-\begin{enumerate}
-	\item did not attempt to improve the performance of the closebook generator because performance is not important here.
-\end{enumerate}
 \end{document}
 
