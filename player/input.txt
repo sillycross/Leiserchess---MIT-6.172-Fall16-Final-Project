@@ -1,2 +1,0 @@
-go depth 8
-quit

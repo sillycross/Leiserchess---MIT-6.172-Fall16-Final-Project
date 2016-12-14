@@ -1,3 +1,0 @@
-position startpos moves h4g5 b4R g5R d6U d0c1 a3b2 c1U b2R g3R c3d3 h0h1 c5d4 e1e2 b2b1 f2f1 
-go depth 8
-quit
