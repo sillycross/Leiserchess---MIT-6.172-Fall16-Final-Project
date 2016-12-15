@@ -6,8 +6,6 @@ MIT 6.172/6.871 Final Project for Fall 2016.
 Our Results
 -------
 
-<img style="float:right" src="http://i.imgur.com/2vac9IJ.png" />
-
 **Scrimmage Elo rating:**
 
 1544, rank 1 (205 higher than rank 2, 305 higher than reference_plus).
@@ -19,6 +17,8 @@ Rank 1, won all 8 Swiss rounds with a total W/L/T score of 43-5-0.
 **Against reference_plus:** 
 
 85+% win rate in both Blitz and Regular mode. 
+
+<img style="float:right" src="http://i.imgur.com/2vac9IJ.png" />
 
 Special Thanks
 -------
