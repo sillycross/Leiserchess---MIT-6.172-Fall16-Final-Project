@@ -14,11 +14,15 @@ Our Results
 
 Rank 1, won all 8 Swiss rounds with a total W/L/T score of 43-5-0. 
 
+**Final Grading Tournament (statistically significant):**
+
+Rank 1, 90% overall winrate against the other teams' AIs.
+
 **Against reference_plus:** 
 
 85+% win rate in both Blitz and Regular mode. 
 
-<img style="float:right" src="http://i.imgur.com/2vac9IJ.png" />
+<img src="http://i.imgur.com/2vac9IJ.png" />
 
 Special Thanks
 -------
